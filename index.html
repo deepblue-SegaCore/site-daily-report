@@ -434,12 +434,13 @@
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
+            z-index: 9999; /* Increased z-index */
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0,0,0,0.7); /* Darker background for visibility */
+            overflow-y: auto; /* Allow scrolling if needed */
         }
         
         .modal-content {
@@ -955,6 +956,16 @@
                         ➕ Add Work Entry
                     </button>
                     
+                    <!-- Debug Test Button -->
+                    <button type="button" style="background: red; color: white; padding: 10px; margin: 10px 0;" onclick="alert('Test button works!')">
+                        🔍 Test Button (Debug)
+                    </button>
+                    
+                    <!-- Backup Simple Entry Method -->
+                    <button type="button" style="background: orange; color: white; padding: 10px; margin: 10px 0; width: 100%;" onclick="addSimpleWorkEntry()">
+                        📝 Add Simple Work Entry (Backup)
+                    </button>
+                    
                     <div id="work-entries-display">
                         <div class="empty-state" style="padding: 20px; text-align: center; color: #6b7280;">
                             <h4>📄 No work entries yet</h4>
@@ -1105,12 +1116,54 @@
 
         // Work Entry Modal Functions
         function openWorkEntryModal() {
-            document.getElementById('work-entry-modal').style.display = 'block';
+            console.log('Opening work entry modal...');
+            alert('Debug: Add Work Entry button clicked!'); // Debug alert
+            
+            const modal = document.getElementById('work-entry-modal');
+            if (modal) {
+                modal.style.display = 'block';
+                console.log('Modal display set to block');
+                alert('Debug: Modal should now be visible!'); // Debug alert
+            } else {
+                console.error('Modal element not found!');
+                alert('Debug: Modal element not found!'); // Debug alert
+            }
+            
             currentEditingEntry = null;
-            document.getElementById('work-entry-form').reset();
+            const form = document.getElementById('work-entry-form');
+            if (form) {
+                form.reset();
+            }
         }
 
-        function closeWorkEntryModal() {
+        // Alternative simple work entry function (fallback)
+        function addSimpleWorkEntry() {
+            const category = prompt('Work Category (HVAC/EE/FS/BMS/Owner Works/Tenant Works):');
+            if (!category) return;
+            
+            const description = prompt('Work Description:');
+            if (!description) return;
+            
+            const location = prompt('Specific Location (optional):') || '';
+            const manpower = prompt('Manpower (1-10, optional):') || '';
+            
+            const entry = {
+                id: Date.now(),
+                category: category,
+                description: description,
+                specificLocation: location,
+                manpower: manpower,
+                equipmentType: '',
+                equipmentNumber: '',
+                progress: '',
+                notes: '',
+                timestamp: new Date().toLocaleTimeString()
+            };
+            
+            workEntries.push(entry);
+            updateWorkEntriesDisplay();
+            alert('✅ Work entry added successfully!');
+        }
             document.getElementById('work-entry-modal').style.display = 'none';
             currentEditingEntry = null;
         }
