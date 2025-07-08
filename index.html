@@ -3,359 +3,508 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Site Daily Report</title>
-    
-    <!-- Basic Mobile Meta Tags -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Site Report">
-    
+    <title>📊 Site Daily Report</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background-color: #f9fafb;
-            line-height: 1.5;
-        }
-        
-        .container {
-            max-width: 480px;
-            margin: 0 auto;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
             min-height: 100vh;
-            background-color: white;
         }
         
         /* Header */
-        .header {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        .app-header {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
             color: white;
-            padding: 20px;
             text-align: center;
+            padding: 12px;
+            font-weight: 600;
+            font-size: 16px;
         }
         
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 8px;
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            min-height: calc(100vh - 48px);
         }
         
-        .header-info {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        
-        /* Status */
-        .status {
-            background: #10b981;
-            color: white;
-            padding: 12px 20px;
-            text-align: center;
-            font-weight: 500;
-        }
-        
-        /* Tabs */
-        .tabs {
+        /* Navigation Tabs */
+        .nav-tabs {
             display: flex;
             background: white;
-            border-bottom: 2px solid #e5e7eb;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            border-bottom: 1px solid #e5e7eb;
         }
         
-        .tab {
+        .nav-tab {
             flex: 1;
-            padding: 16px 8px;
-            font-size: 14px;
-            font-weight: 600;
+            background: none;
             border: none;
-            background: white;
+            padding: 16px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
             color: #6b7280;
-            cursor: pointer;
             border-bottom: 3px solid transparent;
-            transition: all 0.2s;
-        }
-        
-        .tab.active {
-            color: #3b82f6;
-            border-bottom-color: #3b82f6;
-            background: #eff6ff;
-        }
-        
-        /* Content */
-        .content {
-            padding: 20px;
-            padding-bottom: 120px;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        /* Cards */
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e5e7eb;
-        }
-        
-        .card h3 {
-            color: #f59e0b;
-            font-weight: 700;
-            margin-bottom: 16px;
-            font-size: 18px;
-        }
-        
-        /* Form Elements */
-        .form-group {
-            margin-bottom: 16px;
-        }
-        
-        .form-label {
-            display: block;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-        
-        .form-input, .form-select, .form-textarea {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 16px;
-            background: white;
-            transition: border-color 0.2s;
-        }
-        
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        
-        .form-select {
-            -webkit-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 12px center;
-            background-repeat: no-repeat;
-            background-size: 16px;
-            padding-right: 48px;
-        }
-        
-        /* Buttons */
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border-radius: 8px;
-            border: none;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
         }
         
-        .btn:active {
-            transform: scale(0.98);
+        .nav-tab.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
         }
         
-        .btn-primary {
+        .nav-tab:hover {
+            color: #3b82f6;
+            background: #f8fafc;
+        }
+        
+        /* Content Areas */
+        .content-area {
+            display: none;
+            padding: 20px;
+            min-height: calc(100vh - 120px);
+        }
+        
+        .content-area.active {
+            display: block;
+        }
+        
+        /* Form Sections */
+        .form-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #f3f4f6;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #f97316;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #374151;
+            font-weight: 500;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            background: white;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+            color: #9ca3af;
+        }
+        
+        .form-group textarea:focus {
+            color: #374151;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        /* Photo Upload */
+        .photo-container {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        .photo-item {
+            margin-bottom: 16px;
+        }
+        
+        .photo-label {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        
+        .photo-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        
+        .photo-btn {
+            flex: 1;
+            max-width: 140px;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .photo-btn.camera {
             background: #3b82f6;
             color: white;
         }
         
-        .btn-success {
-            background: #10b981;
+        .photo-btn.gallery {
+            background: #6b7280;
             color: white;
         }
         
-        .btn-warning {
-            background: #f59e0b;
-            color: white;
+        .photo-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         
-        .btn:disabled {
-            background: #d1d5db;
-            color: #9ca3af;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        /* Grid */
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-        
-        /* Photo Section */
-        .photo-section {
-            border: 2px dashed #d1d5db;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-            background: #fafafa;
-        }
-        
-        .photo-preview {
+        /* Work Entry Button */
+        .add-work-btn {
             width: 100%;
-            max-height: 200px;
-            object-fit: cover;
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 16px;
             border-radius: 8px;
-            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
-        .photo-name {
-            font-size: 14px;
-            color: #6b7280;
-            margin-bottom: 12px;
-            font-weight: 500;
+        .add-work-btn:hover {
+            background: #16a34a;
+            transform: translateY(-1px);
         }
         
-        /* Bottom Navigation */
-        .bottom-nav {
+        /* Bottom Action Buttons */
+        .bottom-actions {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             background: white;
-            border-top: 2px solid #e5e7eb;
-            padding: 20px;
-            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+            padding: 16px 20px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 12px;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
         }
         
-        .bottom-nav .btn-group {
-            max-width: 480px;
-            margin: 0 auto;
-        }
-        
-        /* Utilities */
-        .hidden {
-            display: none !important;
-        }
-        
-        .text-center {
-            text-align: center;
-        }
-        
-        /* Entry Display */
-        .entry-card {
-            background: white;
+        .action-btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
             border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 16px;
-            border-left: 4px solid #3b82f6;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        .entry-header {
-            font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 12px;
             font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
-        .entry-details {
+        .btn-draft {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-submit {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Reports Dashboard */
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        
+        .dashboard-header h1 {
+            color: #1f2937;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .dashboard-header p {
+            color: #6b7280;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            color: #6b7280;
+            font-size: 12px;
+        }
+        
+        .reports-list {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .report-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .report-item:last-child {
+            border-bottom: none;
+        }
+        
+        .report-info h4 {
+            color: #1f2937;
             font-size: 14px;
-            line-height: 1.6;
+            font-weight: 600;
+            margin-bottom: 4px;
         }
         
-        .entry-photos {
+        .report-info p {
+            color: #6b7280;
+            font-size: 12px;
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-draft { background: #fef3c7; color: #92400e; }
+        .status-submitted { background: #dbeafe; color: #1e40af; }
+        .status-approved { background: #d1fae5; color: #065f46; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+        
+        .report-actions {
             display: flex;
             gap: 8px;
-            margin-top: 12px;
-            overflow-x: auto;
+            margin-left: 12px;
         }
         
-        .entry-photo {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 6px;
-            flex-shrink: 0;
-        }
-        
-        .success-message {
-            background: #dcfce7;
-            border: 1px solid #16a34a;
-            color: #15803d;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 16px 0;
-            text-align: center;
+        .btn-small {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            font-size: 10px;
             font-weight: 500;
+            cursor: pointer;
         }
         
-        .error-message {
-            background: #fef2f2;
-            border: 1px solid #ef4444;
-            color: #dc2626;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 16px 0;
+        .btn-edit { background: #06b6d4; color: white; }
+        .btn-view { background: #6b7280; color: white; }
+        .btn-delete { background: #dc2626; color: white; }
+        
+        /* Empty State */
+        .empty-state {
             text-align: center;
-            font-weight: 500;
+            padding: 40px 20px;
+            color: #6b7280;
+        }
+        
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+        
+        /* Settings */
+        .settings-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .settings-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f97316;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-save {
+            width: 100%;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        /* Content padding for fixed bottom buttons */
+        .content-area {
+            padding-bottom: 100px;
+        }
+        
+        #my-reports, #settings {
+            padding-bottom: 20px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+            }
+            
+            .content-area {
+                padding: 16px;
+                padding-bottom: 100px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .report-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .report-actions {
+                margin-left: 0;
+                align-self: flex-end;
+            }
+            
+            .nav-tab {
+                font-size: 12px;
+                padding: 12px 8px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- App Header -->
+    <div class="app-header">
+        ✅ App Connected • Ready to Use
+    </div>
+
     <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>📊 Site Daily Report</h1>
-            <div class="header-info">
-                <span id="current-date"></span> • <span id="current-time"></span>
-            </div>
-        </div>
-        
-        <!-- Status -->
-        <div class="status">
-            ✅ App Connected • Ready to Use
-        </div>
-
-        <!-- Tabs -->
-        <div class="tabs">
-            <button class="tab active" onclick="showTab('basic', this)">📝 Basic</button>
-            <button class="tab" onclick="showTab('resources', this)">📋 Resources</button>
-            <button class="tab" onclick="showTab('entries', this)">📊 Entries</button>
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('daily-report')">
+                📝 Daily Report
+            </button>
+            <button class="nav-tab" onclick="showSection('my-reports')">
+                📊 My Reports
+            </button>
+            <button class="nav-tab" onclick="showSection('settings')">
+                ⚙️ Settings
+            </button>
         </div>
 
-        <!-- Content -->
-        <div class="content">
-            <!-- Basic Info Tab -->
-            <div id="basic-content" class="tab-content active">
+        <!-- Daily Report Section -->
+        <div id="daily-report" class="content-area active">
+            <form id="sdr-form">
                 <!-- Date -->
-                <div class="card">
-                    <h3>📅 Date</h3>
+                <div class="form-section">
+                    <h3 class="section-title">📅 Date</h3>
                     <div class="form-group">
-                        <input type="date" id="report-date" class="form-input">
+                        <input type="date" name="date" required>
                     </div>
                 </div>
 
                 <!-- Location -->
-                <div class="card">
-                    <h3>📍 Location</h3>
+                <div class="form-section">
+                    <h3 class="section-title">📍 Location</h3>
                     <div class="form-group">
-                        <label class="form-label">Location</label>
-                        <select id="location" class="form-select">
+                        <label>Location</label>
+                        <select name="location" required>
                             <option value="">Select Location</option>
                             <option value="BF">BF</option>
                             <option value="1F">1F</option>
@@ -366,16 +515,16 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Location Details</label>
-                        <input type="text" id="location-details" placeholder="e.g., Room 301, North side" class="form-input">
+                        <label>Location Details</label>
+                        <input type="text" name="location-details" placeholder="e.g., Room 301, North side">
                     </div>
                 </div>
 
                 <!-- Contractor -->
-                <div class="card">
-                    <h3>👷 Contractor</h3>
+                <div class="form-section">
+                    <h3 class="section-title">👷 Contractor</h3>
                     <div class="form-group">
-                        <select id="contractor" class="form-select">
+                        <select name="contractor" required>
                             <option value="">Select Contractor</option>
                             <option value="Exyte-EE">Exyte-EE</option>
                             <option value="Exyte-HVAC">Exyte-HVAC</option>
@@ -388,20 +537,20 @@
                     </div>
                 </div>
 
-                <!-- Work -->
-                <div class="card">
-                    <h3>🔧 Work Details</h3>
+                <!-- Work Details -->
+                <div class="form-section">
+                    <h3 class="section-title">🔧 Work Details</h3>
                     <div class="form-group">
-                        <label class="form-label">Work Description</label>
-                        <textarea id="work-description" placeholder="Describe the work performed..." rows="3" class="form-textarea"></textarea>
+                        <label>Work Description</label>
+                        <textarea name="work-description" placeholder="Describe the work performed..."></textarea>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Work Category</label>
-                        <select id="work-category" class="form-select">
+                        <label>Work Category</label>
+                        <select name="work-category">
                             <option value="">Select Category</option>
                             <option value="HVAC">HVAC</option>
-                            <option value="EE">EE (Electrical)</option>
-                            <option value="FS">FS (Fire Safety)</option>
+                            <option value="EE">EE</option>
+                            <option value="FS">FS</option>
                             <option value="BMS">BMS</option>
                             <option value="Owner Works">Owner Works</option>
                             <option value="Tenant Works">Tenant Works</option>
@@ -410,10 +559,10 @@
                 </div>
 
                 <!-- Manpower -->
-                <div class="card">
-                    <h3>👥 Manpower</h3>
+                <div class="form-section">
+                    <h3 class="section-title">👥 Manpower</h3>
                     <div class="form-group">
-                        <select id="manpower" class="form-select">
+                        <select name="manpower">
                             <option value="">Select Manpower</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
@@ -429,21 +578,21 @@
                     </div>
                 </div>
 
-                <!-- Plant -->
-                <div class="card">
-                    <h3>🏗️ Plant & Equipment</h3>
-                    <div class="grid-2">
+                <!-- Plant & Equipment -->
+                <div class="form-section">
+                    <h3 class="section-title">🏗️ Plant & Equipment</h3>
+                    <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Type</label>
-                            <select id="plant-type" class="form-select" onchange="toggleOtherPlant()">
+                            <label>Type</label>
+                            <select name="plant-type">
                                 <option value="">Select Type</option>
-                                <option value="working platform">Working Platform</option>
-                                <option value="others">Others</option>
+                                <option value="Working Platform">Working Platform</option>
+                                <option value="Others">Others</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Number</label>
-                            <select id="plant-number" class="form-select">
+                            <label>Number</label>
+                            <select name="plant-number">
                                 <option value="">Number</option>
                                 <option value="1">1</option>
                                 <option value="2">2</option>
@@ -453,713 +602,412 @@
                             </select>
                         </div>
                     </div>
-                    <div class="form-group hidden" id="plant-other-group">
-                        <label class="form-label">Specify Other Type</label>
-                        <input type="text" id="plant-other" placeholder="Other plant type..." class="form-input">
-                    </div>
                 </div>
-            </div>
 
-            <!-- Resources Tab -->
-            <div id="resources-content" class="tab-content">
-                <!-- Material -->
-                <div class="card">
-                    <h3>📦 Material Usage</h3>
+                <!-- Material Usage -->
+                <div class="form-section">
+                    <h3 class="section-title">📦 Material Usage</h3>
                     <div class="form-group">
-                        <textarea id="material-usage" placeholder="Material usage and delivery details..." rows="3" class="form-textarea"></textarea>
+                        <textarea name="material-usage" placeholder="Material usage and delivery details..."></textarea>
                     </div>
                 </div>
 
                 <!-- Resource Utilization -->
-                <div class="card">
-                    <h3>⚡ Resource Utilization</h3>
+                <div class="form-section">
+                    <h3 class="section-title">⚡ Resource Utilization</h3>
                     <div class="form-group">
-                        <textarea id="resource-utilization" placeholder="Resource utilization and productivity notes..." rows="3" class="form-textarea"></textarea>
+                        <textarea name="resource-utilization" placeholder="Resource utilization and productivity notes..."></textarea>
                     </div>
                 </div>
 
                 <!-- Safety -->
-                <div class="card">
-                    <h3>🛡️ Safety</h3>
+                <div class="form-section">
+                    <h3 class="section-title">🛡️ Safety</h3>
                     <div class="form-group">
-                        <textarea id="safety-observations" placeholder="Safety incidents and observations..." rows="3" class="form-textarea"></textarea>
+                        <textarea name="safety" placeholder="Safety incidents and observations..."></textarea>
                     </div>
                 </div>
 
                 <!-- Weekly Programme -->
-                <div class="card">
-                    <h3>📋 Weekly Programme</h3>
+                <div class="form-section">
+                    <h3 class="section-title">📋 Weekly Programme</h3>
                     <div class="form-group">
-                        <textarea id="weekly-programme" placeholder="Weekly programme details..." rows="2" class="form-textarea"></textarea>
+                        <textarea name="weekly-programme" placeholder="Weekly programme details..."></textarea>
                     </div>
                 </div>
 
                 <!-- Remarks -->
-                <div class="card">
-                    <h3>💬 Remarks</h3>
+                <div class="form-section">
+                    <h3 class="section-title">💬 Remarks</h3>
                     <div class="form-group">
-                        <textarea id="remarks" placeholder="Additional remarks and notes..." rows="3" class="form-textarea"></textarea>
+                        <textarea name="remarks" placeholder="Additional remarks and notes..."></textarea>
                     </div>
                 </div>
 
                 <!-- Photos -->
-                <div class="card">
-                    <h3>📸 Photos</h3>
+                <div class="form-section">
+                    <h3 class="section-title">📸 Photos</h3>
                     
-                    <!-- Photo 1 -->
-                    <div class="photo-section">
-                        <label class="form-label">Photo 1</label>
-                        <div id="photo1-preview" class="hidden">
-                            <img id="photo1-img" class="photo-preview">
-                            <div class="photo-name" id="photo1-name"></div>
-                            <button onclick="removePhoto(1)" class="btn" style="background: #ef4444; color: white; width: auto; padding: 12px 24px;">Remove</button>
-                        </div>
-                        <div id="photo1-input">
-                            <div class="grid-2" style="margin-bottom: 12px;">
-                                <button onclick="capturePhoto(1)" class="btn btn-primary">📷 Camera</button>
-                                <button onclick="selectPhoto(1)" class="btn" style="background: #6b7280; color: white;">📁 Gallery</button>
+                    <div class="photo-container">
+                        <div class="photo-item">
+                            <div class="photo-label">Photo 1</div>
+                            <div class="photo-buttons">
+                                <button type="button" class="photo-btn camera">
+                                    📷 Camera
+                                </button>
+                                <button type="button" class="photo-btn gallery">
+                                    📁 Gallery
+                                </button>
                             </div>
-                            <input type="file" id="photo1-camera" accept="image/*" capture="environment" style="display: none;" onchange="handlePhoto(1, this)">
-                            <input type="file" id="photo1-gallery" accept="image/*" style="display: none;" onchange="handlePhoto(1, this)">
                         </div>
-                    </div>
-
-                    <!-- Photo 2 -->
-                    <div class="photo-section">
-                        <label class="form-label">Photo 2</label>
-                        <div id="photo2-preview" class="hidden">
-                            <img id="photo2-img" class="photo-preview">
-                            <div class="photo-name" id="photo2-name"></div>
-                            <button onclick="removePhoto(2)" class="btn" style="background: #ef4444; color: white; width: auto; padding: 12px 24px;">Remove</button>
-                        </div>
-                        <div id="photo2-input">
-                            <div class="grid-2" style="margin-bottom: 12px;">
-                                <button onclick="capturePhoto(2)" class="btn btn-primary">📷 Camera</button>
-                                <button onclick="selectPhoto(2)" class="btn" style="background: #6b7280; color: white;">📁 Gallery</button>
+                        
+                        <div class="photo-item">
+                            <div class="photo-label">Photo 2</div>
+                            <div class="photo-buttons">
+                                <button type="button" class="photo-btn camera">
+                                    📷 Camera
+                                </button>
+                                <button type="button" class="photo-btn gallery">
+                                    📁 Gallery
+                                </button>
                             </div>
-                            <input type="file" id="photo2-camera" accept="image/*" capture="environment" style="display: none;" onchange="handlePhoto(2, this)">
-                            <input type="file" id="photo2-gallery" accept="image/*" style="display: none;" onchange="handlePhoto(2, this)">
                         </div>
-                    </div>
-
-                    <!-- Photo 3 -->
-                    <div class="photo-section">
-                        <label class="form-label">Photo 3</label>
-                        <div id="photo3-preview" class="hidden">
-                            <img id="photo3-img" class="photo-preview">
-                            <div class="photo-name" id="photo3-name"></div>
-                            <button onclick="removePhoto(3)" class="btn" style="background: #ef4444; color: white; width: auto; padding: 12px 24px;">Remove</button>
-                        </div>
-                        <div id="photo3-input">
-                            <div class="grid-2" style="margin-bottom: 12px;">
-                                <button onclick="capturePhoto(3)" class="btn btn-primary">📷 Camera</button>
-                                <button onclick="selectPhoto(3)" class="btn" style="background: #6b7280; color: white;">📁 Gallery</button>
+                        
+                        <div class="photo-item">
+                            <div class="photo-label">Photo 3</div>
+                            <div class="photo-buttons">
+                                <button type="button" class="photo-btn camera">
+                                    📷 Camera
+                                </button>
+                                <button type="button" class="photo-btn gallery">
+                                    📁 Gallery
+                                </button>
                             </div>
-                            <input type="file" id="photo3-camera" accept="image/*" capture="environment" style="display: none;" onchange="handlePhoto(3, this)">
-                            <input type="file" id="photo3-gallery" accept="image/*" style="display: none;" onchange="handlePhoto(3, this)">
                         </div>
                     </div>
                 </div>
 
-                <!-- Add Entry Button -->
-                <button onclick="addWorkEntry()" class="btn btn-success">➕ Add Work Entry</button>
-                
-                <div id="entry-message"></div>
+                <!-- Add Work Entry Button -->
+                <button type="button" class="add-work-btn" onclick="addWorkEntry()">
+                    ➕ Add Work Entry
+                </button>
+            </form>
+        </div>
+
+        <!-- My Reports Section -->
+        <div id="my-reports" class="content-area">
+            <div class="dashboard-header">
+                <h1>📊 My Reports</h1>
+                <p>View and manage your site daily reports</p>
             </div>
 
-            <!-- Entries Tab -->
-            <div id="entries-content" class="tab-content">
-                <div class="card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
-                    <h2 style="color: white; margin-bottom: 8px;">Work Entries</h2>
-                    <p style="opacity: 0.9;"><span id="entry-count">0</span> entries recorded today</p>
+            <!-- Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-reports">0</div>
+                    <div class="stat-label">Total Reports</div>
                 </div>
-
-                <!-- Export Section -->
-                <div class="card">
-                    <h3>📤 Export Options</h3>
-                    <div class="grid-2">
-                        <button onclick="downloadCSV()" id="download-btn" class="btn btn-success" disabled>⬇️ CSV</button>
-                        <button onclick="downloadPhotos()" id="photos-btn" class="btn btn-warning" disabled>📸 Photos</button>
-                    </div>
-                    <p id="export-message" class="text-center" style="color: #6b7280; margin-top: 12px; font-size: 14px;">Add work entries to enable export</p>
+                <div class="stat-card">
+                    <div class="stat-number" id="pending-reports">0</div>
+                    <div class="stat-label">Pending Review</div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="approved-reports">0</div>
+                    <div class="stat-label">Approved</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="draft-reports">0</div>
+                    <div class="stat-label">Drafts</div>
+                </div>
+            </div>
 
-                <!-- Entries List -->
-                <div id="entries-list">
-                    <div class="card text-center" style="padding: 40px;">
-                        <div style="font-size: 48px; margin-bottom: 16px;">📄</div>
-                        <p style="color: #6b7280;">No work entries yet.<br>Add your first entry to get started!</p>
-                    </div>
+            <!-- Reports List -->
+            <div class="reports-list" id="reports-container">
+                <div class="empty-state">
+                    <h3>📋 No Reports Yet</h3>
+                    <p>Create your first report to see it here!</p>
                 </div>
             </div>
         </div>
 
-        <!-- Bottom Navigation -->
-        <div class="bottom-nav">
-            <div class="btn-group grid-2">
-                <button onclick="saveDraft()" class="btn" style="background: #6b7280; color: white;">💾 Save Draft</button>
-                <button onclick="submitReport()" class="btn btn-primary">📧 Submit Report</button>
+        <!-- Settings Section -->
+        <div id="settings" class="content-area">
+            <div class="dashboard-header">
+                <h1>⚙️ Settings</h1>
+                <p>Configure your app preferences</p>
             </div>
+
+            <div class="settings-section">
+                <h3 class="settings-title">👤 User Profile</h3>
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="user-name" placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="user-email" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="user-role">
+                        <option value="supervisor">Site Supervisor</option>
+                        <option value="manager">Project Manager</option>
+                        <option value="engineer">Site Engineer</option>
+                        <option value="foreman">Foreman</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3 class="settings-title">🔔 Notifications</h3>
+                <div class="form-group">
+                    <label>Email Notifications</label>
+                    <select id="email-notifications">
+                        <option value="all">All notifications</option>
+                        <option value="important">Important only</option>
+                        <option value="none">None</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Report Reminders</label>
+                    <select id="reminders">
+                        <option value="daily">Daily at 4 PM</option>
+                        <option value="none">Disabled</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn-save" onclick="saveSettings()">
+                💾 Save Settings
+            </button>
         </div>
+    </div>
+
+    <!-- Bottom Action Buttons (only visible on Daily Report tab) -->
+    <div class="bottom-actions" id="bottom-actions">
+        <button type="button" class="action-btn btn-draft" onclick="saveDraft()">
+            💾 Save Draft
+        </button>
+        <button type="button" class="action-btn btn-submit" onclick="submitReport()">
+            📤 Submit Report
+        </button>
     </div>
 
     <script>
         // Global variables
-        let workEntries = [];
-        let photos = {1: null, 2: null, 3: null};
+        let reports = JSON.parse(localStorage.getItem('sdr_reports') || '[]');
 
-        // Initialize app immediately
-        function init() {
-            console.log('App starting...');
+        // Navigation
+        function showSection(sectionId) {
+            // Hide all content areas
+            const contentAreas = document.querySelectorAll('.content-area');
+            contentAreas.forEach(area => area.classList.remove('active'));
             
-            // Set current date
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('report-date').value = today;
+            // Remove active class from all nav tabs
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => tab.classList.remove('active'));
             
-            // Start time updates
-            updateDateTime();
-            setInterval(updateDateTime, 1000);
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
             
-            console.log('App initialized successfully');
-        }
-
-        // Update date and time
-        function updateDateTime() {
-            const now = new Date();
-            document.getElementById('current-date').textContent = now.toLocaleDateString();
-            document.getElementById('current-time').textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        }
-
-        // Tab navigation
-        function showTab(tabName, element) {
-            // Hide all tab contents
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
+            // Add active class to clicked nav tab
+            event.target.classList.add('active');
             
-            // Remove active class from all tabs
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Show selected tab content
-            document.getElementById(tabName + '-content').classList.add('active');
-            
-            // Add active class to clicked tab
-            element.classList.add('active');
-        }
-
-        // Toggle other plant type
-        function toggleOtherPlant() {
-            const plantType = document.getElementById('plant-type').value;
-            const otherGroup = document.getElementById('plant-other-group');
-            
-            if (plantType === 'others') {
-                otherGroup.classList.remove('hidden');
+            // Show/hide bottom actions based on section
+            const bottomActions = document.getElementById('bottom-actions');
+            if (sectionId === 'daily-report') {
+                bottomActions.style.display = 'flex';
             } else {
-                otherGroup.classList.add('hidden');
-                document.getElementById('plant-other').value = '';
+                bottomActions.style.display = 'none';
             }
-        }
-
-        // Photo functions
-        function capturePhoto(photoNum) {
-            document.getElementById(`photo${photoNum}-camera`).click();
-        }
-
-        function selectPhoto(photoNum) {
-            document.getElementById(`photo${photoNum}-gallery`).click();
-        }
-
-        function handlePhoto(photoNum, input) {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    photos[photoNum] = {
-                        data: e.target.result,
-                        name: file.name
-                    };
-                    
-                    // Show preview
-                    document.getElementById(`photo${photoNum}-img`).src = e.target.result;
-                    document.getElementById(`photo${photoNum}-name`).textContent = file.name;
-                    document.getElementById(`photo${photoNum}-preview`).classList.remove('hidden');
-                    document.getElementById(`photo${photoNum}-input`).classList.add('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function removePhoto(photoNum) {
-            photos[photoNum] = null;
-            document.getElementById(`photo${photoNum}-preview`).classList.add('hidden');
-            document.getElementById(`photo${photoNum}-input`).classList.remove('hidden');
-            document.getElementById(`photo${photoNum}-camera`).value = '';
-            document.getElementById(`photo${photoNum}-gallery`).value = '';
-        }
-
-        // Add work entry
-        function addWorkEntry() {
-            const location = document.getElementById('location').value;
-            const contractor = document.getElementById('contractor').value;
             
-            if (!location || !contractor) {
-                showMessage('Please fill in at least Location and Contractor fields', 'error');
+            // Load reports if viewing My Reports
+            if (sectionId === 'my-reports') {
+                loadReportsDisplay();
+            }
+        }
+
+        // Add Work Entry (placeholder)
+        function addWorkEntry() {
+            alert('Add Work Entry functionality - to be enhanced in next version!');
+        }
+
+        // Form Actions
+        function saveDraft() {
+            const formData = new FormData(document.getElementById('sdr-form'));
+            const reportData = Object.fromEntries(formData);
+            
+            // Add metadata
+            reportData.status = 'draft';
+            reportData.id = Date.now();
+            reportData.timestamp = new Date().toISOString();
+            
+            // Save to localStorage
+            reports.push(reportData);
+            localStorage.setItem('sdr_reports', JSON.stringify(reports));
+            
+            alert('✅ Draft saved successfully!');
+            updateStats();
+        }
+
+        function submitReport() {
+            const formData = new FormData(document.getElementById('sdr-form'));
+            const reportData = Object.fromEntries(formData);
+            
+            // Validation
+            if (!reportData.date || !reportData.location || !reportData.contractor) {
+                alert('❌ Please fill in all required fields (Date, Location, Contractor)');
                 return;
             }
-
-            const entry = {
-                id: Date.now(),
-                date: document.getElementById('report-date').value,
-                location: location,
-                locationDetails: document.getElementById('location-details').value,
-                contractor: contractor,
-                workDescription: document.getElementById('work-description').value,
-                workCategory: document.getElementById('work-category').value,
-                manpower: document.getElementById('manpower').value,
-                plantType: document.getElementById('plant-type').value,
-                plantNumber: document.getElementById('plant-number').value,
-                plantOtherType: document.getElementById('plant-other').value,
-                materialUsage: document.getElementById('material-usage').value,
-                resourceUtilization: document.getElementById('resource-utilization').value,
-                safetyObservations: document.getElementById('safety-observations').value,
-                weeklyProgramme: document.getElementById('weekly-programme').value,
-                remarks: document.getElementById('remarks').value,
-                photos: {...photos},
-                timestamp: new Date().toLocaleString()
-            };
-
-            workEntries.push(entry);
-            clearForm();
-            updateEntriesDisplay();
-            updateExportButtons();
             
-            showMessage('✅ Work entry added successfully!', 'success');
+            // Add metadata
+            reportData.status = 'submitted';
+            reportData.id = Date.now();
+            reportData.timestamp = new Date().toISOString();
+            
+            // Save to localStorage
+            reports.push(reportData);
+            localStorage.setItem('sdr_reports', JSON.stringify(reports));
+            
+            alert('✅ Report submitted successfully!');
+            
+            // Clear form
+            document.getElementById('sdr-form').reset();
+            setTodaysDate();
+            updateStats();
         }
 
-        // Show message
-        function showMessage(message, type) {
-            const messageDiv = document.getElementById('entry-message');
-            messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
-            messageDiv.textContent = message;
+        // Reports Display
+        function loadReportsDisplay() {
+            updateStats();
+            const container = document.getElementById('reports-container');
             
-            setTimeout(() => {
-                messageDiv.textContent = '';
-                messageDiv.className = '';
-            }, 3000);
-        }
-
-        // Clear form
-        function clearForm() {
-            document.getElementById('location').value = '';
-            document.getElementById('location-details').value = '';
-            document.getElementById('contractor').value = '';
-            document.getElementById('work-description').value = '';
-            document.getElementById('work-category').value = '';
-            document.getElementById('manpower').value = '';
-            document.getElementById('plant-type').value = '';
-            document.getElementById('plant-number').value = '';
-            document.getElementById('plant-other').value = '';
-            document.getElementById('material-usage').value = '';
-            document.getElementById('resource-utilization').value = '';
-            document.getElementById('safety-observations').value = '';
-            document.getElementById('weekly-programme').value = '';
-            document.getElementById('remarks').value = '';
-            
-            // Clear photos
-            for (let i = 1; i <= 3; i++) {
-                removePhoto(i);
-            }
-            
-            toggleOtherPlant();
-        }
-
-        // Update entries display
-        function updateEntriesDisplay() {
-            document.getElementById('entry-count').textContent = workEntries.length;
-            
-            const entriesList = document.getElementById('entries-list');
-            
-            if (workEntries.length === 0) {
-                entriesList.innerHTML = `
-                    <div class="card text-center" style="padding: 40px;">
-                        <div style="font-size: 48px; margin-bottom: 16px;">📄</div>
-                        <p style="color: #6b7280;">No work entries yet.<br>Add your first entry to get started!</p>
+            if (reports.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>📋 No Reports Yet</h3>
+                        <p>Create your first report to see it here!</p>
                     </div>
                 `;
-            } else {
-                entriesList.innerHTML = workEntries.map((entry, index) => `
-                    <div class="entry-card">
-                        <div class="entry-header">Entry #${index + 1} - ${entry.contractor}</div>
-                        <div class="entry-details">
-                            <div><strong>📍 Location:</strong> ${entry.location}${entry.locationDetails ? ' - ' + entry.locationDetails : ''}</div>
-                            <div><strong>🔧 Work:</strong> ${entry.workDescription || 'No description'}</div>
-                            <div><strong>👥 Manpower:</strong> ${entry.manpower || 'Not specified'}</div>
-                            ${entry.plantType ? `<div><strong>🏗️ Plant:</strong> ${entry.plantNumber} x ${entry.plantType}</div>` : ''}
-                            ${entry.safetyObservations ? `<div style="background: #fef3cd; padding: 8px; border-radius: 4px; margin-top: 8px;"><strong>🛡️ Safety:</strong> ${entry.safetyObservations}</div>` : ''}
-                            ${entry.remarks ? `<div style="background: #eff6ff; padding: 8px; border-radius: 4px; margin-top: 8px;"><strong>💬 Remarks:</strong> ${entry.remarks}</div>` : ''}
-                            ${getPhotosHTML(entry.photos)}
-                            <div style="font-size: 12px; color: #6b7280; margin-top: 8px;">⏰ ${entry.timestamp}</div>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        // Get photos HTML for display
-        function getPhotosHTML(entryPhotos) {
-            const photoElements = [];
-            for (let i = 1; i <= 3; i++) {
-                if (entryPhotos[i]) {
-                    photoElements.push(`<img src="${entryPhotos[i].data}" alt="Photo ${i}" class="entry-photo">`);
-                }
-            }
-            
-            if (photoElements.length > 0) {
-                return `<div class="entry-photos">${photoElements.join('')}</div>`;
-            }
-            return '';
-        }
-
-        // Update export buttons
-        function updateExportButtons() {
-            const hasEntries = workEntries.length > 0;
-            document.getElementById('download-btn').disabled = !hasEntries;
-            document.getElementById('photos-btn').disabled = !hasEntries;
-            document.getElementById('export-message').style.display = hasEntries ? 'none' : 'block';
-        }
-
-        // Generate CSV
-        function generateCSV() {
-            const headers = [
-                'Date', 'Location', 'Location Details', 'Contractor', 'Work Description',
-                'Work Category', 'Manpower', 'Plant Type', 'Plant Number', 'Plant Other Type',
-                'Material Usage', 'Resource Utilization', 'Safety Observations',
-                'Weekly Programme', 'Remarks', 'Photo 1', 'Photo 2', 'Photo 3', 'Timestamp'
-            ];
-            
-            const csvContent = [
-                headers.join(','),
-                ...workEntries.map(entry => [
-                    entry.date,
-                    `"${entry.location}"`,
-                    `"${entry.locationDetails}"`,
-                    `"${entry.contractor}"`,
-                    `"${(entry.workDescription || '').replace(/"/g, '""')}"`,
-                    `"${entry.workCategory}"`,
-                    entry.manpower,
-                    `"${entry.plantType}"`,
-                    entry.plantNumber,
-                    `"${entry.plantOtherType || ''}"`,
-                    `"${(entry.materialUsage || '').replace(/"/g, '""')}"`,
-                    `"${(entry.resourceUtilization || '').replace(/"/g, '""')}"`,
-                    `"${(entry.safetyObservations || '').replace(/"/g, '""')}"`,
-                    `"${(entry.weeklyProgramme || '').replace(/"/g, '""')}"`,
-                    `"${(entry.remarks || '').replace(/"/g, '""')}"`,
-                    `"${entry.photos[1] ? entry.photos[1].name : ''}"`,
-                    `"${entry.photos[2] ? entry.photos[2].name : ''}"`,
-                    `"${entry.photos[3] ? entry.photos[3].name : ''}"`,
-                    `"${entry.timestamp}"`
-                ].join(','))
-            ].join('\n');
-            
-            return csvContent;
-        }
-
-        // Download CSV
-        function downloadCSV() {
-            try {
-                const csvContent = generateCSV();
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                const url = URL.createObjectURL(blob);
-                link.setAttribute('href', url);
-                link.setAttribute('download', `site_daily_report_${document.getElementById('report-date').value}.csv`);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                alert('✅ CSV downloaded successfully!');
-            } catch (error) {
-                alert('❌ CSV export failed. Please try again.');
-            }
-        }
-
-        // Download photos
-        function downloadPhotos() {
-            try {
-                createHTMLPhotoReport();
-            } catch (error) {
-                alert('❌ Photo export failed. Please try again.');
-            }
-        }
-
-        // Create HTML photo report
-        function createHTMLPhotoReport() {
-            let photoHTML = `<!DOCTYPE html>
-<html>
-<head>
-    <title>Site Report Photos - ${document.getElementById('report-date').value}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.5; }
-        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
-        .entry { margin-bottom: 40px; border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
-        .entry-header { background: #f0f0f0; padding: 10px; margin: -20px -20px 15px -20px; border-radius: 8px 8px 0 0; }
-        .photo-container { margin: 15px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
-        img { max-width: 100%; height: auto; margin: 10px 0; border: 1px solid #ccc; }
-        .details { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
-        .detail { padding: 5px 0; }
-        .section-title { font-weight: bold; color: #2563eb; margin: 15px 0 5px 0; }
-        .remarks { background: #fff3cd; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        .safety { background: #f8d7da; padding: 10px; border-radius: 4px; margin: 10px 0; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>📊 Site Daily Report - Photos</h1>
-        <h2>📅 Date: ${document.getElementById('report-date').value}</h2>
-        <p>🕐 Generated: ${new Date().toLocaleString()}</p>
-        <p>📋 Total Entries: ${workEntries.length}</p>
-    </div>`;
-
-            workEntries.forEach((entry, index) => {
-                photoHTML += `
-    <div class="entry">
-        <div class="entry-header">
-            <h3>Entry #${index + 1}</h3>
-        </div>
-        
-        <div class="details">
-            <div class="detail"><strong>📍 Location:</strong> ${entry.location}</div>
-            <div class="detail"><strong>👷 Contractor:</strong> ${entry.contractor}</div>
-            <div class="detail"><strong>🔧 Category:</strong> ${entry.workCategory}</div>
-            <div class="detail"><strong>👥 Manpower:</strong> ${entry.manpower}</div>
-        </div>
-        
-        <div class="detail"><strong>📍 Location Details:</strong> ${entry.locationDetails}</div>
-        <div class="detail"><strong>🏗️ Plant & Equipment:</strong> ${entry.plantNumber} x ${entry.plantType} ${entry.plantOtherType}</div>
-        <div class="detail"><strong>⏰ Timestamp:</strong> ${entry.timestamp}</div>
-        
-        ${entry.workDescription ? `
-        <div class="section-title">🔧 Work Description:</div>
-        <div>${entry.workDescription}</div>
-        ` : ''}
-        
-        ${entry.remarks ? `
-        <div class="section-title">💬 Remarks:</div>
-        <div class="remarks">${entry.remarks}</div>
-        ` : ''}
-        
-        ${entry.safetyObservations ? `
-        <div class="section-title">🛡️ Safety Observations:</div>
-        <div class="safety">${entry.safetyObservations}</div>
-        ` : ''}`;
-                
-                for (let i = 1; i <= 3; i++) {
-                    if (entry.photos[i]) {
-                        photoHTML += `
-        <div class="photo-container">
-            <div class="section-title">📸 Photo ${i}: ${entry.photos[i].name}</div>
-            <img src="${entry.photos[i].data}" alt="Photo ${i}">
-        </div>`;
-                    }
-                }
-                
-                photoHTML += `    </div>`;
-            });
-
-            photoHTML += `</body></html>`;
-
-            // Download
-            const blob = new Blob([photoHTML], { type: 'text/html;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', `site_report_photos_${document.getElementById('report-date').value}.html`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            alert('✅ Photos exported successfully!');
-        }
-
-        // Save draft
-        function saveDraft() {
-            try {
-                const draftData = {
-                    date: document.getElementById('report-date').value,
-                    location: document.getElementById('location').value,
-                    locationDetails: document.getElementById('location-details').value,
-                    contractor: document.getElementById('contractor').value,
-                    workDescription: document.getElementById('work-description').value,
-                    workCategory: document.getElementById('work-category').value,
-                    manpower: document.getElementById('manpower').value,
-                    plantType: document.getElementById('plant-type').value,
-                    plantNumber: document.getElementById('plant-number').value,
-                    plantOtherType: document.getElementById('plant-other').value,
-                    materialUsage: document.getElementById('material-usage').value,
-                    resourceUtilization: document.getElementById('resource-utilization').value,
-                    safetyObservations: document.getElementById('safety-observations').value,
-                    weeklyProgramme: document.getElementById('weekly-programme').value,
-                    remarks: document.getElementById('remarks').value,
-                    photos: photos,
-                    workEntries: workEntries,
-                    savedAt: new Date().toLocaleString()
-                };
-                
-                if (typeof Storage !== "undefined") {
-                    try {
-                        localStorage.setItem('siteDailyReportDraft', JSON.stringify(draftData));
-                        alert('✅ Draft saved successfully!');
-                    } catch (e) {
-                        sessionStorage.setItem('siteDailyReportDraft', JSON.stringify(draftData));
-                        alert('✅ Draft saved for this session!');
-                    }
-                } else {
-                    alert('❌ Browser storage not supported.');
-                }
-            } catch (error) {
-                alert('❌ Save failed: ' + error.message);
-            }
-        }
-
-        // Submit report
-        function submitReport() {
-            if (workEntries.length === 0) {
-                alert('❌ Cannot submit empty report.\n\nPlease add at least one work entry.');
                 return;
             }
             
-            const reportData = {
-                date: document.getElementById('report-date').value,
-                totalEntries: workEntries.length,
-                submittedAt: new Date().toLocaleString()
+            const sortedReports = reports.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            container.innerHTML = sortedReports.map(report => {
+                const date = new Date(report.timestamp).toLocaleDateString();
+                const time = new Date(report.timestamp).toLocaleTimeString();
+                
+                return `
+                    <div class="report-item">
+                        <div class="report-info">
+                            <h4>${date} - ${report.location || 'Site Report'}</h4>
+                            <p>${report.contractor || 'No contractor'} | ${time}</p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span class="status-badge status-${report.status}">${report.status}</span>
+                            <div class="report-actions">
+                                ${report.status === 'draft' || report.status === 'rejected' ? 
+                                    '<button class="btn-small btn-edit" onclick="editReport(' + report.id + ')">Edit</button>' : ''}
+                                <button class="btn-small btn-view" onclick="viewReport(${report.id})">View</button>
+                                ${report.status === 'draft' ? 
+                                    '<button class="btn-small btn-delete" onclick="deleteReport(' + report.id + ')">Delete</button>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Report Actions
+        function viewReport(id) {
+            const report = reports.find(r => r.id === id);
+            if (!report) return;
+            
+            let content = `📊 SITE DAILY REPORT\n\n`;
+            content += `📅 Date: ${report.date || 'Not specified'}\n`;
+            content += `📍 Location: ${report.location || 'Not specified'}\n`;
+            content += `   Details: ${report['location-details'] || 'None'}\n`;
+            content += `👷 Contractor: ${report.contractor || 'Not specified'}\n`;
+            content += `🔧 Work Category: ${report['work-category'] || 'Not specified'}\n`;
+            content += `💬 Work Description: ${report['work-description'] || 'None'}\n`;
+            content += `👥 Manpower: ${report.manpower || 'Not specified'}\n`;
+            content += `🏗️ Equipment: ${report['plant-type'] || 'None'} (${report['plant-number'] || '0'})\n`;
+            content += `📦 Materials: ${report['material-usage'] || 'None'}\n`;
+            content += `⚡ Resources: ${report['resource-utilization'] || 'None'}\n`;
+            content += `🛡️ Safety: ${report.safety || 'None'}\n`;
+            content += `📋 Programme: ${report['weekly-programme'] || 'None'}\n`;
+            content += `💭 Remarks: ${report.remarks || 'None'}\n\n`;
+            content += `Status: ${report.status.toUpperCase()}\n`;
+            content += `Submitted: ${new Date(report.timestamp).toLocaleString()}`;
+            
+            alert(content);
+        }
+
+        function editReport(id) {
+            alert('Edit functionality will be implemented in the next version!');
+        }
+
+        function deleteReport(id) {
+            if (confirm('⚠️ Delete this report permanently?')) {
+                reports = reports.filter(r => r.id !== id);
+                localStorage.setItem('sdr_reports', JSON.stringify(reports));
+                loadReportsDisplay();
+                alert('✅ Report deleted successfully!');
+            }
+        }
+
+        // Statistics
+        function updateStats() {
+            const total = reports.length;
+            const pending = reports.filter(r => r.status === 'submitted').length;
+            const approved = reports.filter(r => r.status === 'approved').length;
+            const drafts = reports.filter(r => r.status === 'draft').length;
+            
+            document.getElementById('total-reports').textContent = total;
+            document.getElementById('pending-reports').textContent = pending;
+            document.getElementById('approved-reports').textContent = approved;
+            document.getElementById('draft-reports').textContent = drafts;
+        }
+
+        // Settings
+        function saveSettings() {
+            const settings = {
+                userName: document.getElementById('user-name').value,
+                userEmail: document.getElementById('user-email').value,
+                userRole: document.getElementById('user-role').value,
+                emailNotifications: document.getElementById('email-notifications').value,
+                reminders: document.getElementById('reminders').value
             };
             
-            const referenceNumber = `SDR-${reportData.date.replace(/-/g, '')}-${Date.now()}`;
+            localStorage.setItem('sdr_settings', JSON.stringify(settings));
+            alert('✅ Settings saved successfully!');
+        }
+
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('sdr_settings') || '{}');
             
-            if (confirm(`📧 Submit Report?\n\n• Date: ${reportData.date}\n• Entries: ${reportData.totalEntries}\n• Reference: ${referenceNumber}\n\nContinue?`)) {
-                // Clear draft
-                try {
-                    if (typeof Storage !== "undefined") {
-                        localStorage.removeItem('siteDailyReportDraft');
-                        sessionStorage.removeItem('siteDailyReportDraft');
-                    }
-                } catch (error) {
-                    console.warn('Could not clear draft');
-                }
-                
-                alert(`✅ Report submitted successfully!\n\n• Reference: ${referenceNumber}\n• Submitted: ${reportData.submittedAt}`);
-                
-                // Ask about new report
-                setTimeout(() => {
-                    if (confirm('🆕 Start new report?\n\nThis will clear all data.')) {
-                        location.reload();
-                    }
-                }, 2000);
-            }
+            if (settings.userName) document.getElementById('user-name').value = settings.userName;
+            if (settings.userEmail) document.getElementById('user-email').value = settings.userEmail;
+            if (settings.userRole) document.getElementById('user-role').value = settings.userRole;
+            if (settings.emailNotifications) document.getElementById('email-notifications').value = settings.emailNotifications;
+            if (settings.reminders) document.getElementById('reminders').value = settings.reminders;
         }
 
-        // Load draft
-        function loadDraft() {
-            try {
-                let draftData = null;
-                
-                if (typeof Storage !== "undefined") {
-                    try {
-                        draftData = localStorage.getItem('siteDailyReportDraft');
-                        if (!draftData) {
-                            draftData = sessionStorage.getItem('siteDailyReportDraft');
-                        }
-                    } catch (e) {
-                        draftData = sessionStorage.getItem('siteDailyReportDraft');
-                    }
-                }
-                
-                if (draftData) {
-                    const data = JSON.parse(draftData);
-                    
-                    // Load all form data
-                    document.getElementById('report-date').value = data.date || '';
-                    document.getElementById('location').value = data.location || '';
-                    document.getElementById('location-details').value = data.locationDetails || '';
-                    document.getElementById('contractor').value = data.contractor || '';
-                    document.getElementById('work-description').value = data.workDescription || '';
-                    document.getElementById('work-category').value = data.workCategory || '';
-                    document.getElementById('manpower').value = data.manpower || '';
-                    document.getElementById('plant-type').value = data.plantType || '';
-                    document.getElementById('plant-number').value = data.plantNumber || '';
-                    document.getElementById('plant-other').value = data.plantOtherType || '';
-                    document.getElementById('material-usage').value = data.materialUsage || '';
-                    document.getElementById('resource-utilization').value = data.resourceUtilization || '';
-                    document.getElementById('safety-observations').value = data.safetyObservations || '';
-                    document.getElementById('weekly-programme').value = data.weeklyProgramme || '';
-                    document.getElementById('remarks').value = data.remarks || '';
-                    
-                    // Load photos
-                    if (data.photos) {
-                        photos = data.photos;
-                        for (let i = 1; i <= 3; i++) {
-                            if (photos[i]) {
-                                try {
-                                    document.getElementById(`photo${i}-img`).src = photos[i].data;
-                                    document.getElementById(`photo${i}-name`).textContent = photos[i].name;
-                                    document.getElementById(`photo${i}-preview`).classList.remove('hidden');
-                                    document.getElementById(`photo${i}-input`).classList.add('hidden');
-                                } catch (e) {
-                                    console.warn(`Could not load photo ${i}`);
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Load work entries
-                    if (data.workEntries) {
-                        workEntries = data.workEntries;
-                        updateEntriesDisplay();
-                        updateExportButtons();
-                    }
-                    
-                    toggleOtherPlant();
-                    
-                    alert(`✅ Draft loaded successfully!\n\nSaved: ${data.savedAt}`);
-                    return true;
-                }
-            } catch (error) {
-                alert('❌ Error loading draft. Starting fresh.');
-            }
-            return false;
+        // Set today's date
+        function setTodaysDate() {
+            const dateInput = document.querySelector('input[name="date"]');
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.value = today;
         }
 
-        // Initialize when page loads
+        // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, initializing...');
-            init();
-            
-            // Check for draft after a short delay
-            setTimeout(() => {
-                try {
-                    let hasDraft = false;
-                    if (typeof Storage !== "undefined") {
-                        hasDraft = localStorage.getItem('siteDailyReportDraft') || sessionStorage.getItem('siteDailyReportDraft');
-                    }
-                    
-                    if (hasDraft) {
-                        if (confirm('📄 Found saved draft. Continue working on it?')) {
-                            loadDraft();
-                        }
-                    }
-                } catch (error) {
-                    console.warn('Draft check failed');
-                }
-            }, 1000);
+            setTodaysDate();
+            reports = JSON.parse(localStorage.getItem('sdr_reports') || '[]');
+            updateStats();
+            loadSettings();
         });
-
-        console.log('Site Daily Report app script loaded');
     </script>
 </body>
 </html>
