@@ -430,6 +430,156 @@
             padding-bottom: 20px;
         }
         
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            color: #f97316;
+            margin: 0;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        
+        .btn-modal {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-save {
+            background: #22c55e;
+            color: white;
+        }
+        
+        /* Work Entries Display */
+        .work-entry-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        
+        .entry-title {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 14px;
+        }
+        
+        .entry-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-entry {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .btn-entry-edit {
+            background: #06b6d4;
+            color: white;
+        }
+        
+        .btn-entry-delete {
+            background: #dc2626;
+            color: white;
+        }
+        
+        .entry-details {
+            color: #6b7280;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        .entry-description {
+            color: #374151;
+            font-size: 13px;
+            margin: 8px 0;
+        }
+        
+        /* Photo Preview */
+        .photo-preview {
+            margin-top: 8px;
+            text-align: center;
+        }
+        
+        .photo-preview img {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 4px;
+            border: 1px solid #d1d5db;
+        }
+        
+        .photo-filename {
+            font-size: 10px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
             .container {
@@ -472,6 +622,104 @@
     <!-- App Header -->
     <div class="app-header">
         ✅ App Connected • Ready to Use
+    </div>
+
+    <!-- Work Entry Modal -->
+    <div id="work-entry-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>➕ Add Work Entry</h3>
+                <button class="modal-close" onclick="closeWorkEntryModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="work-entry-form">
+                    <div class="form-group">
+                        <label>Work Category *</label>
+                        <select name="category" required>
+                            <option value="">Select Category</option>
+                            <option value="HVAC">HVAC</option>
+                            <option value="EE">EE</option>
+                            <option value="FS">FS</option>
+                            <option value="BMS">BMS</option>
+                            <option value="Owner Works">Owner Works</option>
+                            <option value="Tenant Works">Tenant Works</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Work Description *</label>
+                        <textarea name="description" placeholder="Describe the specific work performed..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Specific Location</label>
+                        <input type="text" name="specificLocation" placeholder="e.g., Room 201, North side, Main corridor">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Manpower</label>
+                            <select name="manpower">
+                                <option value="">Select</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Progress</label>
+                            <select name="progress">
+                                <option value="">Select</option>
+                                <option value="0-25%">0-25%</option>
+                                <option value="26-50%">26-50%</option>
+                                <option value="51-75%">51-75%</option>
+                                <option value="76-100%">76-100%</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Equipment Type</label>
+                            <select name="equipmentType">
+                                <option value="">Select Type</option>
+                                <option value="Working Platform">Working Platform</option>
+                                <option value="Others">Others</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Equipment Number</label>
+                            <select name="equipmentNumber">
+                                <option value="">Number</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Work Notes</label>
+                        <textarea name="notes" placeholder="Additional observations for this work"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-modal btn-cancel" onclick="closeWorkEntryModal()">Cancel</button>
+                <button type="button" class="btn-modal btn-save" onclick="saveWorkEntry()">Save Entry</button>
+            </div>
+        </div>
     </div>
 
     <div class="container">
@@ -652,45 +900,70 @@
                         <div class="photo-item">
                             <div class="photo-label">Photo 1</div>
                             <div class="photo-buttons">
-                                <button type="button" class="photo-btn camera">
+                                <button type="button" class="photo-btn camera" onclick="capturePhoto(1)">
                                     📷 Camera
                                 </button>
-                                <button type="button" class="photo-btn gallery">
+                                <button type="button" class="photo-btn gallery" onclick="selectPhoto(1)">
                                     📁 Gallery
                                 </button>
                             </div>
+                            <input type="file" id="photo1" accept="image/*" capture="camera" style="display: none;" onchange="handlePhotoSelect(1, this)">
+                            <input type="file" id="gallery1" accept="image/*" style="display: none;" onchange="handlePhotoSelect(1, this)">
+                            <div id="photo1-preview" class="photo-preview"></div>
                         </div>
                         
                         <div class="photo-item">
                             <div class="photo-label">Photo 2</div>
                             <div class="photo-buttons">
-                                <button type="button" class="photo-btn camera">
+                                <button type="button" class="photo-btn camera" onclick="capturePhoto(2)">
                                     📷 Camera
                                 </button>
-                                <button type="button" class="photo-btn gallery">
+                                <button type="button" class="photo-btn gallery" onclick="selectPhoto(2)">
                                     📁 Gallery
                                 </button>
                             </div>
+                            <input type="file" id="photo2" accept="image/*" capture="camera" style="display: none;" onchange="handlePhotoSelect(2, this)">
+                            <input type="file" id="gallery2" accept="image/*" style="display: none;" onchange="handlePhotoSelect(2, this)">
+                            <div id="photo2-preview" class="photo-preview"></div>
                         </div>
                         
                         <div class="photo-item">
                             <div class="photo-label">Photo 3</div>
                             <div class="photo-buttons">
-                                <button type="button" class="photo-btn camera">
+                                <button type="button" class="photo-btn camera" onclick="capturePhoto(3)">
                                     📷 Camera
                                 </button>
-                                <button type="button" class="photo-btn gallery">
+                                <button type="button" class="photo-btn gallery" onclick="selectPhoto(3)">
                                     📁 Gallery
                                 </button>
                             </div>
+                            <input type="file" id="photo3" accept="image/*" capture="camera" style="display: none;" onchange="handlePhotoSelect(3, this)">
+                            <input type="file" id="gallery3" accept="image/*" style="display: none;" onchange="handlePhotoSelect(3, this)">
+                            <div id="photo3-preview" class="photo-preview"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Work Entries Section -->
+                <div class="form-section">
+                    <h3 class="section-title">📋 Work Entries</h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <span id="entries-count">0 entries recorded today</span>
+                    </div>
+                    
+                    <button type="button" class="add-work-btn" onclick="openWorkEntryModal()">
+                        ➕ Add Work Entry
+                    </button>
+                    
+                    <div id="work-entries-display">
+                        <div class="empty-state" style="padding: 20px; text-align: center; color: #6b7280;">
+                            <h4>📄 No work entries yet</h4>
+                            <p>Add your first entry to get started!</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Add Work Entry Button -->
-                <button type="button" class="add-work-btn" onclick="addWorkEntry()">
-                    ➕ Add Work Entry
-                </button>
             </form>
         </div>
 
@@ -796,6 +1069,9 @@
     <script>
         // Global variables
         let reports = JSON.parse(localStorage.getItem('sdr_reports') || '[]');
+        let workEntries = [];
+        let currentEditingEntry = null;
+        let selectedPhotos = {};
 
         // Navigation
         function showSection(sectionId) {
@@ -827,15 +1103,155 @@
             }
         }
 
-        // Add Work Entry (placeholder)
-        function addWorkEntry() {
-            alert('Add Work Entry functionality - to be enhanced in next version!');
+        // Work Entry Modal Functions
+        function openWorkEntryModal() {
+            document.getElementById('work-entry-modal').style.display = 'block';
+            currentEditingEntry = null;
+            document.getElementById('work-entry-form').reset();
+        }
+
+        function closeWorkEntryModal() {
+            document.getElementById('work-entry-modal').style.display = 'none';
+            currentEditingEntry = null;
+        }
+
+        function saveWorkEntry() {
+            const form = document.getElementById('work-entry-form');
+            const formData = new FormData(form);
+            
+            // Validation
+            if (!formData.get('category') || !formData.get('description')) {
+                alert('❌ Please fill in Category and Description (required fields)');
+                return;
+            }
+            
+            const entry = {
+                id: currentEditingEntry ? currentEditingEntry.id : Date.now(),
+                category: formData.get('category'),
+                description: formData.get('description'),
+                specificLocation: formData.get('specificLocation'),
+                manpower: formData.get('manpower'),
+                equipmentType: formData.get('equipmentType'),
+                equipmentNumber: formData.get('equipmentNumber'),
+                progress: formData.get('progress'),
+                notes: formData.get('notes'),
+                timestamp: new Date().toLocaleTimeString()
+            };
+            
+            if (currentEditingEntry) {
+                // Update existing entry
+                const index = workEntries.findIndex(e => e.id === currentEditingEntry.id);
+                workEntries[index] = entry;
+            } else {
+                // Add new entry
+                workEntries.push(entry);
+            }
+            
+            updateWorkEntriesDisplay();
+            closeWorkEntryModal();
+        }
+
+        function updateWorkEntriesDisplay() {
+            const container = document.getElementById('work-entries-display');
+            const countElement = document.getElementById('entries-count');
+            
+            countElement.textContent = `${workEntries.length} entries recorded today`;
+            
+            if (workEntries.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 20px; text-align: center; color: #6b7280;">
+                        <h4>📄 No work entries yet</h4>
+                        <p>Add your first entry to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = workEntries.map(entry => `
+                <div class="work-entry-item">
+                    <div class="entry-header">
+                        <div class="entry-title">${entry.category} - ${entry.description}</div>
+                        <div class="entry-actions">
+                            <button class="btn-entry btn-entry-edit" onclick="editWorkEntry(${entry.id})">Edit</button>
+                            <button class="btn-entry btn-entry-delete" onclick="deleteWorkEntry(${entry.id})">Delete</button>
+                        </div>
+                    </div>
+                    ${entry.specificLocation ? `<div class="entry-description">📍 ${entry.specificLocation}</div>` : ''}
+                    <div class="entry-details">
+                        ${entry.manpower ? `👥 ${entry.manpower} workers` : ''} 
+                        ${entry.equipmentType ? `| 🏗️ ${entry.equipmentType}${entry.equipmentNumber ? ` (${entry.equipmentNumber})` : ''}` : ''} 
+                        ${entry.progress ? `| 📊 ${entry.progress}` : ''}
+                        ${entry.manpower || entry.equipmentType || entry.progress ? '<br>' : ''}
+                        Added at ${entry.timestamp}
+                    </div>
+                    ${entry.notes ? `<div class="entry-description">💭 ${entry.notes}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function editWorkEntry(id) {
+            currentEditingEntry = workEntries.find(e => e.id === id);
+            if (!currentEditingEntry) return;
+            
+            // Populate form
+            const form = document.getElementById('work-entry-form');
+            form.category.value = currentEditingEntry.category || '';
+            form.description.value = currentEditingEntry.description || '';
+            form.specificLocation.value = currentEditingEntry.specificLocation || '';
+            form.manpower.value = currentEditingEntry.manpower || '';
+            form.equipmentType.value = currentEditingEntry.equipmentType || '';
+            form.equipmentNumber.value = currentEditingEntry.equipmentNumber || '';
+            form.progress.value = currentEditingEntry.progress || '';
+            form.notes.value = currentEditingEntry.notes || '';
+            
+            document.getElementById('work-entry-modal').style.display = 'block';
+        }
+
+        function deleteWorkEntry(id) {
+            if (confirm('Delete this work entry?')) {
+                workEntries = workEntries.filter(e => e.id !== id);
+                updateWorkEntriesDisplay();
+            }
+        }
+
+        // Photo Functions
+        function capturePhoto(photoNumber) {
+            document.getElementById(`photo${photoNumber}`).click();
+        }
+
+        function selectPhoto(photoNumber) {
+            document.getElementById(`gallery${photoNumber}`).click();
+        }
+
+        function handlePhotoSelect(photoNumber, input) {
+            const file = input.files[0];
+            if (file) {
+                selectedPhotos[photoNumber] = file;
+                
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById(`photo${photoNumber}-preview`);
+                    preview.innerHTML = `
+                        <img src="${e.target.result}" alt="Photo ${photoNumber}">
+                        <div class="photo-filename">${file.name}</div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
         }
 
         // Form Actions
         function saveDraft() {
             const formData = new FormData(document.getElementById('sdr-form'));
             const reportData = Object.fromEntries(formData);
+            
+            // Add work entries and photos
+            reportData.workEntries = workEntries;
+            reportData.photos = Object.keys(selectedPhotos).map(key => ({
+                number: key,
+                name: selectedPhotos[key].name
+            }));
             
             // Add metadata
             reportData.status = 'draft';
@@ -860,6 +1276,19 @@
                 return;
             }
             
+            if (workEntries.length === 0) {
+                if (!confirm('⚠️ No work entries added. Submit anyway?')) {
+                    return;
+                }
+            }
+            
+            // Add work entries and photos
+            reportData.workEntries = workEntries;
+            reportData.photos = Object.keys(selectedPhotos).map(key => ({
+                number: key,
+                name: selectedPhotos[key].name
+            }));
+            
             // Add metadata
             reportData.status = 'submitted';
             reportData.id = Date.now();
@@ -871,10 +1300,20 @@
             
             alert('✅ Report submitted successfully!');
             
-            // Clear form
+            // Clear form, entries, and photos
             document.getElementById('sdr-form').reset();
+            workEntries = [];
+            selectedPhotos = {};
+            updateWorkEntriesDisplay();
+            clearPhotoPreviews();
             setTodaysDate();
             updateStats();
+        }
+
+        function clearPhotoPreviews() {
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById(`photo${i}-preview`).innerHTML = '';
+            }
         }
 
         // Reports Display
@@ -897,12 +1336,13 @@
             container.innerHTML = sortedReports.map(report => {
                 const date = new Date(report.timestamp).toLocaleDateString();
                 const time = new Date(report.timestamp).toLocaleTimeString();
+                const entriesCount = report.workEntries ? report.workEntries.length : 0;
                 
                 return `
                     <div class="report-item">
                         <div class="report-info">
                             <h4>${date} - ${report.location || 'Site Report'}</h4>
-                            <p>${report.contractor || 'No contractor'} | ${time}</p>
+                            <p>${report.contractor || 'No contractor'} | ${entriesCount} work entries | ${time}</p>
                         </div>
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <span class="status-badge status-${report.status}">${report.status}</span>
@@ -928,16 +1368,36 @@
             content += `📅 Date: ${report.date || 'Not specified'}\n`;
             content += `📍 Location: ${report.location || 'Not specified'}\n`;
             content += `   Details: ${report['location-details'] || 'None'}\n`;
-            content += `👷 Contractor: ${report.contractor || 'Not specified'}\n`;
-            content += `🔧 Work Category: ${report['work-category'] || 'Not specified'}\n`;
-            content += `💬 Work Description: ${report['work-description'] || 'None'}\n`;
-            content += `👥 Manpower: ${report.manpower || 'Not specified'}\n`;
+            content += `👷 Contractor: ${report.contractor || 'Not specified'}\n\n`;
+            
+            // Work Entries
+            if (report.workEntries && report.workEntries.length > 0) {
+                content += `🔧 WORK ENTRIES (${report.workEntries.length}):\n`;
+                report.workEntries.forEach((entry, index) => {
+                    content += `${index + 1}. ${entry.category} - ${entry.description}\n`;
+                    if (entry.specificLocation) content += `   📍 ${entry.specificLocation}\n`;
+                    if (entry.manpower || entry.progress) {
+                        content += `   ${entry.manpower ? `👥 ${entry.manpower}` : ''} ${entry.progress ? `📊 ${entry.progress}` : ''}\n`;
+                    }
+                    if (entry.notes) content += `   💭 ${entry.notes}\n`;
+                    content += `\n`;
+                });
+            } else {
+                content += `🔧 WORK ENTRIES: None\n\n`;
+            }
+            
+            content += `👥 Total Manpower: ${report.manpower || 'Not specified'}\n`;
             content += `🏗️ Equipment: ${report['plant-type'] || 'None'} (${report['plant-number'] || '0'})\n`;
             content += `📦 Materials: ${report['material-usage'] || 'None'}\n`;
             content += `⚡ Resources: ${report['resource-utilization'] || 'None'}\n`;
             content += `🛡️ Safety: ${report.safety || 'None'}\n`;
             content += `📋 Programme: ${report['weekly-programme'] || 'None'}\n`;
             content += `💭 Remarks: ${report.remarks || 'None'}\n\n`;
+            
+            if (report.photos && report.photos.length > 0) {
+                content += `📸 Photos: ${report.photos.length} attached\n\n`;
+            }
+            
             content += `Status: ${report.status.toUpperCase()}\n`;
             content += `Submitted: ${new Date(report.timestamp).toLocaleString()}`;
             
@@ -1001,12 +1461,21 @@
             dateInput.value = today;
         }
 
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('work-entry-modal');
+            if (event.target === modal) {
+                closeWorkEntryModal();
+            }
+        }
+
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             setTodaysDate();
             reports = JSON.parse(localStorage.getItem('sdr_reports') || '[]');
             updateStats();
             loadSettings();
+            updateWorkEntriesDisplay();
         });
     </script>
 </body>
