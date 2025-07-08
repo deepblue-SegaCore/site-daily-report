@@ -146,6 +146,12 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
         
+        /* Required field styling */
+        .form-input.required-empty, .form-select.required-empty {
+            border-color: #f59e0b;
+            background-color: #fffbeb;
+        }
+        
         .form-select {
             -webkit-appearance: none;
             appearance: none;
@@ -314,6 +320,34 @@
             text-align: center;
             font-weight: 500;
         }
+        
+        .warning-message {
+            background: #fffbeb;
+            border: 1px solid #f59e0b;
+            color: #d97706;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 16px 0;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        /* Help text */
+        .help-text {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+        
+        .required-info {
+            background: #eff6ff;
+            border: 1px solid #3b82f6;
+            color: #1e40af;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
     </style>
 </head>
 <body>
@@ -462,6 +496,12 @@
 
             <!-- Resources Tab -->
             <div id="resources-content" class="tab-content">
+                <!-- Work Entry Requirements -->
+                <div class="required-info">
+                    <strong>📋 To add work entry:</strong><br>
+                    Fill in at least <strong>Location</strong> OR <strong>Contractor</strong> in the Basic tab
+                </div>
+
                 <!-- Material -->
                 <div class="card">
                     <h3>📦 Material Usage</h3>
@@ -699,15 +739,33 @@
             document.getElementById(`photo${photoNum}-gallery`).value = '';
         }
 
-        // Add work entry
+        // IMPROVED Add work entry function
         function addWorkEntry() {
+            // Debug: Let user know button was clicked
+            console.log('Add Work Entry button clicked!');
+            
             const location = document.getElementById('location').value;
             const contractor = document.getElementById('contractor').value;
             
-            if (!location || !contractor) {
-                showMessage('Please fill in at least Location and Contractor fields', 'error');
+            // Clear any previous error styling
+            document.getElementById('location').classList.remove('required-empty');
+            document.getElementById('contractor').classList.remove('required-empty');
+            
+            // IMPROVED VALIDATION: Require Location OR Contractor (not both)
+            if (!location && !contractor) {
+                showMessage('❌ Please fill in at least Location OR Contractor field', 'error');
+                
+                // Highlight empty required fields
+                if (!location) document.getElementById('location').classList.add('required-empty');
+                if (!contractor) document.getElementById('contractor').classList.add('required-empty');
+                
+                // Show which tab to go to
+                showMessage('💡 Go to Basic tab to fill in Location or Contractor', 'warning');
                 return;
             }
+
+            // Show success immediately
+            showMessage('✅ Creating work entry...', 'success');
 
             const entry = {
                 id: Date.now(),
@@ -735,19 +793,40 @@
             updateEntriesDisplay();
             updateExportButtons();
             
-            showMessage('✅ Work entry added successfully!', 'success');
+            showMessage('✅ Work entry added successfully! Check the Entries tab.', 'success');
+            
+            // Auto-switch to entries tab to show the new entry
+            setTimeout(() => {
+                const entriesTab = document.querySelector('.tab[onclick*="entries"]');
+                if (entriesTab) {
+                    showTab('entries', entriesTab);
+                }
+            }, 1500);
         }
 
-        // Show message
+        // Show message with different types
         function showMessage(message, type) {
             const messageDiv = document.getElementById('entry-message');
-            messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
+            
+            // Clear existing classes
+            messageDiv.className = '';
+            
+            // Apply new class based on type
+            if (type === 'success') {
+                messageDiv.className = 'success-message';
+            } else if (type === 'error') {
+                messageDiv.className = 'error-message';
+            } else if (type === 'warning') {
+                messageDiv.className = 'warning-message';
+            }
+            
             messageDiv.textContent = message;
             
+            // Auto-clear message after 5 seconds
             setTimeout(() => {
                 messageDiv.textContent = '';
                 messageDiv.className = '';
-            }, 3000);
+            }, 5000);
         }
 
         // Clear form
@@ -772,6 +851,10 @@
                 removePhoto(i);
             }
             
+            // Clear any error styling
+            document.getElementById('location').classList.remove('required-empty');
+            document.getElementById('contractor').classList.remove('required-empty');
+            
             toggleOtherPlant();
         }
 
@@ -791,9 +874,10 @@
             } else {
                 entriesList.innerHTML = workEntries.map((entry, index) => `
                     <div class="entry-card">
-                        <div class="entry-header">Entry #${index + 1} - ${entry.contractor}</div>
+                        <div class="entry-header">Entry #${index + 1} - ${entry.contractor || entry.location}</div>
                         <div class="entry-details">
-                            <div><strong>📍 Location:</strong> ${entry.location}${entry.locationDetails ? ' - ' + entry.locationDetails : ''}</div>
+                            <div><strong>📍 Location:</strong> ${entry.location || 'Not specified'}${entry.locationDetails ? ' - ' + entry.locationDetails : ''}</div>
+                            <div><strong>👷 Contractor:</strong> ${entry.contractor || 'Not specified'}</div>
                             <div><strong>🔧 Work:</strong> ${entry.workDescription || 'No description'}</div>
                             <div><strong>👥 Manpower:</strong> ${entry.manpower || 'Not specified'}</div>
                             ${entry.plantType ? `<div><strong>🏗️ Plant:</strong> ${entry.plantNumber} x ${entry.plantType}</div>` : ''}
