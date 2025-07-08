@@ -1,689 +1,4 @@
-<div class="stat-card">
-                        <div class="stat-number" id="approved-reports">0</div>
-                        <div class="stat-label">Approved</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="draft-reports">0</div>
-                        <div class="stat-label">Drafts</div>
-                    </div>
-                </div>
-
-                <!-- Filter Buttons -->
-                <div class="filter-buttons">
-                    <button class="filter-btn active" onclick="filterReports('all')">All Reports</button>
-                    <button class="filter-btn" onclick="filterReports('draft')">Drafts</button>
-                    <button class="filter-btn" onclick="filterReports('submitted')">Submitted</button>
-                    <button class="filter-btn" onclick="filterReports('approved')">Approved</button>
-                    <button class="filter-btn" onclick="filterReports('rejected')">Rejected</button>
-                </div>
-
-                <!-- Reports List -->
-                <div id="reports-list">
-                    <div class="empty-reports">
-                        <h3>📋 No Reports Yet</h3>
-                        <p>Create your first daily report to see it here!</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bottom Navigation -->
-        <div class="bottom-nav">
-            <div class="btn-group grid-2">
-                <button onclick="saveDraft()" class="btn" style="background: #6b7280; color: white;">💾 Save Draft</button>
-                <button onclick="submitReport()" class="btn btn-primary">📧 Submit Report</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Global variables
-        let workEntries = [];
-        let photos = {1: null, 2: null, 3: null};
-        let submittedReports = JSON.parse(localStorage.getItem('submittedReports') || '[]');
-        let currentFilter = 'all';
-
-        // Initialize app immediately
-        function init() {
-            console.log('App starting...');
-            
-            // Set current date
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('report-date').value = today;
-            
-            // Start time updates
-            updateDateTime();
-            setInterval(updateDateTime, 1000);
-            
-            // Update reports display
-            updateReportsDisplay();
-            updateReportsStats();
-            
-            console.log('App initialized successfully');
-        }
-
-        // Update date and time
-        function updateDateTime() {
-            const now = new Date();
-            document.getElementById('current-date').textContent = now.toLocaleDateString();
-            document.getElementById('current-time').textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        }
-
-        // Tab navigation
-        function showTab(tabName, element) {
-            // Hide all tab contents
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            // Remove active class from all tabs
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Show selected tab content
-            document.getElementById(tabName + '-content').classList.add('active');
-            
-            // Add active class to clicked tab
-            element.classList.add('active');
-            
-            // Update reports when viewing reports tab
-            if (tabName === 'reports') {
-                updateReportsDisplay();
-                updateReportsStats();
-            }
-        }
-
-        // Toggle other plant type
-        function toggleOtherPlant() {
-            const plantType = document.getElementById('plant-type').value;
-            const otherGroup = document.getElementById('plant-other-group');
-            
-            if (plantType === 'others') {
-                otherGroup.classList.remove('hidden');
-            } else {
-                otherGroup.classList.add('hidden');
-                document.getElementById('plant-other').value = '';
-            }
-        }
-
-        // Photo functions
-        function capturePhoto(photoNum) {
-            document.getElementById(`photo${photoNum}-camera`).click();
-        }
-
-        function selectPhoto(photoNum) {
-            document.getElementById(`photo${photoNum}-gallery`).click();
-        }
-
-        function handlePhoto(photoNum, input) {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    photos[photoNum] = {
-                        data: e.target.result,
-                        name: file.name
-                    };
-                    
-                    // Show preview
-                    document.getElementById(`photo${photoNum}-img`).src = e.target.result;
-                    document.getElementById(`photo${photoNum}-name`).textContent = file.name;
-                    document.getElementById(`photo${photoNum}-preview`).classList.remove('hidden');
-                    document.getElementById(`photo${photoNum}-input`).classList.add('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function removePhoto(photoNum) {
-            photos[photoNum] = null;
-            document.getElementById(`photo${photoNum}-preview`).classList.add('hidden');
-            document.getElementById(`photo${photoNum}-input`).classList.remove('hidden');
-            document.getElementById(`photo${photoNum}-camera`).value = '';
-            document.getElementById(`photo${photoNum}-gallery`).value = '';
-        }
-
-        // IMPROVED Add work entry function
-        function addWorkEntry() {
-            console.log('Add Work Entry button clicked!');
-            
-            const location = document.getElementById('location').value;
-            const contractor = document.getElementById('contractor').value;
-            
-            // Clear any previous error styling
-            document.getElementById('location').classList.remove('required-empty');
-            document.getElementById('contractor').classList.remove('required-empty');
-            
-            // IMPROVED VALIDATION: Require Location OR Contractor (not both)
-            if (!location && !contractor) {
-                showMessage('❌ Please fill in at least Location OR Contractor field', 'error');
-                
-                // Highlight empty required fields
-                if (!location) document.getElementById('location').classList.add('required-empty');
-                if (!contractor) document.getElementById('contractor').classList.add('required-empty');
-                
-                showMessage('💡 Go to Basic tab to fill in Location or Contractor', 'warning');
-                return;
-            }
-
-            showMessage('✅ Creating work entry...', 'success');
-
-            const entry = {
-                id: Date.now(),
-                date: document.getElementById('report-date').value,
-                location: location,
-                locationDetails: document.getElementById('location-details').value,
-                contractor: contractor,
-                workDescription: document.getElementById('work-description').value,
-                workCategory: document.getElementById('work-category').value,
-                manpower: document.getElementById('manpower').value,
-                plantType: document.getElementById('plant-type').value,
-                plantNumber: document.getElementById('plant-number').value,
-                plantOtherType: document.getElementById('plant-other').value,
-                materialUsage: document.getElementById('material-usage').value,
-                resourceUtilization: document.getElementById('resource-utilization').value,
-                safetyObservations: document.getElementById('safety-observations').value,
-                weeklyProgramme: document.getElementById('weekly-programme').value,
-                remarks: document.getElementById('remarks').value,
-                photos: {...photos},
-                timestamp: new Date().toLocaleString()
-            };
-
-            workEntries.push(entry);
-            clearForm();
-            updateEntriesDisplay();
-            updateExportButtons();
-            
-            showMessage('✅ Work entry added successfully! Check the Entries tab.', 'success');
-            
-            // Auto-switch to entries tab to show the new entry
-            setTimeout(() => {
-                const entriesTab = document.querySelector('.tab[onclick*="entries"]');
-                if (entriesTab) {
-                    showTab('entries', entriesTab);
-                }
-            }, 1500);
-        }
-
-        // Show message with different types
-        function showMessage(message, type) {
-            const messageDiv = document.getElementById('entry-message');
-            
-            messageDiv.className = '';
-            
-            if (type === 'success') {
-                messageDiv.className = 'success-message';
-            } else if (type === 'error') {
-                messageDiv.className = 'error-message';
-            } else if (type === 'warning') {
-                messageDiv.className = 'warning-message';
-            }
-            
-            messageDiv.textContent = message;
-            
-            setTimeout(() => {
-                messageDiv.textContent = '';
-                messageDiv.className = '';
-            }, 5000);
-        }
-
-        // Clear form
-        function clearForm() {
-            document.getElementById('location').value = '';
-            document.getElementById('location-details').value = '';
-            document.getElementById('contractor').value = '';
-            document.getElementById('work-description').value = '';
-            document.getElementById('work-category').value = '';
-            document.getElementById('manpower').value = '';
-            document.getElementById('plant-type').value = '';
-            document.getElementById('plant-number').value = '';
-            document.getElementById('plant-other').value = '';
-            document.getElementById('material-usage').value = '';
-            document.getElementById('resource-utilization').value = '';
-            document.getElementById('safety-observations').value = '';
-            document.getElementById('weekly-programme').value = '';
-            document.getElementById('remarks').value = '';
-            
-            // Clear photos
-            for (let i = 1; i <= 3; i++) {
-                removePhoto(i);
-            }
-            
-            // Clear any error styling
-            document.getElementById('location').classList.remove('required-empty');
-            document.getElementById('contractor').classList.remove('required-empty');
-            
-            toggleOtherPlant();
-        }
-
-        // Update entries display
-        function updateEntriesDisplay() {
-            document.getElementById('entry-count').textContent = workEntries.length;
-            
-            const entriesList = document.getElementById('entries-list');
-            
-            if (workEntries.length === 0) {
-                entriesList.innerHTML = `
-                    <div class="card text-center" style="padding: 40px;">
-                        <div style="font-size: 48px; margin-bottom: 16px;">📄</div>
-                        <p style="color: #6b7280;">No work entries yet.<br>Add your first entry to get started!</p>
-                    </div>
-                `;
-            } else {
-                entriesList.innerHTML = workEntries.map((entry, index) => `
-                    <div class="entry-card">
-                        <div class="entry-header">Entry #${index + 1} - ${entry.contractor || entry.location}</div>
-                        <div class="entry-details">
-                            <div><strong>📍 Location:</strong> ${entry.location || 'Not specified'}${entry.locationDetails ? ' - ' + entry.locationDetails : ''}</div>
-                            <div><strong>👷 Contractor:</strong> ${entry.contractor || 'Not specified'}</div>
-                            <div><strong>🔧 Work:</strong> ${entry.workDescription || 'No description'}</div>
-                            <div><strong>👥 Manpower:</strong> ${entry.manpower || 'Not specified'}</div>
-                            ${entry.plantType ? `<div><strong>🏗️ Plant:</strong> ${entry.plantNumber} x ${entry.plantType}</div>` : ''}
-                            ${entry.safetyObservations ? `<div style="background: #fef3cd; padding: 8px; border-radius: 4px; margin-top: 8px;"><strong>🛡️ Safety:</strong> ${entry.safetyObservations}</div>` : ''}
-                            ${entry.remarks ? `<div style="background: #eff6ff; padding: 8px; border-radius: 4px; margin-top: 8px;"><strong>💬 Remarks:</strong> ${entry.remarks}</div>` : ''}
-                            ${getPhotosHTML(entry.photos)}
-                            <div style="font-size: 12px; color: #6b7280; margin-top: 8px;">⏰ ${entry.timestamp}</div>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        // Get photos HTML for display
-        function getPhotosHTML(entryPhotos) {
-            const photoElements = [];
-            for (let i = 1; i <= 3; i++) {
-                if (entryPhotos[i]) {
-                    photoElements.push(`<img src="${entryPhotos[i].data}" alt="Photo ${i}" class="entry-photo">`);
-                }
-            }
-            
-            if (photoElements.length > 0) {
-                return `<div class="entry-photos">${photoElements.join('')}</div>`;
-            }
-            return '';
-        }
-
-        // Update export buttons
-        function updateExportButtons() {
-            const hasEntries = workEntries.length > 0;
-            document.getElementById('download-btn').disabled = !hasEntries;
-            document.getElementById('photos-btn').disabled = !hasEntries;
-            document.getElementById('export-message').style.display = hasEntries ? 'none' : 'block';
-        }
-
-        // Generate CSV
-        function generateCSV() {
-            const headers = [
-                'Date', 'Location', 'Location Details', 'Contractor', 'Work Description',
-                'Work Category', 'Manpower', 'Plant Type', 'Plant Number', 'Plant Other Type',
-                'Material Usage', 'Resource Utilization', 'Safety Observations',
-                'Weekly Programme', 'Remarks', 'Photo 1', 'Photo 2', 'Photo 3', 'Timestamp'
-            ];
-            
-            const csvContent = [
-                headers.join(','),
-                ...workEntries.map(entry => [
-                    entry.date,
-                    `"${entry.location}"`,
-                    `"${entry.locationDetails}"`,
-                    `"${entry.contractor}"`,
-                    `"${(entry.workDescription || '').replace(/"/g, '""')}"`,
-                    `"${entry.workCategory}"`,
-                    entry.manpower,
-                    `"${entry.plantType}"`,
-                    entry.plantNumber,
-                    `"${entry.plantOtherType || ''}"`,
-                    `"${(entry.materialUsage || '').replace(/"/g, '""')}"`,
-                    `"${(entry.resourceUtilization || '').replace(/"/g, '""')}"`,
-                    `"${(entry.safetyObservations || '').replace(/"/g, '""')}"`,
-                    `"${(entry.weeklyProgramme || '').replace(/"/g, '""')}"`,
-                    `"${(entry.remarks || '').replace(/"/g, '""')}"`,
-                    `"${entry.photos[1] ? entry.photos[1].name : ''}"`,
-                    `"${entry.photos[2] ? entry.photos[2].name : ''}"`,
-                    `"${entry.photos[3] ? entry.photos[3].name : ''}"`,
-                    `"${entry.timestamp}"`
-                ].join(','))
-            ].join('\n');
-            
-            return csvContent;
-        }
-
-        // Download CSV
-        function downloadCSV() {
-            try {
-                const csvContent = generateCSV();
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                const url = URL.createObjectURL(blob);
-                link.setAttribute('href', url);
-                link.setAttribute('download', `site_daily_report_${document.getElementById('report-date').value}.csv`);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                alert('✅ CSV downloaded successfully!');
-            } catch (error) {
-                alert('❌ CSV export failed. Please try again.');
-            }
-        }
-
-        // Download photos
-        function downloadPhotos() {
-            try {
-                createHTMLPhotoReport();
-            } catch (error) {
-                alert('❌ Photo export failed. Please try again.');
-            }
-        }
-
-        // Create HTML photo report
-        function createHTMLPhotoReport() {
-            let photoHTML = `<!DOCTYPE html>
-<html>
-<head>
-    <title>Site Report Photos - ${document.getElementById('report-date').value}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.5; }
-        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
-        .entry { margin-bottom: 40px; border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
-        .entry-header { background: #f0f0f0; padding: 10px; margin: -20px -20px 15px -20px; border-radius: 8px 8px 0 0; }
-        .photo-container { margin: 15px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
-        img { max-width: 100%; height: auto; margin: 10px 0; border: 1px solid #ccc; }
-        .details { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
-        .detail { padding: 5px 0; }
-        .section-title { font-weight: bold; color: #2563eb; margin: 15px 0 5px 0; }
-        .remarks { background: #fff3cd; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        .safety { background: #f8d7da; padding: 10px; border-radius: 4px; margin: 10px 0; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>📊 Site Daily Report - Photos</h1>
-        <h2>📅 Date: ${document.getElementById('report-date').value}</h2>
-        <p>🕐 Generated: ${new Date().toLocaleString()}</p>
-        <p>📋 Total Entries: ${workEntries.length}</p>
-    </div>`;
-
-            workEntries.forEach((entry, index) => {
-                photoHTML += `
-    <div class="entry">
-        <div class="entry-header">
-            <h3>Entry #${index + 1}</h3>
-        </div>
-        
-        <div class="details">
-            <div class="detail"><strong>📍 Location:</strong> ${entry.location}</div>
-            <div class="detail"><strong>👷 Contractor:</strong> ${entry.contractor}</div>
-            <div class="detail"><strong>🔧 Category:</strong> ${entry.workCategory}</div>
-            <div class="detail"><strong>👥 Manpower:</strong> ${entry.manpower}</div>
-        </div>
-        
-        <div class="detail"><strong>📍 Location Details:</strong> ${entry.locationDetails}</div>
-        <div class="detail"><strong>🏗️ Plant & Equipment:</strong> ${entry.plantNumber} x ${entry.plantType} ${entry.plantOtherType}</div>
-        <div class="detail"><strong>⏰ Timestamp:</strong> ${entry.timestamp}</div>
-        
-        ${entry.workDescription ? `
-        <div class="section-title">🔧 Work Description:</div>
-        <div>${entry.workDescription}</div>
-        ` : ''}
-        
-        ${entry.remarks ? `
-        <div class="section-title">💬 Remarks:</div>
-        <div class="remarks">${entry.remarks}</div>
-        ` : ''}
-        
-        ${entry.safetyObservations ? `
-        <div class="section-title">🛡️ Safety Observations:</div>
-        <div class="safety">${entry.safetyObservations}</div>
-        ` : ''}`;
-                
-                for (let i = 1; i <= 3; i++) {
-                    if (entry.photos[i]) {
-                        photoHTML += `
-        <div class="photo-container">
-            <div class="section-title">📸 Photo ${i}: ${entry.photos[i].name}</div>
-            <img src="${entry.photos[i].data}" alt="Photo ${i}">
-        </div>`;
-                    }
-                }
-                
-                photoHTML += `    </div>`;
-            });
-
-            photoHTML += `</body></html>`;
-
-            // Download
-            const blob = new Blob([photoHTML], { type: 'text/html;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', `site_report_photos_${document.getElementById('report-date').value}.html`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            alert('✅ Photos exported successfully!');
-        }
-
-        // Save draft
-        function saveDraft() {
-            try {
-                const draftData = {
-                    date: document.getElementById('report-date').value,
-                    location: document.getElementById('location').value,
-                    locationDetails: document.getElementById('location-details').value,
-                    contractor: document.getElementById('contractor').value,
-                    workDescription: document.getElementById('work-description').value,
-                    workCategory: document.getElementById('work-category').value,
-                    manpower: document.getElementById('manpower').value,
-                    plantType: document.getElementById('plant-type').value,
-                    plantNumber: document.getElementById('plant-number').value,
-                    plantOtherType: document.getElementById('plant-other').value,
-                    materialUsage: document.getElementById('material-usage').value,
-                    resourceUtilization: document.getElementById('resource-utilization').value,
-                    safetyObservations: document.getElementById('safety-observations').value,
-                    weeklyProgramme: document.getElementById('weekly-programme').value,
-                    remarks: document.getElementById('remarks').value,
-                    photos: photos,
-                    workEntries: workEntries,
-                    savedAt: new Date().toLocaleString(),
-                    status: 'draft'
-                };
-                
-                // Save current draft
-                if (typeof Storage !== "undefined") {
-                    try {
-                        localStorage.setItem('siteDailyReportDraft', JSON.stringify(draftData));
-                        
-                        // Also add to submitted reports for tracking
-                        const existingDraftIndex = submittedReports.findIndex(r => r.status === 'draft' && r.date === draftData.date);
-                        if (existingDraftIndex >= 0) {
-                            submittedReports[existingDraftIndex] = draftData;
-                        } else {
-                            submittedReports.push(draftData);
-                        }
-                        localStorage.setItem('submittedReports', JSON.stringify(submittedReports));
-                        
-                        alert('✅ Draft saved successfully!');
-                        updateReportsDisplay();
-                        updateReportsStats();
-                    } catch (e) {
-                        sessionStorage.setItem('siteDailyReportDraft', JSON.stringify(draftData));
-                        alert('✅ Draft saved for this session!');
-                    }
-                } else {
-                    alert('❌ Browser storage not supported.');
-                }
-            } catch (error) {
-                alert('❌ Save failed: ' + error.message);
-            }
-        }
-
-        // Submit report
-        function submitReport() {
-            if (workEntries.length === 0) {
-                alert('❌ Cannot submit empty report.\n\nPlease add at least one work entry.');
-                return;
-            }
-            
-            const reportData = {
-                id: Date.now(),
-                date: document.getElementById('report-date').value,
-                location: document.getElementById('location').value,
-                locationDetails: document.getElementById('location-details').value,
-                contractor: document.getElementById('contractor').value,
-                workDescription: document.getElementById('work-description').value,
-                workCategory: document.getElementById('work-category').value,
-                manpower: document.getElementById('manpower').value,
-                plantType: document.getElementById('plant-type').value,
-                plantNumber: document.getElementById('plant-number').value,
-                plantOtherType: document.getElementById('plant-other').value,
-                materialUsage: document.getElementById('material-usage').value,
-                resourceUtilization: document.getElementById('resource-utilization').value,
-                safetyObservations: document.getElementById('safety-observations').value,
-                weeklyProgramme: document.getElementById('weekly-programme').value,
-                remarks: document.getElementById('remarks').value,
-                photos: photos,
-                workEntries: workEntries,
-                totalEntries: workEntries.length,
-                submittedAt: new Date().toLocaleString(),
-                status: 'submitted'
-            };
-            
-            const referenceNumber = `SDR-${reportData.date.replace(/-/g, '')}-${Date.now()}`;
-            reportData.referenceNumber = referenceNumber;
-            
-            if (confirm(`📧 Submit Report?\n\n• Date: ${reportData.date}\n• Entries: ${reportData.totalEntries}\n• Reference: ${referenceNumber}\n\nContinue?`)) {
-                // Add to submitted reports
-                submittedReports.push(reportData);
-                localStorage.setItem('submittedReports', JSON.stringify(submittedReports));
-                
-                // Clear draft
-                try {
-                    if (typeof Storage !== "undefined") {
-                        localStorage.removeItem('siteDailyReportDraft');
-                        sessionStorage.removeItem('siteDailyReportDraft');
-                    }
-                } catch (error) {
-                    console.warn('Could not clear draft');
-                }
-                
-                alert(`✅ Report submitted successfully!\n\n• Reference: ${referenceNumber}\n• Submitted: ${reportData.submittedAt}`);
-                
-                // Update displays
-                updateReportsDisplay();
-                updateReportsStats();
-                
-                // Ask about new report
-                setTimeout(() => {
-                    if (confirm('🆕 Start new report?\n\nThis will clear all data.')) {
-                        location.reload();
-                    }
-                }, 2000);
-            }
-        }
-
-        // Reports Management Functions
-        function updateReportsDisplay() {
-            const reportsList = document.getElementById('reports-list');
-            
-            let filteredReports = submittedReports;
-            if (currentFilter !== 'all') {
-                filteredReports = submittedReports.filter(report => report.status === currentFilter);
-            }
-            
-            if (filteredReports.length === 0) {
-                const message = currentFilter === 'all' ? 
-                    'No reports yet. Create your first daily report to see it here!' :
-                    `No ${currentFilter} reports found.`;
-                
-                reportsList.innerHTML = `
-                    <div class="empty-reports">
-                        <h3>📋 ${currentFilter === 'all' ? 'No Reports Yet' : 'No ' + currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1) + ' Reports'}</h3>
-                        <p>${message}</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            // Sort by date (newest first)
-            filteredReports.sort((a, b) => new Date(b.submittedAt || b.savedAt) - new Date(a.submittedAt || a.savedAt));
-            
-            reportsList.innerHTML = filteredReports.map(report => {
-                const date = new Date(report.submittedAt || report.savedAt).toLocaleDateString();
-                const time = new Date(report.submittedAt || report.savedAt).toLocaleTimeString();
-                const entriesCount = report.workEntries ? report.workEntries.length : 0;
-                
-                return `
-                    <div class="report-item">
-                        <div class="report-header">
-                            <div class="report-title">${date} - ${report.location || 'Site Report'}</div>
-                            <div class="report-status status-${report.status}">${report.status}</div>
-                        </div>
-                        
-                        <div class="report-details">
-                            📅 ${report.date} | 👷 ${report.contractor || 'Multiple contractors'}<br>
-                            📊 ${entriesCount} activities | ⏰ ${time}
-                            ${report.referenceNumber ? `<br>📋 Ref: ${report.referenceNumber}` : ''}
-                        </div>
-                        
-                        <div class="report-actions">
-                            <button class="btn-small btn-view" onclick="viewReport(${report.id || Date.now()})">View</button>
-                            ${report.status === 'draft' ? 
-                                '<button class="btn-small btn-continue" onclick="continueReport(' + (report.id || Date.now()) + ')">Continue</button>' : ''}
-                            ${report.status === 'draft' || report.status === 'rejected' ? 
-                                '<button class="btn-small btn-edit" onclick="editReport(' + (report.id || Date.now()) + ')">Edit</button>' : ''}
-                            ${report.status === 'draft' ? 
-                                '<button class="btn-small btn-delete" onclick="deleteReport(' + (report.id || Date.now()) + ')">Delete</button>' : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function updateReportsStats() {
-            const total = submittedReports.length;
-            const pending = submittedReports.filter(r => r.status === 'submitted').length;
-            const approved = submittedReports.filter(r => r.status === 'approved').length;
-            const drafts = submittedReports.filter(r => r.status === 'draft').length;
-            
-            document.getElementById('total-reports').textContent = total;
-            document.getElementById('pending-reports').textContent = pending;
-            document.getElementById('approved-reports').textContent = approved;
-            document.getElementById('draft-reports').textContent = drafts;
-        }
-
-        function filterReports(status) {
-            currentFilter = status;
-            
-            // Update filter button states
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            updateReportsDisplay();
-        }
-
-        function viewReport(reportId) {
-            const report = submittedReports.find(r => (r.id || Date.now()) == reportId);
-            if (!report) return;
-            
-            let content = `📊 SITE DAILY REPORT\n\n`;
-            content += `📅 Date: ${report.date}\n`;
-            content += `📍 Location: ${report.location || 'Not specified'}\n`;
-            content += `👷 Contractor: ${report.contractor || 'Not specified'}\n`;
-            content += `📋 Status: ${report.status.toUpperCase()}\n`;
-            if (report.referenceNumber) content += `🆔 Reference: ${report.referenceNumber}\n`;
-            content += `\n`;
-            
-            if (report.workEntries && report.workEntries.length > 0) {
-                content += `🔧 WORK ACTIVITIES (${report.workEntries.length})<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -829,12 +144,6 @@
             outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        
-        /* Required field styling */
-        .form-input.required-empty, .form-select.required-empty {
-            border-color: #f59e0b;
-            background-color: #fffbeb;
         }
         
         .form-select {
@@ -1005,222 +314,6 @@
             text-align: center;
             font-weight: 500;
         }
-        
-        .warning-message {
-            background: #fffbeb;
-            border: 1px solid #f59e0b;
-            color: #d97706;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 16px 0;
-            text-align: center;
-            font-weight: 500;
-        }
-        
-        /* Help text */
-        .help-text {
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: 4px;
-        }
-        
-        .required-info {
-            background: #eff6ff;
-            border: 1px solid #3b82f6;
-            color: #1e40af;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 14px;
-            margin-bottom: 16px;
-        }
-        
-        /* My Reports Styles */
-        .reports-header {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        
-        .stat-card {
-            background: white;
-            padding: 16px;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            border-left: 4px solid #3b82f6;
-        }
-        
-        .stat-number {
-            font-size: 24px;
-            font-weight: bold;
-            color: #1f2937;
-            margin-bottom: 4px;
-        }
-        
-        .stat-label {
-            font-size: 12px;
-            color: #6b7280;
-            font-weight: 500;
-        }
-        
-        .report-item {
-            background: white;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            border-left: 4px solid #3b82f6;
-        }
-        
-        .report-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 8px;
-        }
-        
-        .report-title {
-            font-weight: 700;
-            color: #1f2937;
-            font-size: 16px;
-        }
-        
-        .report-status {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        
-        .status-draft {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        
-        .status-submitted {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        
-        .status-approved {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        
-        .status-rejected {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-        
-        .report-details {
-            font-size: 14px;
-            color: #6b7280;
-            margin-bottom: 12px;
-            line-height: 1.4;
-        }
-        
-        .report-actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        
-        .btn-small {
-            padding: 8px 12px;
-            font-size: 12px;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            flex: 1;
-            min-width: 60px;
-        }
-        
-        .btn-view {
-            background: #6b7280;
-            color: white;
-        }
-        
-        .btn-edit {
-            background: #06b6d4;
-            color: white;
-        }
-        
-        .btn-delete {
-            background: #dc2626;
-            color: white;
-        }
-        
-        .btn-continue {
-            background: #f59e0b;
-            color: white;
-        }
-        
-        .empty-reports {
-            text-align: center;
-            padding: 40px 20px;
-            color: #6b7280;
-        }
-        
-        .empty-reports h3 {
-            font-size: 18px;
-            margin-bottom: 8px;
-            color: #374151;
-        }
-        
-        /* Filter buttons */
-        .filter-buttons {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-            overflow-x: auto;
-            padding-bottom: 4px;
-        }
-        
-        .filter-btn {
-            padding: 8px 16px;
-            border: 1px solid #d1d5db;
-            background: white;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            white-space: nowrap;
-            color: #6b7280;
-        }
-        
-        .filter-btn.active {
-            background: #3b82f6;
-            color: white;
-            border-color: #3b82f6;
-        }
-        
-        /* Responsive adjustments */
-        @media (max-width: 320px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .report-header {
-                flex-direction: column;
-                gap: 8px;
-            }
-            
-            .report-actions {
-                justify-content: stretch;
-            }
-        }
     </style>
 </head>
 <body>
@@ -1243,7 +336,6 @@
             <button class="tab active" onclick="showTab('basic', this)">📝 Basic</button>
             <button class="tab" onclick="showTab('resources', this)">📋 Resources</button>
             <button class="tab" onclick="showTab('entries', this)">📊 Entries</button>
-            <button class="tab" onclick="showTab('reports', this)">📋 My Reports</button>
         </div>
 
         <!-- Content -->
@@ -1370,12 +462,6 @@
 
             <!-- Resources Tab -->
             <div id="resources-content" class="tab-content">
-                <!-- Work Entry Requirements -->
-                <div class="required-info">
-                    <strong>📋 To add work entry:</strong><br>
-                    Fill in at least <strong>Location</strong> OR <strong>Contractor</strong> in the Basic tab
-                </div>
-
                 <!-- Material -->
                 <div class="card">
                     <h3>📦 Material Usage</h3>
@@ -1506,24 +592,724 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- My Reports Tab -->
-            <div id="reports-content" class="tab-content">
-                <!-- Reports Header -->
-                <div class="reports-header">
-                    <h2 style="margin-bottom: 8px;">📋 My Reports</h2>
-                    <p style="opacity: 0.9;">Manage your daily site reports</p>
-                </div>
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="btn-group grid-2">
+                <button onclick="saveDraft()" class="btn" style="background: #6b7280; color: white;">💾 Save Draft</button>
+                <button onclick="submitReport()" class="btn btn-primary">📧 Submit Report</button>
+            </div>
+        </div>
+    </div>
 
-                <!-- Statistics -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-number" id="total-reports">0</div>
-                        <div class="stat-label">Total Reports</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="pending-reports">0</div>
-                        <div class="stat-label">Pending Review</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat
+    <script>
+        // Global variables
+        let workEntries = [];
+        let photos = {1: null, 2: null, 3: null};
+
+        // Initialize app
+        function init() {
+            console.log('App starting...');
+            
+            try {
+                // Set current date
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('report-date').value = today;
+                
+                // Start time updates
+                updateDateTime();
+                setInterval(updateDateTime, 1000);
+                
+                console.log('App initialized successfully');
+            } catch (error) {
+                console.error('Init error:', error);
+                showMessage('⚠️ App initialization failed. Please refresh the page.', 'error');
+            }
+        }
+
+        // Update date and time
+        function updateDateTime() {
+            try {
+                const now = new Date();
+                const dateEl = document.getElementById('current-date');
+                const timeEl = document.getElementById('current-time');
+                
+                if (dateEl) dateEl.textContent = now.toLocaleDateString();
+                if (timeEl) timeEl.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            } catch (error) {
+                console.warn('DateTime update failed:', error);
+            }
+        }
+
+        // Tab navigation
+        function showTab(tabName, element) {
+            try {
+                // Hide all tab contents
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Show selected tab content
+                const targetContent = document.getElementById(tabName + '-content');
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+                
+                // Add active class to clicked tab
+                if (element) {
+                    element.classList.add('active');
+                }
+            } catch (error) {
+                console.error('Tab switching error:', error);
+            }
+        }
+
+        // Toggle other plant type
+        function toggleOtherPlant() {
+            try {
+                const plantType = document.getElementById('plant-type').value;
+                const otherGroup = document.getElementById('plant-other-group');
+                
+                if (plantType === 'others') {
+                    otherGroup.classList.remove('hidden');
+                } else {
+                    otherGroup.classList.add('hidden');
+                    document.getElementById('plant-other').value = '';
+                }
+            } catch (error) {
+                console.error('Plant toggle error:', error);
+            }
+        }
+
+        // Photo functions
+        function capturePhoto(photoNum) {
+            try {
+                const cameraInput = document.getElementById(`photo${photoNum}-camera`);
+                if (cameraInput) {
+                    cameraInput.click();
+                }
+            } catch (error) {
+                console.error('Camera capture error:', error);
+                showMessage('❌ Camera access failed. Try using gallery instead.', 'error');
+            }
+        }
+
+        function selectPhoto(photoNum) {
+            try {
+                const galleryInput = document.getElementById(`photo${photoNum}-gallery`);
+                if (galleryInput) {
+                    galleryInput.click();
+                }
+            } catch (error) {
+                console.error('Gallery selection error:', error);
+            }
+        }
+
+        function handlePhoto(photoNum, input) {
+            try {
+                const file = input.files[0];
+                if (!file) return;
+                
+                // Check file size (limit to 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    showMessage('❌ Photo too large. Please select a smaller image (max 5MB).', 'error');
+                    return;
+                }
+                
+                // Check file type
+                if (!file.type.startsWith('image/')) {
+                    showMessage('❌ Please select a valid image file.', 'error');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        photos[photoNum] = {
+                            data: e.target.result,
+                            name: file.name
+                        };
+                        
+                        // Show preview
+                        const imgEl = document.getElementById(`photo${photoNum}-img`);
+                        const nameEl = document.getElementById(`photo${photoNum}-name`);
+                        const previewEl = document.getElementById(`photo${photoNum}-preview`);
+                        const inputEl = document.getElementById(`photo${photoNum}-input`);
+                        
+                        if (imgEl) imgEl.src = e.target.result;
+                        if (nameEl) nameEl.textContent = file.name;
+                        if (previewEl) previewEl.classList.remove('hidden');
+                        if (inputEl) inputEl.classList.add('hidden');
+                        
+                        showMessage(`✅ Photo ${photoNum} uploaded successfully!`, 'success');
+                    } catch (error) {
+                        console.error('Photo preview error:', error);
+                        showMessage('❌ Photo preview failed.', 'error');
+                    }
+                };
+                
+                reader.onerror = function() {
+                    showMessage('❌ Failed to read photo file.', 'error');
+                };
+                
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Photo handling error:', error);
+                showMessage('❌ Photo upload failed.', 'error');
+            }
+        }
+
+        function removePhoto(photoNum) {
+            try {
+                photos[photoNum] = null;
+                
+                const previewEl = document.getElementById(`photo${photoNum}-preview`);
+                const inputEl = document.getElementById(`photo${photoNum}-input`);
+                const cameraEl = document.getElementById(`photo${photoNum}-camera`);
+                const galleryEl = document.getElementById(`photo${photoNum}-gallery`);
+                
+                if (previewEl) previewEl.classList.add('hidden');
+                if (inputEl) inputEl.classList.remove('hidden');
+                if (cameraEl) cameraEl.value = '';
+                if (galleryEl) galleryEl.value = '';
+                
+                showMessage(`✅ Photo ${photoNum} removed.`, 'success');
+            } catch (error) {
+                console.error('Photo removal error:', error);
+            }
+        }
+
+        // Add work entry
+        function addWorkEntry() {
+            try {
+                const location = document.getElementById('location').value;
+                const contractor = document.getElementById('contractor').value;
+                
+                if (!location || !contractor) {
+                    showMessage('❌ Please fill in at least Location and Contractor fields', 'error');
+                    return;
+                }
+
+                const entry = {
+                    id: Date.now(),
+                    date: document.getElementById('report-date').value,
+                    location: location,
+                    locationDetails: document.getElementById('location-details').value || '',
+                    contractor: contractor,
+                    workDescription: document.getElementById('work-description').value || '',
+                    workCategory: document.getElementById('work-category').value || '',
+                    manpower: document.getElementById('manpower').value || '',
+                    plantType: document.getElementById('plant-type').value || '',
+                    plantNumber: document.getElementById('plant-number').value || '',
+                    plantOtherType: document.getElementById('plant-other').value || '',
+                    materialUsage: document.getElementById('material-usage').value || '',
+                    resourceUtilization: document.getElementById('resource-utilization').value || '',
+                    safetyObservations: document.getElementById('safety-observations').value || '',
+                    weeklyProgramme: document.getElementById('weekly-programme').value || '',
+                    remarks: document.getElementById('remarks').value || '',
+                    photos: JSON.parse(JSON.stringify(photos)), // Deep copy
+                    timestamp: new Date().toLocaleString()
+                };
+
+                workEntries.push(entry);
+                clearForm();
+                updateEntriesDisplay();
+                updateExportButtons();
+                
+                showMessage('✅ Work entry added successfully!', 'success');
+                
+                // Auto-switch to entries tab
+                setTimeout(() => {
+                    const entriesTab = document.querySelector('.tab:nth-child(3)');
+                    if (entriesTab) {
+                        showTab('entries', entriesTab);
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Add entry error:', error);
+                showMessage('❌ Failed to add work entry. Please try again.', 'error');
+            }
+        }
+
+        // Show message
+        function showMessage(message, type) {
+            try {
+                const messageDiv = document.getElementById('entry-message');
+                if (messageDiv) {
+                    messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
+                    messageDiv.textContent = message;
+                    
+                    setTimeout(() => {
+                        messageDiv.textContent = '';
+                        messageDiv.className = '';
+                    }, 3000);
+                }
+            } catch (error) {
+                console.error('Message display error:', error);
+            }
+        }
+
+        // Clear form
+        function clearForm() {
+            try {
+                const formFields = [
+                    'location', 'location-details', 'contractor', 'work-description',
+                    'work-category', 'manpower', 'plant-type', 'plant-number',
+                    'plant-other', 'material-usage', 'resource-utilization',
+                    'safety-observations', 'weekly-programme', 'remarks'
+                ];
+                
+                formFields.forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (field) field.value = '';
+                });
+                
+                // Clear photos
+                for (let i = 1; i <= 3; i++) {
+                    removePhoto(i);
+                }
+                
+                toggleOtherPlant();
+            } catch (error) {
+                console.error('Form clearing error:', error);
+            }
+        }
+
+        // Update entries display
+        function updateEntriesDisplay() {
+            try {
+                const countEl = document.getElementById('entry-count');
+                if (countEl) countEl.textContent = workEntries.length;
+                
+                const entriesList = document.getElementById('entries-list');
+                if (!entriesList) return;
+                
+                if (workEntries.length === 0) {
+                    entriesList.innerHTML = `
+                        <div class="card text-center" style="padding: 40px;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">📄</div>
+                            <p style="color: #6b7280;">No work entries yet.<br>Add your first entry to get started!</p>
+                        </div>
+                    `;
+                } else {
+                    entriesList.innerHTML = workEntries.map((entry, index) => `
+                        <div class="entry-card">
+                            <div class="entry-header">Entry #${index + 1} - ${entry.contractor}</div>
+                            <div class="entry-details">
+                                <div><strong>📍 Location:</strong> ${entry.location}${entry.locationDetails ? ' - ' + entry.locationDetails : ''}</div>
+                                <div><strong>🔧 Work:</strong> ${entry.workDescription || 'No description'}</div>
+                                <div><strong>👥 Manpower:</strong> ${entry.manpower || 'Not specified'}</div>
+                                ${entry.plantType ? `<div><strong>🏗️ Plant:</strong> ${entry.plantNumber} x ${entry.plantType}</div>` : ''}
+                                ${entry.safetyObservations ? `<div style="background: #fef3cd; padding: 8px; border-radius: 4px; margin-top: 8px;"><strong>🛡️ Safety:</strong> ${entry.safetyObservations}</div>` : ''}
+                                ${entry.remarks ? `<div style="background: #eff6ff; padding: 8px; border-radius: 4px; margin-top: 8px;"><strong>💬 Remarks:</strong> ${entry.remarks}</div>` : ''}
+                                ${getPhotosHTML(entry.photos)}
+                                <div style="font-size: 12px; color: #6b7280; margin-top: 8px;">⏰ ${entry.timestamp}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Entries display error:', error);
+            }
+        }
+
+        // Get photos HTML for display
+        function getPhotosHTML(entryPhotos) {
+            try {
+                const photoElements = [];
+                for (let i = 1; i <= 3; i++) {
+                    if (entryPhotos && entryPhotos[i] && entryPhotos[i].data) {
+                        photoElements.push(`<img src="${entryPhotos[i].data}" alt="Photo ${i}" class="entry-photo">`);
+                    }
+                }
+                
+                if (photoElements.length > 0) {
+                    return `<div class="entry-photos">${photoElements.join('')}</div>`;
+                }
+                return '';
+            } catch (error) {
+                console.error('Photos HTML error:', error);
+                return '';
+            }
+        }
+
+        // Update export buttons
+        function updateExportButtons() {
+            try {
+                const hasEntries = workEntries.length > 0;
+                const downloadBtn = document.getElementById('download-btn');
+                const photosBtn = document.getElementById('photos-btn');
+                const exportMsg = document.getElementById('export-message');
+                
+                if (downloadBtn) downloadBtn.disabled = !hasEntries;
+                if (photosBtn) photosBtn.disabled = !hasEntries;
+                if (exportMsg) exportMsg.style.display = hasEntries ? 'none' : 'block';
+            } catch (error) {
+                console.error('Export buttons update error:', error);
+            }
+        }
+
+        // Generate CSV with improved error handling
+        function generateCSV() {
+            try {
+                const headers = [
+                    'Date', 'Location', 'Location Details', 'Contractor', 'Work Description',
+                    'Work Category', 'Manpower', 'Plant Type', 'Plant Number', 'Plant Other Type',
+                    'Material Usage', 'Resource Utilization', 'Safety Observations',
+                    'Weekly Programme', 'Remarks', 'Photo 1', 'Photo 2', 'Photo 3', 'Timestamp'
+                ];
+                
+                const csvRows = workEntries.map(entry => [
+                    entry.date || '',
+                    `"${(entry.location || '').replace(/"/g, '""')}"`,
+                    `"${(entry.locationDetails || '').replace(/"/g, '""')}"`,
+                    `"${(entry.contractor || '').replace(/"/g, '""')}"`,
+                    `"${(entry.workDescription || '').replace(/"/g, '""')}"`,
+                    `"${(entry.workCategory || '').replace(/"/g, '""')}"`,
+                    entry.manpower || '',
+                    `"${(entry.plantType || '').replace(/"/g, '""')}"`,
+                    entry.plantNumber || '',
+                    `"${(entry.plantOtherType || '').replace(/"/g, '""')}"`,
+                    `"${(entry.materialUsage || '').replace(/"/g, '""')}"`,
+                    `"${(entry.resourceUtilization || '').replace(/"/g, '""')}"`,
+                    `"${(entry.safetyObservations || '').replace(/"/g, '""')}"`,
+                    `"${(entry.weeklyProgramme || '').replace(/"/g, '""')}"`,
+                    `"${(entry.remarks || '').replace(/"/g, '""')}"`,
+                    `"${(entry.photos && entry.photos[1] ? entry.photos[1].name : '')}"`,
+                    `"${(entry.photos && entry.photos[2] ? entry.photos[2].name : '')}"`,
+                    `"${(entry.photos && entry.photos[3] ? entry.photos[3].name : '')}"`,
+                    `"${(entry.timestamp || '').replace(/"/g, '""')}"`
+                ].join(','));
+                
+                return [headers.join(','), ...csvRows].join('\n');
+            } catch (error) {
+                console.error('CSV generation error:', error);
+                throw new Error('Failed to generate CSV');
+            }
+        }
+
+        // Download CSV with better error handling
+        function downloadCSV() {
+            try {
+                if (workEntries.length === 0) {
+                    showMessage('❌ No entries to export.', 'error');
+                    return;
+                }
+                
+                const csvContent = generateCSV();
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                
+                link.setAttribute('href', url);
+                link.setAttribute('download', `site_daily_report_${document.getElementById('report-date').value}.csv`);
+                link.style.visibility = 'hidden';
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Clean up the URL object
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                
+                showMessage('✅ CSV downloaded successfully!', 'success');
+            } catch (error) {
+                console.error('CSV download error:', error);
+                showMessage('❌ CSV export failed. Please try again.', 'error');
+            }
+        }
+
+        // Download photos with improved error handling
+        function downloadPhotos() {
+            try {
+                if (workEntries.length === 0) {
+                    showMessage('❌ No entries to export.', 'error');
+                    return;
+                }
+                
+                createHTMLPhotoReport();
+            } catch (error) {
+                console.error('Photo export error:', error);
+                showMessage('❌ Photo export failed. Please try again.', 'error');
+            }
+        }
+
+        // Create HTML photo report with better error handling
+        function createHTMLPhotoReport() {
+            try {
+                const reportDate = document.getElementById('report-date').value;
+                
+                let photoHTML = `<!DOCTYPE html>
+<html>
+<head>
+    <title>Site Report Photos - ${reportDate}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.5; }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+        .entry { margin-bottom: 40px; border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
+        .entry-header { background: #f0f0f0; padding: 10px; margin: -20px -20px 15px -20px; border-radius: 8px 8px 0 0; }
+        .photo-container { margin: 15px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        img { max-width: 100%; height: auto; margin: 10px 0; border: 1px solid #ccc; }
+        .details { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .detail { padding: 5px 0; }
+        .section-title { font-weight: bold; color: #2563eb; margin: 15px 0 5px 0; }
+        .remarks { background: #fff3cd; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .safety { background: #f8d7da; padding: 10px; border-radius: 4px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 Site Daily Report - Photos</h1>
+        <h2>📅 Date: ${reportDate}</h2>
+        <p>🕐 Generated: ${new Date().toLocaleString()}</p>
+        <p>📋 Total Entries: ${workEntries.length}</p>
+    </div>`;
+
+                workEntries.forEach((entry, index) => {
+                    photoHTML += `
+    <div class="entry">
+        <div class="entry-header">
+            <h3>Entry #${index + 1}</h3>
+        </div>
+        
+        <div class="details">
+            <div class="detail"><strong>📍 Location:</strong> ${entry.location || ''}</div>
+            <div class="detail"><strong>👷 Contractor:</strong> ${entry.contractor || ''}</div>
+            <div class="detail"><strong>🔧 Category:</strong> ${entry.workCategory || ''}</div>
+            <div class="detail"><strong>👥 Manpower:</strong> ${entry.manpower || ''}</div>
+        </div>
+        
+        <div class="detail"><strong>📍 Location Details:</strong> ${entry.locationDetails || ''}</div>
+        <div class="detail"><strong>🏗️ Plant & Equipment:</strong> ${entry.plantNumber || ''} x ${entry.plantType || ''} ${entry.plantOtherType || ''}</div>
+        <div class="detail"><strong>⏰ Timestamp:</strong> ${entry.timestamp || ''}</div>`;
+                    
+                    if (entry.workDescription) {
+                        photoHTML += `
+        <div class="section-title">🔧 Work Description:</div>
+        <div>${entry.workDescription}</div>`;
+                    }
+                    
+                    if (entry.remarks) {
+                        photoHTML += `
+        <div class="section-title">💬 Remarks:</div>
+        <div class="remarks">${entry.remarks}</div>`;
+                    }
+                    
+                    if (entry.safetyObservations) {
+                        photoHTML += `
+        <div class="section-title">🛡️ Safety Observations:</div>
+                        <div class="safety">${entry.safetyObservations}</div>`;
+                    }
+                    
+                    // Add photos
+                    for (let i = 1; i <= 3; i++) {
+                        if (entry.photos && entry.photos[i] && entry.photos[i].data) {
+                            photoHTML += `
+        <div class="photo-container">
+            <div class="section-title">📸 Photo ${i}: ${entry.photos[i].name || `Photo ${i}`}</div>
+            <img src="${entry.photos[i].data}" alt="Photo ${i}">
+        </div>`;
+                        }
+                    }
+                    
+                    photoHTML += `    </div>`;
+                });
+
+                photoHTML += `</body></html>`;
+
+                // Download the HTML file
+                const blob = new Blob([photoHTML], { type: 'text/html;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                
+                link.setAttribute('href', url);
+                link.setAttribute('download', `site_report_photos_${reportDate}.html`);
+                link.style.visibility = 'hidden';
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Clean up the URL object
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                
+                showMessage('✅ Photos exported successfully!', 'success');
+            } catch (error) {
+                console.error('HTML photo report error:', error);
+                throw error;
+            }
+        }
+
+        // Save draft - using in-memory storage only (no localStorage/sessionStorage)
+        function saveDraft() {
+            try {
+                const draftData = {
+                    date: document.getElementById('report-date').value,
+                    location: document.getElementById('location').value,
+                    locationDetails: document.getElementById('location-details').value,
+                    contractor: document.getElementById('contractor').value,
+                    workDescription: document.getElementById('work-description').value,
+                    workCategory: document.getElementById('work-category').value,
+                    manpower: document.getElementById('manpower').value,
+                    plantType: document.getElementById('plant-type').value,
+                    plantNumber: document.getElementById('plant-number').value,
+                    plantOtherType: document.getElementById('plant-other').value,
+                    materialUsage: document.getElementById('material-usage').value,
+                    resourceUtilization: document.getElementById('resource-utilization').value,
+                    safetyObservations: document.getElementById('safety-observations').value,
+                    weeklyProgramme: document.getElementById('weekly-programme').value,
+                    remarks: document.getElementById('remarks').value,
+                    photos: JSON.parse(JSON.stringify(photos)),
+                    workEntries: JSON.parse(JSON.stringify(workEntries)),
+                    savedAt: new Date().toLocaleString()
+                };
+                
+                // Store in global variable for session persistence
+                window.draftData = draftData;
+                
+                showMessage('✅ Draft saved for this session!', 'success');
+            } catch (error) {
+                console.error('Save draft error:', error);
+                showMessage('❌ Save failed: ' + error.message, 'error');
+            }
+        }
+
+        // Submit report
+        function submitReport() {
+            try {
+                if (workEntries.length === 0) {
+                    showMessage('❌ Cannot submit empty report. Please add at least one work entry.', 'error');
+                    return;
+                }
+                
+                const reportData = {
+                    date: document.getElementById('report-date').value,
+                    totalEntries: workEntries.length,
+                    submittedAt: new Date().toLocaleString()
+                };
+                
+                const referenceNumber = `SDR-${reportData.date.replace(/-/g, '')}-${Date.now()}`;
+                
+                if (confirm(`📧 Submit Report?\n\n• Date: ${reportData.date}\n• Entries: ${reportData.totalEntries}\n• Reference: ${referenceNumber}\n\nContinue?`)) {
+                    // Clear draft
+                    window.draftData = null;
+                    
+                    showMessage(`✅ Report submitted successfully!\n\n• Reference: ${referenceNumber}\n• Submitted: ${reportData.submittedAt}`, 'success');
+                    
+                    // Ask about new report
+                    setTimeout(() => {
+                        if (confirm('🆕 Start new report?\n\nThis will clear all data.')) {
+                            location.reload();
+                        }
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('Submit report error:', error);
+                showMessage('❌ Submit failed. Please try again.', 'error');
+            }
+        }
+
+        // Load draft from session
+        function loadDraft() {
+            try {
+                const draftData = window.draftData;
+                if (!draftData) return false;
+                
+                // Load all form data
+                const formFields = {
+                    'report-date': 'date',
+                    'location': 'location',
+                    'location-details': 'locationDetails',
+                    'contractor': 'contractor',
+                    'work-description': 'workDescription',
+                    'work-category': 'workCategory',
+                    'manpower': 'manpower',
+                    'plant-type': 'plantType',
+                    'plant-number': 'plantNumber',
+                    'plant-other': 'plantOtherType',
+                    'material-usage': 'materialUsage',
+                    'resource-utilization': 'resourceUtilization',
+                    'safety-observations': 'safetyObservations',
+                    'weekly-programme': 'weeklyProgramme',
+                    'remarks': 'remarks'
+                };
+                
+                Object.keys(formFields).forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    const dataKey = formFields[fieldId];
+                    if (field && draftData[dataKey]) {
+                        field.value = draftData[dataKey];
+                    }
+                });
+                
+                // Load photos
+                if (draftData.photos) {
+                    photos = JSON.parse(JSON.stringify(draftData.photos));
+                    for (let i = 1; i <= 3; i++) {
+                        if (photos[i]) {
+                            try {
+                                const imgEl = document.getElementById(`photo${i}-img`);
+                                const nameEl = document.getElementById(`photo${i}-name`);
+                                const previewEl = document.getElementById(`photo${i}-preview`);
+                                const inputEl = document.getElementById(`photo${i}-input`);
+                                
+                                if (imgEl) imgEl.src = photos[i].data;
+                                if (nameEl) nameEl.textContent = photos[i].name;
+                                if (previewEl) previewEl.classList.remove('hidden');
+                                if (inputEl) inputEl.classList.add('hidden');
+                            } catch (e) {
+                                console.warn(`Could not load photo ${i}:`, e);
+                            }
+                        }
+                    }
+                }
+                
+                // Load work entries
+                if (draftData.workEntries) {
+                    workEntries = JSON.parse(JSON.stringify(draftData.workEntries));
+                    updateEntriesDisplay();
+                    updateExportButtons();
+                }
+                
+                toggleOtherPlant();
+                
+                showMessage(`✅ Draft loaded successfully! Saved: ${draftData.savedAt}`, 'success');
+                return true;
+            } catch (error) {
+                console.error('Load draft error:', error);
+                showMessage('❌ Error loading draft. Starting fresh.', 'error');
+                return false;
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing...');
+            init();
+            
+            // Check for draft after initialization
+            setTimeout(() => {
+                try {
+                    if (window.draftData) {
+                        if (confirm('📄 Found saved draft. Continue working on it?')) {
+                            loadDraft();
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Draft check failed:', error);
+                }
+            }, 1000);
+        });
+
+        console.log('Site Daily Report app script loaded successfully');
+    </script>
+</body>
+</html>
