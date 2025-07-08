@@ -908,9 +908,6 @@
                                     📁 Gallery
                                 </button>
                             </div>
-                            <input type="file" id="photo1" accept="image/*" capture="camera" style="display: none;" onchange="handlePhotoSelect(1, this)">
-                            <input type="file" id="gallery1" accept="image/*" style="display: none;" onchange="handlePhotoSelect(1, this)">
-                            <div id="photo1-preview" class="photo-preview"></div>
                         </div>
                         
                         <div class="photo-item">
@@ -923,9 +920,6 @@
                                     📁 Gallery
                                 </button>
                             </div>
-                            <input type="file" id="photo2" accept="image/*" capture="camera" style="display: none;" onchange="handlePhotoSelect(2, this)">
-                            <input type="file" id="gallery2" accept="image/*" style="display: none;" onchange="handlePhotoSelect(2, this)">
-                            <div id="photo2-preview" class="photo-preview"></div>
                         </div>
                         
                         <div class="photo-item">
@@ -938,9 +932,6 @@
                                     📁 Gallery
                                 </button>
                             </div>
-                            <input type="file" id="photo3" accept="image/*" capture="camera" style="display: none;" onchange="handlePhotoSelect(3, this)">
-                            <input type="file" id="gallery3" accept="image/*" style="display: none;" onchange="handlePhotoSelect(3, this)">
-                            <div id="photo3-preview" class="photo-preview"></div>
                         </div>
                     </div>
                 </div>
@@ -1078,13 +1069,11 @@
     </div>
 
     <script>
-        // Global variables
-        let reports = JSON.parse(localStorage.getItem('sdr_reports') || '[]');
-        let workEntries = [];
-        let currentEditingEntry = null;
-        let selectedPhotos = {};
-
-        // Navigation
+        // Initialize global variables
+        window.reports = [];
+        window.workEntries = [];
+        
+        // SUPER SIMPLE FUNCTIONS (No complex logic)
         function showSection(sectionId) {
             // Hide all content areas
             const contentAreas = document.querySelectorAll('.content-area');
@@ -1114,39 +1103,110 @@
             }
         }
 
-        // Simple test function for the main button
-        function testWorkEntry() {
-            alert('GREEN BUTTON WORKS! Now testing modal...');
+        // SUPER SIMPLE FUNCTIONS (No complex logic)
+        function testAlert() {
+            alert('Blue button works! JavaScript is OK!');
+        }
+
+        function simpleAddEntry() {
+            alert('Green button clicked! Now adding entry...');
             
-            // Try to open modal
-            const modal = document.getElementById('work-entry-modal');
-            if (modal) {
-                modal.style.display = 'block';
-                alert('Modal found and should be visible now!');
-            } else {
-                alert('ERROR: Modal element not found!');
+            var category = prompt('Work Category:\n1. HVAC\n2. EE\n3. FS\n4. BMS\n5. Owner Works\n6. Tenant Works\n\nEnter number (1-6):');
+            if (!category) return;
+            
+            var categories = ['', 'HVAC', 'EE', 'FS', 'BMS', 'Owner Works', 'Tenant Works'];
+            var selectedCategory = categories[parseInt(category)] || 'Other';
+            
+            var description = prompt('Work Description:');
+            if (!description) return;
+            
+            var location = prompt('Specific Location (optional):') || '';
+            
+            // Create simple entry
+            var entry = {
+                id: Date.now(),
+                category: selectedCategory,
+                description: description,
+                location: location,
+                time: new Date().toLocaleTimeString()
+            };
+            
+            // Add to array
+            if (!window.workEntries) window.workEntries = [];
+            window.workEntries.push(entry);
+            
+            // Update display
+            updateSimpleDisplay();
+            
+            alert('✅ Work entry added successfully!');
+        }
+
+        function updateSimpleDisplay() {
+            var container = document.getElementById('work-entries-display');
+            var countElement = document.getElementById('entries-count');
+            
+            if (!window.workEntries) window.workEntries = [];
+            
+            countElement.textContent = window.workEntries.length + ' entries recorded today';
+            
+            if (window.workEntries.length === 0) {
+                container.innerHTML = '<div style="padding: 20px; text-align: center; color: #6b7280;"><h4>📄 No work entries yet</h4><p>Add your first entry to get started!</p></div>';
+                return;
+            }
+            
+            var html = '';
+            for (var i = 0; i < window.workEntries.length; i++) {
+                var entry = window.workEntries[i];
+                html += '<div style="background: #f8f9fa; border-radius: 8px; padding: 16px; margin-bottom: 12px; border-left: 4px solid #3b82f6;">';
+                html += '<div style="font-weight: 600; color: #1f2937; margin-bottom: 8px;">' + entry.category + ' - ' + entry.description + '</div>';
+                if (entry.location) {
+                    html += '<div style="color: #6b7280; font-size: 12px;">📍 ' + entry.location + '</div>';
+                }
+                html += '<div style="color: #6b7280; font-size: 12px;">Added at ' + entry.time + '</div>';
+                html += '<button onclick="deleteSimpleEntry(' + entry.id + ')" style="background: #dc2626; color: white; padding: 4px 8px; border: none; border-radius: 4px; font-size: 10px; margin-top: 8px; cursor: pointer;">Delete</button>';
+                html += '</div>';
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function deleteSimpleEntry(id) {
+            if (confirm('Delete this work entry?')) {
+                if (!window.workEntries) window.workEntries = [];
+                window.workEntries = window.workEntries.filter(function(entry) {
+                    return entry.id !== id;
+                });
+                updateSimpleDisplay();
             }
         }
 
-        // Work Entry Modal Functions
-        function openWorkEntryModal() {
-            console.log('Opening work entry modal...');
-            alert('Debug: Add Work Entry button clicked!'); // Debug alert
+        // Navigation
+        function showSection(sectionId) {
+            // Hide all content areas
+            const contentAreas = document.querySelectorAll('.content-area');
+            contentAreas.forEach(area => area.classList.remove('active'));
             
-            const modal = document.getElementById('work-entry-modal');
-            if (modal) {
-                modal.style.display = 'block';
-                console.log('Modal display set to block');
-                alert('Debug: Modal should now be visible!'); // Debug alert
+            // Remove active class from all nav tabs
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Add active class to clicked nav tab
+            event.target.classList.add('active');
+            
+            // Show/hide bottom actions based on section
+            const bottomActions = document.getElementById('bottom-actions');
+            if (sectionId === 'daily-report') {
+                bottomActions.style.display = 'flex';
             } else {
-                console.error('Modal element not found!');
-                alert('Debug: Modal element not found!'); // Debug alert
+                bottomActions.style.display = 'none';
             }
             
-            currentEditingEntry = null;
-            const form = document.getElementById('work-entry-form');
-            if (form) {
-                form.reset();
+            // Load reports if viewing My Reports
+            if (sectionId === 'my-reports') {
+                loadReportsDisplay();
             }
         }
 
@@ -1383,113 +1443,115 @@
             }
         }
 
-        // Reports Display
+        // Reports Display (Simplified)
         function loadReportsDisplay() {
             updateStats();
             const container = document.getElementById('reports-container');
             
-            if (reports.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <h3>📋 No Reports Yet</h3>
-                        <p>Create your first report to see it here!</p>
-                    </div>
-                `;
+            if (!window.reports || window.reports.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;"><h3>📋 No Reports Yet</h3><p>Create your first report to see it here!</p></div>';
                 return;
             }
             
-            const sortedReports = reports.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            const sortedReports = window.reports.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
             
-            container.innerHTML = sortedReports.map(report => {
+            let html = '';
+            for (let i = 0; i < sortedReports.length; i++) {
+                const report = sortedReports[i];
                 const date = new Date(report.timestamp).toLocaleDateString();
                 const time = new Date(report.timestamp).toLocaleTimeString();
-                const entriesCount = report.workEntries ? report.workEntries.length : 0;
+                const entriesCount = (report.workEntries && report.workEntries.length) || 0;
                 
-                return `
-                    <div class="report-item">
-                        <div class="report-info">
-                            <h4>${date} - ${report.location || 'Site Report'}</h4>
-                            <p>${report.contractor || 'No contractor'} | ${entriesCount} work entries | ${time}</p>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span class="status-badge status-${report.status}">${report.status}</span>
-                            <div class="report-actions">
-                                ${report.status === 'draft' || report.status === 'rejected' ? 
-                                    '<button class="btn-small btn-edit" onclick="editReport(' + report.id + ')">Edit</button>' : ''}
-                                <button class="btn-small btn-view" onclick="viewReport(${report.id})">View</button>
-                                ${report.status === 'draft' ? 
-                                    '<button class="btn-small btn-delete" onclick="deleteReport(' + report.id + ')">Delete</button>' : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+                html += '<div style="padding: 16px 20px; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center;">';
+                html += '<div>';
+                html += '<h4 style="color: #1f2937; font-size: 14px; font-weight: 600; margin-bottom: 4px;">' + date + ' - ' + (report.location || 'Site Report') + '</h4>';
+                html += '<p style="color: #6b7280; font-size: 12px;">' + (report.contractor || 'No contractor') + ' | ' + entriesCount + ' work entries | ' + time + '</p>';
+                html += '</div>';
+                html += '<div style="display: flex; align-items: center; gap: 12px;">';
+                html += '<span style="padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; text-transform: uppercase; background: #dbeafe; color: #1e40af;">' + report.status + '</span>';
+                html += '<button onclick="viewSimpleReport(' + report.id + ')" style="padding: 4px 8px; border: none; border-radius: 4px; font-size: 10px; font-weight: 500; background: #6b7280; color: white; cursor: pointer;">View</button>';
+                html += '</div>';
+                html += '</div>';
+            }
+            
+            container.innerHTML = '<div style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;">' + html + '</div>';
         }
 
-        // Report Actions
-        function viewReport(id) {
-            const report = reports.find(r => r.id === id);
+        function viewSimpleReport(id) {
+            const report = window.reports.find(r => r.id == id);
             if (!report) return;
             
-            let content = `📊 SITE DAILY REPORT\n\n`;
-            content += `📅 Date: ${report.date || 'Not specified'}\n`;
-            content += `📍 Location: ${report.location || 'Not specified'}\n`;
-            content += `   Details: ${report['location-details'] || 'None'}\n`;
-            content += `👷 Contractor: ${report.contractor || 'Not specified'}\n\n`;
+            let content = '📊 SITE DAILY REPORT\n\n';
+            content += '📅 Date: ' + (report.date || 'Not specified') + '\n';
+            content += '📍 Location: ' + (report.location || 'Not specified') + '\n';
+            content += '👷 Contractor: ' + (report.contractor || 'Not specified') + '\n\n';
             
-            // Work Entries
             if (report.workEntries && report.workEntries.length > 0) {
-                content += `🔧 WORK ENTRIES (${report.workEntries.length}):\n`;
-                report.workEntries.forEach((entry, index) => {
-                    content += `${index + 1}. ${entry.category} - ${entry.description}\n`;
-                    if (entry.specificLocation) content += `   📍 ${entry.specificLocation}\n`;
-                    if (entry.manpower || entry.progress) {
-                        content += `   ${entry.manpower ? `👥 ${entry.manpower}` : ''} ${entry.progress ? `📊 ${entry.progress}` : ''}\n`;
-                    }
-                    if (entry.notes) content += `   💭 ${entry.notes}\n`;
-                    content += `\n`;
-                });
+                content += '🔧 WORK ENTRIES (' + report.workEntries.length + '):\n';
+                for (let i = 0; i < report.workEntries.length; i++) {
+                    const entry = report.workEntries[i];
+                    content += (i + 1) + '. ' + entry.category + ' - ' + entry.description + '\n';
+                    if (entry.location) content += '   📍 ' + entry.location + '\n';
+                }
+                content += '\n';
             } else {
-                content += `🔧 WORK ENTRIES: None\n\n`;
+                content += '🔧 WORK ENTRIES: None\n\n';
             }
             
-            content += `👥 Total Manpower: ${report.manpower || 'Not specified'}\n`;
-            content += `🏗️ Equipment: ${report['plant-type'] || 'None'} (${report['plant-number'] || '0'})\n`;
-            content += `📦 Materials: ${report['material-usage'] || 'None'}\n`;
-            content += `⚡ Resources: ${report['resource-utilization'] || 'None'}\n`;
-            content += `🛡️ Safety: ${report.safety || 'None'}\n`;
-            content += `📋 Programme: ${report['weekly-programme'] || 'None'}\n`;
-            content += `💭 Remarks: ${report.remarks || 'None'}\n\n`;
-            
-            if (report.photos && report.photos.length > 0) {
-                content += `📸 Photos: ${report.photos.length} attached\n\n`;
-            }
-            
-            content += `Status: ${report.status.toUpperCase()}\n`;
-            content += `Submitted: ${new Date(report.timestamp).toLocaleString()}`;
+            content += 'Status: ' + report.status.toUpperCase() + '\n';
+            content += 'Submitted: ' + new Date(report.timestamp).toLocaleString();
             
             alert(content);
         }
 
-        function editReport(id) {
-            alert('Edit functionality will be implemented in the next version!');
+        // Settings
+        function saveSettings() {
+            const settings = {
+                userName: document.getElementById('user-name').value,
+                userEmail: document.getElementById('user-email').value,
+                userRole: document.getElementById('user-role').value,
+                emailNotifications: document.getElementById('email-notifications').value,
+                reminders: document.getElementById('reminders').value
+            };
+            
+            localStorage.setItem('sdr_settings', JSON.stringify(settings));
+            alert('✅ Settings saved successfully!');
         }
 
-        function deleteReport(id) {
-            if (confirm('⚠️ Delete this report permanently?')) {
-                reports = reports.filter(r => r.id !== id);
-                localStorage.setItem('sdr_reports', JSON.stringify(reports));
-                loadReportsDisplay();
-                alert('✅ Report deleted successfully!');
-            }
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('sdr_settings') || '{}');
+            
+            if (settings.userName) document.getElementById('user-name').value = settings.userName;
+            if (settings.userEmail) document.getElementById('user-email').value = settings.userEmail;
+            if (settings.userRole) document.getElementById('user-role').value = settings.userRole;
+            if (settings.emailNotifications) document.getElementById('email-notifications').value = settings.emailNotifications;
+            if (settings.reminders) document.getElementById('reminders').value = settings.reminders;
         }
 
-        // Statistics
+        // Set today's date
+        function setTodaysDate() {
+            const dateInput = document.querySelector('input[name="date"]');
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.value = today;
+        }
+
+        // Photo Functions (Simplified)
+        function capturePhoto(photoNumber) {
+            alert('Photo ' + photoNumber + ' - Camera feature coming soon!');
+        }
+
+        function selectPhoto(photoNumber) {
+            alert('Photo ' + photoNumber + ' - Gallery feature coming soon!');
+        }
+
+        // Statistics (Simplified)
         function updateStats() {
-            const total = reports.length;
-            const pending = reports.filter(r => r.status === 'submitted').length;
-            const approved = reports.filter(r => r.status === 'approved').length;
-            const drafts = reports.filter(r => r.status === 'draft').length;
+            if (!window.reports) window.reports = [];
+            
+            const total = window.reports.length;
+            const pending = window.reports.filter(r => r.status === 'submitted').length;
+            const approved = window.reports.filter(r => r.status === 'approved').length;
+            const drafts = window.reports.filter(r => r.status === 'draft').length;
             
             document.getElementById('total-reports').textContent = total;
             document.getElementById('pending-reports').textContent = pending;
@@ -1528,22 +1590,16 @@
             dateInput.value = today;
         }
 
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('work-entry-modal');
-            if (event.target === modal) {
-                closeWorkEntryModal();
-            }
-        }
-
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             setTodaysDate();
-            reports = JSON.parse(localStorage.getItem('sdr_reports') || '[]');
+            window.reports = JSON.parse(localStorage.getItem('sdr_reports') || '[]');
+            window.workEntries = [];
             updateStats();
             loadSettings();
-            updateWorkEntriesDisplay();
+            updateSimpleDisplay();
         });
+    </script>
     </script>
 </body>
 </html>
