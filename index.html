@@ -952,8 +952,8 @@
                         <span id="entries-count">0 entries recorded today</span>
                     </div>
                     
-                    <button type="button" class="add-work-btn" onclick="openWorkEntryModal()">
-                        ➕ Add Work Entry
+                    <button type="button" class="add-work-btn" onclick="testWorkEntry()">
+                        ➕ Add Work Entry (FIXED)
                     </button>
                     
                     <!-- Debug Test Button -->
@@ -1111,6 +1111,20 @@
             // Load reports if viewing My Reports
             if (sectionId === 'my-reports') {
                 loadReportsDisplay();
+            }
+        }
+
+        // Simple test function for the main button
+        function testWorkEntry() {
+            alert('GREEN BUTTON WORKS! Now testing modal...');
+            
+            // Try to open modal
+            const modal = document.getElementById('work-entry-modal');
+            if (modal) {
+                modal.style.display = 'block';
+                alert('Modal found and should be visible now!');
+            } else {
+                alert('ERROR: Modal element not found!');
             }
         }
 
