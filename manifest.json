@@ -1,0 +1,83 @@
+{
+  "name": "Daily Site Report PWA",
+  "short_name": "Site Report",
+  "description": "Professional construction site daily reporting system with cloud sync",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1e40af",
+  "theme_color": "#1e40af",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["construction", "reporting", "productivity", "business"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231e40af'/><text x='50' y='60' font-size='50' text-anchor='middle' fill='white'>🏗️</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231e40af'/><text x='50' y='60' font-size='50' text-anchor='middle' fill='white'>🏗️</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Report",
+      "short_name": "New Report",
+      "description": "Start a new daily site report",
+      "url": "/?tab=activity",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23059669'/><text x='50' y='60' font-size='40' text-anchor='middle' fill='white'>📝</text></svg>",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "View Reports",
+      "short_name": "Reports",
+      "description": "View and export reports",
+      "url": "/?tab=report",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23059669'/><text x='50' y='60' font-size='40' text-anchor='middle' fill='white'>📊</text></svg>",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 844'><rect width='390' height='844' fill='%23f3f4f6'/><rect x='0' y='0' width='390' height='60' fill='%231e40af'/><text x='195' y='35' font-size='16' text-anchor='middle' fill='white'>Daily Site Report PWA</text><rect x='16' y='80' width='358' height='200' rx='12' fill='white'/><text x='32' y='110' font-size='14' fill='%231e40af'>🏗️ Site Overview</text></svg>",
+      "sizes": "390x844",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        {
+          "name": "photos",
+          "accept": ["image/*"]
+        }
+      ]
+    }
+  },
+  "file_handlers": [
+    {
+      "action": "/import",
+      "accept": {
+        "text/csv": [".csv"],
+        "application/vnd.ms-excel": [".xls", ".xlsx"]
+      }
+    }
+  ]
+}

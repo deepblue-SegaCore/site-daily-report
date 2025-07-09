@@ -1,0 +1,2422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1e40af">
+    <meta name="description" content="Professional construction site daily reporting system">
+    
+    <title>Daily Site Report PWA</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏗️</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏗️</text></svg>">
+    
+    <!-- iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Site Report">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f3f4f6;
+            line-height: 1.5;
+            touch-action: manipulation;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: white;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            color: white;
+            padding: 16px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+        
+        .header-info {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        /* Status Bar */
+        .status-bar {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+        
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+        }
+        
+        .status-dot.offline {
+            background: #ef4444;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: white;
+            border-bottom: 2px solid #e5e7eb;
+            position: sticky;
+            top: 60px;
+            z-index: 999;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px 6px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            background: white;
+            color: #6b7280;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            text-align: center;
+            touch-action: manipulation;
+        }
+        
+        .tab.active {
+            color: #1e40af;
+            border-bottom-color: #1e40af;
+            background: #eff6ff;
+        }
+        
+        /* Content */
+        .content {
+            padding: 16px;
+            padding-bottom: 80px;
+            min-height: calc(100vh - 140px);
+        }
+        
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e7eb;
+        }
+        
+        .card h3 {
+            color: #1e40af;
+            font-weight: 700;
+            margin-bottom: 16px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Collapsible Sections */
+        .section {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            padding: 14px 16px;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 14px;
+            touch-action: manipulation;
+        }
+        
+        .section-content {
+            padding: 16px;
+            display: none;
+        }
+        
+        .section-content.active {
+            display: block;
+        }
+        
+        .section-toggle {
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+        
+        .section-toggle.rotated {
+            transform: rotate(180deg);
+        }
+        
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 14px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+        
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 15px;
+            background: white;
+            transition: border-color 0.2s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #1e40af;
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+        
+        .form-select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+        
+        .form-textarea {
+            resize: none;
+            font-family: inherit;
+        }
+        
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            touch-action: manipulation;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-primary {
+            background: #1e40af;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1e3a8a;
+        }
+        
+        .btn-success {
+            background: #059669;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #047857;
+        }
+        
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+        
+        .btn:disabled {
+            background: #9ca3af;
+            color: #6b7280;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Photo Section */
+        .photo-section {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            background: #f9fafb;
+            margin-bottom: 12px;
+        }
+        
+        .photo-preview {
+            width: 100%;
+            max-height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .photo-name {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        /* Activity Entry */
+        .activity-entry {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+        
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .activity-time {
+            background: #1e40af;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .delete-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        
+        .activity-details {
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        .activity-photos {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            overflow-x: auto;
+        }
+        
+        .activity-photo {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+        
+        /* Summary Stats */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .summary-item {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            padding: 14px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #bfdbfe;
+        }
+        
+        .summary-number {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 2px;
+        }
+        
+        .summary-label {
+            font-size: 11px;
+            color: #1e40af;
+            font-weight: 600;
+        }
+        
+        /* Messages */
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 12px 0;
+            text-align: center;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .message.success {
+            background: #dcfce7;
+            border: 1px solid #16a34a;
+            color: #15803d;
+        }
+        
+        .message.error {
+            background: #fef2f2;
+            border: 1px solid #ef4444;
+            color: #dc2626;
+        }
+        
+        .message.info {
+            background: #eff6ff;
+            border: 1px solid #3b82f6;
+            color: #1e40af;
+        }
+        
+        /* Loading Spinner */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #1e40af;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Install prompt */
+        .install-prompt {
+            position: fixed;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
+            background: #1e40af;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+        }
+        
+        .install-prompt.show {
+            display: flex;
+        }
+        
+        .install-prompt button {
+            background: white;
+            color: #1e40af;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 380px) {
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .form-row-3 {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .content {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏗️ Daily Site Report PWA</h1>
+            <div class="header-info">
+                <span id="current-date">Loading...</span> • <span id="current-time">Loading...</span>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div>
+                <div style="font-weight: 600;">📅 Today's Report</div>
+                <div style="font-size: 11px; opacity: 0.9;"><span id="activity-count">0</span> activities recorded</div>
+            </div>
+            <div class="connection-status">
+                <div class="status-dot" id="connection-dot"></div>
+                <div>
+                    <div style="font-weight: 600;" id="report-status">🟡 In Progress</div>
+                    <div id="sync-status">Syncing...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('activity')">📝 Activity</button>
+            <button class="tab" onclick="showTab('safety')">🛡️ Safety</button>
+            <button class="tab" onclick="showTab('progress')">📈 Progress + QA</button>
+            <button class="tab" onclick="showTab('report')">📊 Report</button>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Activity Tab -->
+            <div id="activity-content" class="tab-content active">
+                <!-- Site Overview Section -->
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection('overview')">
+                        <span>🏗️ Site Overview</span>
+                        <span class="section-toggle" id="overview-toggle">▼</span>
+                    </div>
+                    <div class="section-content active" id="overview-content">
+                        <div class="form-group">
+                            <label class="form-label">Project</label>
+                            <select id="project-name" class="form-select">
+                                <option value="">Select Project</option>
+                                <option value="TPE11 Day 2">TPE11 Day 2</option>
+                                <option value="Owner works">Owner works</option>
+                                <option value="Tenant Works">Tenant Works</option>
+                                <option value="Others">Others</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group hidden" id="custom-project-group">
+                            <label class="form-label">Custom Project Name</label>
+                            <input type="text" id="custom-project-name" placeholder="Enter project name..." class="form-input">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Reported By</label>
+                            <select id="reported-by" class="form-select">
+                                <option value="">Select User</option>
+                                <option value="user 1">user 1</option>
+                                <option value="user 2">user 2</option>
+                                <option value="user 3">user 3</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Weather</label>
+                                <select id="weather" class="form-select">
+                                    <option value="">Select Weather</option>
+                                    <option value="Sunny">☀️ Sunny</option>
+                                    <option value="Partly Cloudy">⛅ Partly Cloudy</option>
+                                    <option value="Cloudy">☁️ Cloudy</option>
+                                    <option value="Light Rain">🌦️ Light Rain</option>
+                                    <option value="Heavy Rain">🌧️ Heavy Rain</option>
+                                    <option value="Windy">💨 Windy</option>
+                                    <option value="Hot">🌡️ Hot</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Site Conditions</label>
+                                <select id="site-conditions" class="form-select">
+                                    <option value="">Select Conditions</option>
+                                    <option value="Dry and Safe">Dry and Safe</option>
+                                    <option value="Wet Surfaces">Wet Surfaces</option>
+                                    <option value="Muddy Areas">Muddy Areas</option>
+                                    <option value="Slippery Conditions">Slippery Conditions</option>
+                                    <option value="Poor Visibility">Poor Visibility</option>
+                                    <option value="Dusty Conditions">Dusty Conditions</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Details Section -->
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection('activity-details')">
+                        <span>⏰ Activity Details</span>
+                        <span class="section-toggle rotated" id="activity-details-toggle">▼</span>
+                    </div>
+                    <div class="section-content active" id="activity-details-content">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Start Time</label>
+                                <select id="start-time" class="form-select">
+                                    <option value="">Select Time</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">End Time</label>
+                                <select id="end-time" class="form-select">
+                                    <option value="">Select Time</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Building/Floor</label>
+                                <select id="location" class="form-select">
+                                    <option value="">Select Location</option>
+                                    <option value="Ground Floor">Ground Floor</option>
+                                    <option value="1st Floor">1st Floor</option>
+                                    <option value="2nd Floor">2nd Floor</option>
+                                    <option value="3rd Floor">3rd Floor</option>
+                                    <option value="4th Floor">4th Floor</option>
+                                    <option value="5th Floor">5th Floor</option>
+                                    <option value="Basement 1">Basement 1</option>
+                                    <option value="Basement 2">Basement 2</option>
+                                    <option value="Rooftop">Rooftop</option>
+                                    <option value="External Area">External Area</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Specific Area</label>
+                                <select id="specific-area" class="form-select">
+                                    <option value="">Select Area</option>
+                                    <option value="North Wing">North Wing</option>
+                                    <option value="South Wing">South Wing</option>
+                                    <option value="East Wing">East Wing</option>
+                                    <option value="West Wing">West Wing</option>
+                                    <option value="Central Core">Central Core</option>
+                                    <option value="Lobby Area">Lobby Area</option>
+                                    <option value="Service Area">Service Area</option>
+                                    <option value="Stairwell">Stairwell</option>
+                                    <option value="Elevator Shaft">Elevator Shaft</option>
+                                    <option value="Mechanical Room">Mechanical Room</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Room/Unit Details</label>
+                            <input type="text" id="location-details" placeholder="e.g., Room 301, Unit A, Grid Line 5-8" class="form-input">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Contractor</label>
+                            <select id="contractor" class="form-select">
+                                <option value="">Select Contractor</option>
+                                <option value="ABC Construction Ltd">ABC Construction Ltd</option>
+                                <option value="BuildPro Engineering">BuildPro Engineering</option>
+                                <option value="Elite Contractors">Elite Contractors</option>
+                                <option value="MegaBuild Corp">MegaBuild Corp</option>
+                                <option value="Premier Construction">Premier Construction</option>
+                                <option value="Skyline Builders">Skyline Builders</option>
+                                <option value="TechBuild Solutions">TechBuild Solutions</option>
+                                <option value="Urban Development Co">Urban Development Co</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Work Details Section -->
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection('work-details')">
+                        <span>🔧 Work Details</span>
+                        <span class="section-toggle rotated" id="work-details-toggle">▼</span>
+                    </div>
+                    <div class="section-content active" id="work-details-content">
+                        <div class="form-group">
+                            <label class="form-label">Work Category</label>
+                            <select id="work-category" class="form-select">
+                                <option value="">Select Category</option>
+                                <option value="Structural">Structural Work</option>
+                                <option value="Mechanical">Mechanical Work</option>
+                                <option value="Electrical">Electrical Work</option>
+                                <option value="Plumbing">Plumbing Work</option>
+                                <option value="HVAC">HVAC Work</option>
+                                <option value="Fire Safety">Fire Safety</option>
+                                <option value="Finishes">Finishes & Fixtures</option>
+                                <option value="Landscaping">Landscaping</option>
+                                <option value="Testing">Testing & Commissioning</option>
+                                <option value="Maintenance">Maintenance</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Specific Work Type</label>
+                            <select id="work-type" class="form-select" disabled>
+                                <option value="">Select Work Type</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Work Description</label>
+                            <textarea id="work-description" placeholder="Detailed description of work performed..." rows="3" class="form-textarea"></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Work Status</label>
+                                <select id="work-status" class="form-select">
+                                    <option value="">Select Status</option>
+                                    <option value="Started">Started</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="50% Complete">50% Complete</option>
+                                    <option value="75% Complete">75% Complete</option>
+                                    <option value="Completed">Completed</option>
+                                    <option value="On Hold">On Hold</option>
+                                    <option value="Delayed">Delayed</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Quality Status</label>
+                                <select id="quality-status" class="form-select">
+                                    <option value="">Select Quality</option>
+                                    <option value="Excellent">Excellent</option>
+                                    <option value="Good">Good</option>
+                                    <option value="Satisfactory">Satisfactory</option>
+                                    <option value="Needs Improvement">Needs Improvement</option>
+                                    <option value="Failed Inspection">Failed Inspection</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manpower & Equipment Section -->
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection('manpower')">
+                        <span>👥 Manpower & Equipment</span>
+                        <span class="section-toggle" id="manpower-toggle">▼</span>
+                    </div>
+                    <div class="section-content" id="manpower-content">
+                        <div class="form-row-3">
+                            <div class="form-group">
+                                <label class="form-label">Workers</label>
+                                <select id="worker-count" class="form-select">
+                                    <option value="">Count</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="15">15</option>
+                                    <option value="20">20+</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Supervisors</label>
+                                <select id="supervisor-count" class="form-select">
+                                    <option value="">Count</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Specialists</label>
+                                <select id="specialist-count" class="form-select">
+                                    <option value="">Count</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Equipment Used</label>
+                                <select id="equipment-used" class="form-select">
+                                    <option value="">Select Equipment</option>
+                                    <option value="Tower Crane">Tower Crane</option>
+                                    <option value="Mobile Crane">Mobile Crane</option>
+                                    <option value="Excavator">Excavator</option>
+                                    <option value="Concrete Mixer">Concrete Mixer</option>
+                                    <option value="Scaffold System">Scaffold System</option>
+                                    <option value="Working Platform">Working Platform</option>
+                                    <option value="Welding Equipment">Welding Equipment</option>
+                                    <option value="Hand Tools Only">Hand Tools Only</option>
+                                    <option value="Multiple Equipment">Multiple Equipment</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Equipment Count</label>
+                                <select id="equipment-count" class="form-select">
+                                    <option value="">Count</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Equipment Details</label>
+                            <textarea id="equipment-details" placeholder="Equipment quantities and specifications..." rows="2" class="form-textarea"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Materials Section -->
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection('materials')">
+                        <span>📦 Materials Used</span>
+                        <span class="section-toggle" id="materials-toggle">▼</span>
+                    </div>
+                    <div class="section-content" id="materials-content">
+                        <div class="form-group">
+                            <label class="form-label">Material Type</label>
+                            <select id="material-type" class="form-select">
+                                <option value="">Select Material Type</option>
+                                <option value="Concrete">Concrete</option>
+                                <option value="Steel/Rebar">Steel/Rebar</option>
+                                <option value="Bricks/Blocks">Bricks/Blocks</option>
+                                <option value="Electrical Materials">Electrical Materials</option>
+                                <option value="Plumbing Materials">Plumbing Materials</option>
+                                <option value="HVAC Components">HVAC Components</option>
+                                <option value="Windows/Doors">Windows/Doors</option>
+                                <option value="Paint/Coatings">Paint/Coatings</option>
+                                <option value="Multiple Materials">Multiple Materials</option>
+                                <option value="No Materials Used">No Materials Used</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Material Details & Quantities</label>
+                            <textarea id="material-details" placeholder="Material types, quantities, quality notes..." rows="2" class="form-textarea"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photos Section -->
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection('photos')">
+                        <span>📸 Photos</span>
+                        <span class="section-toggle" id="photos-toggle">▼</span>
+                    </div>
+                    <div class="section-content" id="photos-content">
+                        <div class="form-row">
+                            <div class="photo-section">
+                                <label class="form-label">Before Photo</label>
+                                <div id="photo1-preview" class="hidden">
+                                    <img id="photo1-img" class="photo-preview">
+                                    <div class="photo-name" id="photo1-name"></div>
+                                    <button onclick="removePhoto(1)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                                </div>
+                                <div id="photo1-input">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                                        <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                                            📷 Camera
+                                            <input type="file" id="photo1-camera" accept="image/*" capture="environment" style="display: none;">
+                                        </label>
+                                        <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                                            📁 Gallery
+                                            <input type="file" id="photo1-gallery" accept="image/*" style="display: none;">
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="photo-section">
+                                <label class="form-label">After Photo</label>
+                                <div id="photo2-preview" class="hidden">
+                                    <img id="photo2-img" class="photo-preview">
+                                    <div class="photo-name" id="photo2-name"></div>
+                                    <button onclick="removePhoto(2)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                                </div>
+                                <div id="photo2-input">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                                        <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                                            📷 Camera
+                                            <input type="file" id="photo2-camera" accept="image/*" capture="environment" style="display: none;">
+                                        </label>
+                                        <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                                            📁 Gallery
+                                            <input type="file" id="photo2-gallery" accept="image/*" style="display: none;">
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Remarks Section -->
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection('remarks')">
+                        <span>💬 Remarks</span>
+                        <span class="section-toggle" id="remarks-toggle">▼</span>
+                    </div>
+                    <div class="section-content" id="remarks-content">
+                        <div class="form-group">
+                            <label class="form-label">Safety Notes</label>
+                            <textarea id="activity-safety-remarks" placeholder="Safety observations for this activity..." rows="2" class="form-textarea"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">General Remarks</label>
+                            <textarea id="activity-general-remarks" placeholder="Other notes and observations..." rows="2" class="form-textarea"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Activity Button -->
+                <button onclick="addActivity()" class="btn btn-success" style="margin-top: 16px; font-size: 16px;">
+                    ➕ Add Activity to Report
+                </button>
+                
+                <div id="activity-message"></div>
+            </div>
+
+            <!-- Safety Tab -->
+            <div id="safety-content" class="tab-content">
+                <div class="card">
+                    <h3>🛡️ Daily Safety Status</h3>
+                    <div class="form-group">
+                        <label class="form-label">Overall Safety Status</label>
+                        <select id="safety-status" class="form-select">
+                            <option value="">Select Status</option>
+                            <option value="Excellent">🟢 Excellent - No Issues</option>
+                            <option value="Good">🟡 Good - Minor Issues</option>
+                            <option value="Fair">🟠 Fair - Some Concerns</option>
+                            <option value="Poor">🔴 Poor - Major Issues</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Safety Officer Present</label>
+                            <select id="safety-officer" class="form-select">
+                                <option value="">Select</option>
+                                <option value="Full Day">Yes - Full Day</option>
+                                <option value="Partial Day">Yes - Partial Day</option>
+                                <option value="Not Present">No - Not Present</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">PPE Compliance</label>
+                            <select id="ppe-compliance" class="form-select">
+                                <option value="">Select Compliance</option>
+                                <option value="100%">100% Compliant</option>
+                                <option value="95%">95% Compliant</option>
+                                <option value="90%">90% Compliant</option>
+                                <option value="Below 90%">Below 90%</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Safety Observations</label>
+                        <textarea id="safety-observations" placeholder="Safety incidents, observations, actions taken..." rows="3" class="form-textarea"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Near-Missed Issues</label>
+                        <textarea id="near-missed-issues" placeholder="Near-miss incidents and potential hazards identified..." rows="3" class="form-textarea"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Link to Relevant Activity</label>
+                        <select id="linked-activity" class="form-select">
+                            <option value="">Select Activity</option>
+                        </select>
+                    </div>
+
+                    <!-- Add Safety Status Button -->
+                    <button onclick="addSafetyStatus()" class="btn btn-success" style="margin-top: 16px; font-size: 16px;">
+                        🛡️ Add Safety Status to Report
+                    </button>
+                    
+                    <div id="safety-message"></div>
+                </div>
+            </div>
+
+            <!-- Progress + QA Tab -->
+            <div id="progress-content" class="tab-content">
+                <div class="card">
+                    <h3>📈 Daily Progress</h3>
+                    <div class="form-group">
+                        <label class="form-label">Progress Rating</label>
+                        <select id="progress-rating" class="form-select">
+                            <option value="">Rate Today's Progress</option>
+                            <option value="Excellent">🟢 Excellent - Ahead of Schedule</option>
+                            <option value="Good">🟡 Good - On Schedule</option>
+                            <option value="Fair">🟠 Fair - Minor Delays</option>
+                            <option value="Poor">🔴 Poor - Behind Schedule</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Key Achievements</label>
+                        <textarea id="key-achievements" placeholder="Major achievements and milestones..." rows="3" class="form-textarea"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Issues & Challenges</label>
+                        <textarea id="issues-challenges" placeholder="Problems encountered and solutions..." rows="3" class="form-textarea"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Tomorrow's Plan</label>
+                        <textarea id="tomorrow-plan" placeholder="Planned activities for tomorrow..." rows="2" class="form-textarea"></textarea>
+                    </div>
+
+                    <!-- Add Progress Button -->
+                    <button onclick="addProgress()" class="btn btn-success" style="margin-top: 16px; font-size: 16px;">
+                        📈 Add Progress to Report
+                    </button>
+                    
+                    <div id="progress-message"></div>
+                </div>
+
+                <div class="card">
+                    <h3>🔍 Quality Control</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Overall Quality</label>
+                            <select id="overall-quality" class="form-select">
+                                <option value="">Select Quality</option>
+                                <option value="Excellent">🟢 Excellent</option>
+                                <option value="Good">🟡 Good</option>
+                                <option value="Acceptable">🟠 Acceptable</option>
+                                <option value="Poor">🔴 Poor</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Rework Required</label>
+                            <select id="rework-required" class="form-select">
+                                <option value="">Select Status</option>
+                                <option value="No Rework">No Rework Required</option>
+                                <option value="Minor Rework">Minor Rework Required</option>
+                                <option value="Major Rework">Major Rework Required</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Quality Issues</label>
+                        <textarea id="quality-issues" placeholder="Quality problems and corrective actions..." rows="2" class="form-textarea"></textarea>
+                    </div>
+
+                    <!-- Add QA/QV Button -->
+                    <button onclick="addQualityControl()" class="btn btn-success" style="margin-top: 16px; font-size: 16px;">
+                        🔍 Add QA/QV to Report
+                    </button>
+                    
+                    <div id="quality-message"></div>
+                </div>
+            </div>
+
+            <!-- Report Tab -->
+            <div id="report-content" class="tab-content">
+                <div class="card">
+                    <h3>📊 Daily Summary</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-number" id="total-activities">0</div>
+                            <div class="summary-label">Activities</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-number" id="total-workers">0</div>
+                            <div class="summary-label">Workers</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-number" id="active-contractors">0</div>
+                            <div class="summary-label">Contractors</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-number" id="work-hours">0</div>
+                            <div class="summary-label">Work Hours</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📝 Activities Review</h3>
+                    <div id="activities-review">
+                        <div style="text-center; padding: 40px; color: #6b7280;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">📝</div>
+                            <p>No activities recorded yet.<br>Add activities in the Activity tab first.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📤 Export Report</h3>
+                    <div class="form-group">
+                        <button onclick="downloadCSV()" class="btn btn-success" id="download-csv-btn" disabled>
+                            <span class="loading hidden" id="csv-loading"></span>
+                            <span id="csv-text">⬇️ Download CSV Report</span>
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button onclick="syncToCloud()" class="btn btn-primary" id="sync-btn">
+                            <span class="loading hidden" id="sync-loading"></span>
+                            <span id="sync-text">☁️ Sync to Cloud</span>
+                        </button>
+                    </div>
+                    
+                    <p id="export-status" style="text-align: center; color: #6b7280; margin-top: 12px; font-size: 14px;">
+                        Add activities to enable export
+                    </p>
+                    
+                    <div class="message info">
+                        <strong>💡 How to use:</strong><br>
+                        1. Download CSV file to your phone<br>
+                        2. Share via WhatsApp/Email to your computer<br>
+                        3. Open in Excel for further processing<br>
+                        4. Use "Sync to Cloud" for automatic backup
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Install Prompt -->
+    <div class="install-prompt" id="install-prompt">
+        <div>
+            <strong>📱 Install Site Report App</strong><br>
+            <span style="font-size: 12px;">Add to home screen for better experience</span>
+        </div>
+        <div>
+            <button onclick="installApp()">Install</button>
+            <button onclick="dismissInstall()" style="background: transparent; color: white; margin-left: 8px;">Later</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+        import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js';
+
+        // TODO: Replace with your Firebase config
+        const firebaseConfig = {
+            // You'll need to replace this with your actual Firebase config
+            apiKey: "your-api-key",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "your-app-id"
+        };
+
+        // Initialize Firebase
+        let app, db, storage;
+        let isOnline = navigator.onLine;
+        
+        // Initialize Firebase if config is provided
+        try {
+            if (firebaseConfig.apiKey !== "your-api-key") {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                storage = getStorage(app);
+                console.log('Firebase initialized successfully');
+            } else {
+                console.log('Firebase config not set, running in offline mode');
+            }
+        } catch (error) {
+            console.log('Firebase initialization failed, running in offline mode:', error);
+        }
+
+        // Make Firebase available globally
+        window.firebase = { app, db, storage, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, serverTimestamp, ref, uploadBytes, getDownloadURL };
+        window.isOnline = isOnline;
+    </script>
+
+    <script>
+        // Global variables
+        let dailyActivities = [];
+        let dailySafetyReports = [];
+        let dailyProgressReports = [];
+        let dailyQualityReports = [];
+        let photos = {1: null, 2: null};
+        let deferredPrompt;
+        let isAppInstalled = false;
+
+        // Work type mappings
+        const workTypeMap = {
+            'Structural': ['Concrete Pouring', 'Reinforcement Installation', 'Formwork Setup', 'Steel Erection', 'Foundation Work'],
+            'Mechanical': ['Pipe Installation', 'Valve Installation', 'Pump Installation', 'Equipment Mounting', 'Pressure Testing'],
+            'Electrical': ['Cable Installation', 'Panel Installation', 'Lighting Installation', 'Testing & Commissioning'],
+            'Plumbing': ['Water Pipe Installation', 'Drainage Installation', 'Fixture Installation', 'Leak Repairs'],
+            'HVAC': ['Ductwork Installation', 'AC Unit Installation', 'Ventilation Setup', 'System Testing'],
+            'Fire Safety': ['Sprinkler Installation', 'Fire Alarm Setup', 'Smoke Detector Installation', 'System Testing'],
+            'Finishes': ['Painting', 'Tiling', 'Flooring Installation', 'Door Installation', 'Window Installation'],
+            'Landscaping': ['Excavation', 'Planting', 'Irrigation Setup', 'Paving', 'Site Cleanup'],
+            'Testing': ['Quality Inspections', 'Safety Testing', 'Performance Testing', 'Final Inspections'],
+            'Maintenance': ['Routine Maintenance', 'Repair Work', 'Equipment Service', 'Cleaning']
+        };
+
+        // Initialize app
+        function init() {
+            console.log('Initializing Daily Site Report PWA...');
+            
+            try {
+                // Set current time
+                updateDateTime();
+                setInterval(updateDateTime, 1000);
+                
+                // Generate time options (only :00 and :30)
+                generateTimeOptions();
+                
+                // Set initial start time
+                setCurrentTime();
+                
+                // Setup event listeners
+                setupEventListeners();
+                
+                // Update connection status
+                updateConnectionStatus();
+                
+                // Auto-save every 2 minutes
+                setInterval(autoSave, 2 * 60 * 1000);
+                
+                // Load saved data
+                loadSavedData();
+                
+                // Setup online/offline listeners
+                window.addEventListener('online', () => {
+                    window.isOnline = true;
+                    updateConnectionStatus();
+                    autoSyncToCloud();
+                });
+                
+                window.addEventListener('offline', () => {
+                    window.isOnline = false;
+                    updateConnectionStatus();
+                });
+                
+                console.log('PWA initialized successfully');
+            } catch (error) {
+                console.error('Initialization error:', error);
+            }
+        }
+
+        // Update date and time display
+        function updateDateTime() {
+            try {
+                const now = new Date();
+                const dateEl = document.getElementById('current-date');
+                const timeEl = document.getElementById('current-time');
+                
+                if (dateEl) dateEl.textContent = now.toLocaleDateString();
+                if (timeEl) timeEl.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            } catch (error) {
+                console.warn('DateTime update failed:', error);
+            }
+        }
+
+        // Generate time options (only :00 and :30)
+        function generateTimeOptions() {
+            const startSelect = document.getElementById('start-time');
+            const endSelect = document.getElementById('end-time');
+            
+            for (let hour = 0; hour < 24; hour++) {
+                const hourStr = hour.toString().padStart(2, '0');
+                
+                // Add :00 option
+                const option00Start = document.createElement('option');
+                option00Start.value = `${hourStr}:00`;
+                option00Start.textContent = `${hourStr}:00`;
+                startSelect.appendChild(option00Start);
+                
+                const option00End = document.createElement('option');
+                option00End.value = `${hourStr}:00`;
+                option00End.textContent = `${hourStr}:00`;
+                endSelect.appendChild(option00End);
+                
+                // Add :30 option
+                const option30Start = document.createElement('option');
+                option30Start.value = `${hourStr}:30`;
+                option30Start.textContent = `${hourStr}:30`;
+                startSelect.appendChild(option30Start);
+                
+                const option30End = document.createElement('option');
+                option30End.value = `${hourStr}:30`;
+                option30End.textContent = `${hourStr}:30`;
+                endSelect.appendChild(option30End);
+            }
+        }
+
+        // Set current time rounded to nearest 30 minutes
+        function setCurrentTime() {
+            const now = new Date();
+            const minutes = now.getMinutes();
+            const roundedMinutes = minutes < 30 ? '00' : '30';
+            const timeString = `${now.getHours().toString().padStart(2, '0')}:${roundedMinutes}`;
+            
+            document.getElementById('start-time').value = timeString;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Project name change
+            document.getElementById('project-name').addEventListener('change', handleProjectChange);
+            
+            // Work category change
+            document.getElementById('work-category').addEventListener('change', updateWorkTypes);
+            
+            // Photo upload handlers
+            document.getElementById('photo1-camera').addEventListener('change', (e) => handlePhoto(1, e));
+            document.getElementById('photo1-gallery').addEventListener('change', (e) => handlePhoto(1, e));
+            document.getElementById('photo2-camera').addEventListener('change', (e) => handlePhoto(2, e));
+            document.getElementById('photo2-gallery').addEventListener('change', (e) => handlePhoto(2, e));
+        }
+
+        // Tab navigation
+        function showTab(tabName) {
+            try {
+                // Hide all tab contents
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Show selected tab content
+                const targetContent = document.getElementById(tabName + '-content');
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+                
+                // Add active class to clicked tab
+                event.target.classList.add('active');
+                
+                // Update linked activities dropdown in safety tab
+                if (tabName === 'safety') {
+                    updateLinkedActivities();
+                }
+            } catch (error) {
+                console.error('Tab switching error:', error);
+            }
+        }
+
+        // Toggle collapsible sections
+        function toggleSection(sectionName) {
+            try {
+                const content = document.getElementById(sectionName + '-content');
+                const toggle = document.getElementById(sectionName + '-toggle');
+                
+                if (content && toggle) {
+                    if (content.classList.contains('active')) {
+                        content.classList.remove('active');
+                        toggle.classList.remove('rotated');
+                    } else {
+                        content.classList.add('active');
+                        toggle.classList.add('rotated');
+                    }
+                }
+            } catch (error) {
+                console.error('Section toggle error:', error);
+            }
+        }
+
+        // Handle project change
+        function handleProjectChange() {
+            try {
+                const projectSelect = document.getElementById('project-name');
+                const customGroup = document.getElementById('custom-project-group');
+                
+                if (projectSelect.value === 'Others') {
+                    customGroup.classList.remove('hidden');
+                } else {
+                    customGroup.classList.add('hidden');
+                    document.getElementById('custom-project-name').value = '';
+                }
+            } catch (error) {
+                console.error('Project change error:', error);
+            }
+        }
+
+        // Update work types based on category
+        function updateWorkTypes() {
+            try {
+                const category = document.getElementById('work-category').value;
+                const workTypeSelect = document.getElementById('work-type');
+                
+                // Clear current options
+                workTypeSelect.innerHTML = '<option value="">Select Work Type</option>';
+                workTypeSelect.disabled = !category;
+                
+                if (category && workTypeMap[category]) {
+                    workTypeMap[category].forEach(type => {
+                        const option = document.createElement('option');
+                        option.value = type;
+                        option.textContent = type;
+                        workTypeSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Update work types error:', error);
+            }
+        }
+
+        // Photo functions
+        function handlePhoto(photoNum, event) {
+            try {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                if (file.size > 5 * 1024 * 1024) {
+                    showMessage('❌ Photo too large. Max 5MB allowed.', 'error');
+                    return;
+                }
+                
+                if (!file.type.startsWith('image/')) {
+                    showMessage('❌ Please select a valid image file.', 'error');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        photos[photoNum] = {
+                            data: e.target.result,
+                            name: file.name,
+                            size: file.size
+                        };
+                        
+                        // Show preview
+                        document.getElementById(`photo${photoNum}-img`).src = e.target.result;
+                        document.getElementById(`photo${photoNum}-name`).textContent = file.name;
+                        document.getElementById(`photo${photoNum}-preview`).classList.remove('hidden');
+                        document.getElementById(`photo${photoNum}-input`).classList.add('hidden');
+                        
+                        showMessage(`✅ Photo ${photoNum} uploaded!`, 'success');
+                    } catch (error) {
+                        console.error('Photo preview error:', error);
+                        showMessage('❌ Photo preview failed.', 'error');
+                    }
+                };
+                
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Photo handling error:', error);
+                showMessage('❌ Photo upload failed.', 'error');
+            }
+        }
+
+        function removePhoto(photoNum) {
+            try {
+                photos[photoNum] = null;
+                
+                document.getElementById(`photo${photoNum}-preview`).classList.add('hidden');
+                document.getElementById(`photo${photoNum}-input`).classList.remove('hidden');
+                
+                // Clear file inputs
+                document.getElementById(`photo${photoNum}-camera`).value = '';
+                document.getElementById(`photo${photoNum}-gallery`).value = '';
+                
+                showMessage(`✅ Photo ${photoNum} removed.`, 'success');
+            } catch (error) {
+                console.error('Photo removal error:', error);
+            }
+        }
+
+        // Add safety status
+        function addSafetyStatus() {
+            try {
+                const safetyStatus = document.getElementById('safety-status').value;
+                const safetyOfficer = document.getElementById('safety-officer').value;
+                const ppeCompliance = document.getElementById('ppe-compliance').value;
+                
+                if (!safetyStatus || !safetyOfficer || !ppeCompliance) {
+                    showSafetyMessage('❌ Please fill in Safety Status, Safety Officer, and PPE Compliance', 'error');
+                    return;
+                }
+
+                const safetyReport = {
+                    id: Date.now(),
+                    timestamp: new Date().toLocaleString(),
+                    safetyStatus: safetyStatus,
+                    safetyOfficer: safetyOfficer,
+                    ppeCompliance: ppeCompliance,
+                    safetyObservations: document.getElementById('safety-observations').value || '',
+                    nearMissedIssues: document.getElementById('near-missed-issues').value || '',
+                    linkedActivity: document.getElementById('linked-activity').value || ''
+                };
+
+                dailySafetyReports.push(safetyReport);
+                clearSafetyForm();
+                updateSafetyDisplay();
+                autoSave();
+                
+                showSafetyMessage('✅ Safety status added to report!', 'success');
+                
+            } catch (error) {
+                console.error('Add safety status error:', error);
+                showSafetyMessage('❌ Failed to add safety status.', 'error');
+            }
+        }
+
+        // Add progress report
+        function addProgress() {
+            try {
+                const progressRating = document.getElementById('progress-rating').value;
+                const keyAchievements = document.getElementById('key-achievements').value;
+                
+                if (!progressRating) {
+                    showProgressMessage('❌ Please select a Progress Rating', 'error');
+                    return;
+                }
+
+                const progressReport = {
+                    id: Date.now(),
+                    timestamp: new Date().toLocaleString(),
+                    progressRating: progressRating,
+                    keyAchievements: keyAchievements || '',
+                    issuesChallenges: document.getElementById('issues-challenges').value || '',
+                    tomorrowPlan: document.getElementById('tomorrow-plan').value || ''
+                };
+
+                dailyProgressReports.push(progressReport);
+                clearProgressForm();
+                updateProgressDisplay();
+                autoSave();
+                
+                showProgressMessage('✅ Progress report added!', 'success');
+                
+            } catch (error) {
+                console.error('Add progress error:', error);
+                showProgressMessage('❌ Failed to add progress report.', 'error');
+            }
+        }
+
+        // Add quality control report
+        function addQualityControl() {
+            try {
+                const overallQuality = document.getElementById('overall-quality').value;
+                const reworkRequired = document.getElementById('rework-required').value;
+                
+                if (!overallQuality || !reworkRequired) {
+                    showQualityMessage('❌ Please select Overall Quality and Rework Required', 'error');
+                    return;
+                }
+
+                const qualityReport = {
+                    id: Date.now(),
+                    timestamp: new Date().toLocaleString(),
+                    overallQuality: overallQuality,
+                    reworkRequired: reworkRequired,
+                    qualityIssues: document.getElementById('quality-issues').value || ''
+                };
+
+                dailyQualityReports.push(qualityReport);
+                clearQualityForm();
+                updateQualityDisplay();
+                autoSave();
+                
+                showQualityMessage('✅ QA/QV report added!', 'success');
+                
+            } catch (error) {
+                console.error('Add quality control error:', error);
+                showQualityMessage('❌ Failed to add QA/QV report.', 'error');
+            }
+        }
+        // Add activity
+        function addActivity() {
+            try {
+                const startTime = document.getElementById('start-time').value;
+                const location = document.getElementById('location').value;
+                const contractor = document.getElementById('contractor').value;
+                const workCategory = document.getElementById('work-category').value;
+                
+                if (!startTime || !location || !contractor || !workCategory) {
+                    showMessage('❌ Please fill in Start Time, Location, Contractor, and Work Category', 'error');
+                    return;
+                }
+
+                const activity = {
+                    id: Date.now(),
+                    timestamp: new Date().toLocaleString(),
+                    startTime: startTime,
+                    endTime: document.getElementById('end-time').value || '',
+                    location: location,
+                    specificArea: document.getElementById('specific-area').value || '',
+                    locationDetails: document.getElementById('location-details').value || '',
+                    contractor: contractor,
+                    workCategory: workCategory,
+                    workType: document.getElementById('work-type').value || '',
+                    workDescription: document.getElementById('work-description').value || '',
+                    workStatus: document.getElementById('work-status').value || '',
+                    qualityStatus: document.getElementById('quality-status').value || '',
+                    workerCount: document.getElementById('worker-count').value || '',
+                    supervisorCount: document.getElementById('supervisor-count').value || '',
+                    specialistCount: document.getElementById('specialist-count').value || '',
+                    equipmentUsed: document.getElementById('equipment-used').value || '',
+                    equipmentCount: document.getElementById('equipment-count').value || '',
+                    equipmentDetails: document.getElementById('equipment-details').value || '',
+                    materialType: document.getElementById('material-type').value || '',
+                    materialDetails: document.getElementById('material-details').value || '',
+                    activitySafetyRemarks: document.getElementById('activity-safety-remarks').value || '',
+                    activityGeneralRemarks: document.getElementById('activity-general-remarks').value || '',
+                    photos: JSON.parse(JSON.stringify(photos))
+                };
+
+                dailyActivities.push(activity);
+                clearActivityForm();
+                updateActivityDisplay();
+                updateSummaryStats();
+                autoSave();
+                
+                showMessage('✅ Activity added successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Add activity error:', error);
+                showMessage('❌ Failed to add activity.', 'error');
+            }
+        }
+
+        // Clear forms
+        function clearSafetyForm() {
+            try {
+                const formFields = [
+                    'safety-status', 'safety-officer', 'ppe-compliance', 
+                    'safety-observations', 'near-missed-issues', 'linked-activity'
+                ];
+                
+                formFields.forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (field) field.value = '';
+                });
+            } catch (error) {
+                console.error('Safety form clearing error:', error);
+            }
+        }
+
+        function clearProgressForm() {
+            try {
+                const formFields = [
+                    'progress-rating', 'key-achievements', 'issues-challenges', 'tomorrow-plan'
+                ];
+                
+                formFields.forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (field) field.value = '';
+                });
+            } catch (error) {
+                console.error('Progress form clearing error:', error);
+            }
+        }
+
+        function clearQualityForm() {
+            try {
+                const formFields = [
+                    'overall-quality', 'rework-required', 'quality-issues'
+                ];
+                
+                formFields.forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (field) field.value = '';
+                });
+            } catch (error) {
+                console.error('Quality form clearing error:', error);
+            }
+        }
+
+        // Show messages for different tabs
+        function showSafetyMessage(message, type) {
+            try {
+                const messageDiv = document.getElementById('safety-message');
+                if (messageDiv) {
+                    messageDiv.className = type === 'success' ? 'message success' : 'message error';
+                    messageDiv.textContent = message;
+                    
+                    setTimeout(() => {
+                        messageDiv.textContent = '';
+                        messageDiv.className = '';
+                    }, 4000);
+                }
+            } catch (error) {
+                console.error('Safety message display error:', error);
+            }
+        }
+
+        function showProgressMessage(message, type) {
+            try {
+                const messageDiv = document.getElementById('progress-message');
+                if (messageDiv) {
+                    messageDiv.className = type === 'success' ? 'message success' : 'message error';
+                    messageDiv.textContent = message;
+                    
+                    setTimeout(() => {
+                        messageDiv.textContent = '';
+                        messageDiv.className = '';
+                    }, 4000);
+                }
+            } catch (error) {
+                console.error('Progress message display error:', error);
+            }
+        }
+
+        function showQualityMessage(message, type) {
+            try {
+                const messageDiv = document.getElementById('quality-message');
+                if (messageDiv) {
+                    messageDiv.className = type === 'success' ? 'message success' : 'message error';
+                    messageDiv.textContent = message;
+                    
+                    setTimeout(() => {
+                        messageDiv.textContent = '';
+                        messageDiv.className = '';
+                    }, 4000);
+                }
+            } catch (error) {
+                console.error('Quality message display error:', error);
+            }
+        }
+        function clearActivityForm() {
+            try {
+                const formFields = [
+                    'end-time', 'location', 'specific-area', 'location-details',
+                    'contractor', 'work-category', 'work-type', 'work-description',
+                    'work-status', 'quality-status', 'worker-count', 'supervisor-count',
+                    'specialist-count', 'equipment-used', 'equipment-count', 'equipment-details',
+                    'material-type', 'material-details',
+                    'activity-safety-remarks', 'activity-general-remarks'
+                ];
+                
+                formFields.forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (field) field.value = '';
+                });
+                
+                // Clear photos
+                for (let i = 1; i <= 2; i++) {
+                    removePhoto(i);
+                }
+                
+                // Reset work types
+                document.getElementById('work-type').innerHTML = '<option value="">Select Work Type</option>';
+                document.getElementById('work-type').disabled = true;
+                
+                // Update start time
+                setCurrentTime();
+                
+            } catch (error) {
+                console.error('Form clearing error:', error);
+            }
+        }
+
+        // Update displays
+        function updateSafetyDisplay() {
+            // For now, just log the count - can be expanded later for detailed view
+            console.log('Safety reports:', dailySafetyReports.length);
+        }
+
+        function updateProgressDisplay() {
+            // For now, just log the count - can be expanded later for detailed view
+            console.log('Progress reports:', dailyProgressReports.length);
+        }
+
+        function updateQualityDisplay() {
+            // For now, just log the count - can be expanded later for detailed view
+            console.log('Quality reports:', dailyQualityReports.length);
+        }
+        function updateActivityDisplay() {
+            try {
+                document.getElementById('activity-count').textContent = dailyActivities.length;
+                
+                const activitiesReview = document.getElementById('activities-review');
+                
+                if (dailyActivities.length === 0) {
+                    activitiesReview.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #6b7280;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">📝</div>
+                            <p>No activities recorded yet.<br>Add activities in the Activity tab first.</p>
+                        </div>
+                    `;
+                } else {
+                    activitiesReview.innerHTML = dailyActivities.map((activity, index) => `
+                        <div class="activity-entry">
+                            <div class="activity-header">
+                                <div class="activity-time">${activity.startTime}${activity.endTime ? ' - ' + activity.endTime : ''}</div>
+                                <button class="delete-btn" onclick="deleteActivity(${index})">🗑️</button>
+                            </div>
+                            <div class="activity-details">
+                                <div><strong>📍</strong> ${activity.location}${activity.specificArea ? ' - ' + activity.specificArea : ''}</div>
+                                <div><strong>👷</strong> ${activity.contractor}</div>
+                                <div><strong>🔧</strong> ${activity.workCategory}${activity.workType ? ' - ' + activity.workType : ''}</div>
+                                ${activity.workDescription ? `<div><strong>📝</strong> ${activity.workDescription}</div>` : ''}
+                                ${activity.workerCount ? `<div><strong>👥</strong> ${activity.workerCount} workers</div>` : ''}
+                                ${activity.materialType ? `<div><strong>📦</strong> ${activity.materialType}</div>` : ''}
+                                ${activity.workStatus ? `<div><strong>📊</strong> ${activity.workStatus}</div>` : ''}
+                                ${activity.equipmentUsed ? `<div><strong>🔧</strong> ${activity.equipmentUsed}${activity.equipmentCount ? ' (' + activity.equipmentCount + ')' : ''}</div>` : ''}
+                                ${getActivityPhotosHTML(activity.photos)}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Activity display error:', error);
+            }
+        }
+
+        // Get photos HTML for display
+        function getActivityPhotosHTML(activityPhotos) {
+            try {
+                const photoElements = [];
+                for (let i = 1; i <= 2; i++) {
+                    if (activityPhotos && activityPhotos[i] && activityPhotos[i].data) {
+                        photoElements.push(`<img src="${activityPhotos[i].data}" alt="Photo ${i}" class="activity-photo">`);
+                    }
+                }
+                
+                if (photoElements.length > 0) {
+                    return `<div class="activity-photos">${photoElements.join('')}</div>`;
+                }
+                return '';
+            } catch (error) {
+                console.error('Activity photos HTML error:', error);
+                return '';
+            }
+        }
+
+        // Delete activity
+        function deleteActivity(index) {
+            try {
+                if (confirm('❌ Delete this activity?')) {
+                    dailyActivities.splice(index, 1);
+                    updateActivityDisplay();
+                    updateSummaryStats();
+                    updateLinkedActivities();
+                    autoSave();
+                    showMessage('✅ Activity deleted.', 'success');
+                }
+            } catch (error) {
+                console.error('Delete activity error:', error);
+            }
+        }
+
+        // Update linked activities dropdown
+        function updateLinkedActivities() {
+            try {
+                const linkedSelect = document.getElementById('linked-activity');
+                linkedSelect.innerHTML = '<option value="">Select Activity</option>';
+                
+                dailyActivities.forEach((activity, index) => {
+                    const option = document.createElement('option');
+                    option.value = activity.id;
+                    option.textContent = `Activity #${index + 1} - ${activity.startTime} - ${activity.workCategory}`;
+                    linkedSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Update linked activities error:', error);
+            }
+        }
+
+        // Update summary statistics
+        function updateSummaryStats() {
+            try {
+                const totalActivities = dailyActivities.length;
+                const totalSafetyReports = dailySafetyReports.length;
+                const totalProgressReports = dailyProgressReports.length;
+                const totalQualityReports = dailyQualityReports.length;
+                
+                const totalWorkers = dailyActivities.reduce((sum, activity) => {
+                    return sum + (parseInt(activity.workerCount) || 0) + (parseInt(activity.supervisorCount) || 0) + (parseInt(activity.specialistCount) || 0);
+                }, 0);
+                const activeContractors = [...new Set(dailyActivities.map(a => a.contractor).filter(c => c))].length;
+                
+                // Calculate work hours
+                let totalHours = 0;
+                dailyActivities.forEach(activity => {
+                    if (activity.startTime && activity.endTime) {
+                        const start = new Date(`2000-01-01T${activity.startTime}`);
+                        const end = new Date(`2000-01-01T${activity.endTime}`);
+                        const hours = (end - start) / (1000 * 60 * 60);
+                        if (hours > 0) totalHours += hours;
+                    }
+                });
+                
+                // Update display
+                document.getElementById('total-activities').textContent = totalActivities;
+                document.getElementById('total-workers').textContent = totalWorkers;
+                document.getElementById('active-contractors').textContent = activeContractors;
+                document.getElementById('work-hours').textContent = Math.round(totalHours * 10) / 10;
+                
+                // Update buttons
+                const hasData = totalActivities > 0 || totalSafetyReports > 0 || totalProgressReports > 0 || totalQualityReports > 0;
+                document.getElementById('download-csv-btn').disabled = !hasData;
+                
+                document.getElementById('export-status').textContent = hasData ? 'Ready to export' : 'Add data to enable export';
+                
+                // Update report status
+                const totalReports = totalActivities + totalSafetyReports + totalProgressReports + totalQualityReports;
+                document.getElementById('report-status').textContent = 
+                    totalReports === 0 ? '🟡 In Progress' : 
+                    totalReports < 5 ? '🟠 Partial' : '🟢 Ready';
+                
+            } catch (error) {
+                console.error('Summary stats update error:', error);
+            }
+        }
+
+        // Update connection status
+        function updateConnectionStatus() {
+            const dot = document.getElementById('connection-dot');
+            const syncStatus = document.getElementById('sync-status');
+            
+            if (window.isOnline && window.firebase.db) {
+                dot.classList.remove('offline');
+                syncStatus.textContent = 'Online';
+            } else {
+                dot.classList.add('offline');
+                syncStatus.textContent = 'Offline';
+            }
+        }
+
+        // Show message
+        function showMessage(message, type) {
+            try {
+                const messageDiv = document.getElementById('activity-message');
+                if (messageDiv) {
+                    messageDiv.className = type === 'success' ? 'message success' : 'message error';
+                    messageDiv.textContent = message;
+                    
+                    setTimeout(() => {
+                        messageDiv.textContent = '';
+                        messageDiv.className = '';
+                    }, 4000);
+                }
+            } catch (error) {
+                console.error('Message display error:', error);
+            }
+        }
+
+        // Generate CSV
+        function generateCSV() {
+            try {
+                let csvContent = '';
+                const today = new Date().toLocaleDateString();
+                const projectSelect = document.getElementById('project-name').value;
+                const customProject = document.getElementById('custom-project-name').value;
+                const finalProject = projectSelect === 'Others' ? customProject : projectSelect;
+                const reportedBy = document.getElementById('reported-by').value || '';
+                const weather = document.getElementById('weather').value || '';
+                const siteConditions = document.getElementById('site-conditions').value || '';
+
+                // Header Information
+                csvContent += `Daily Site Report - ${finalProject || 'Project'}\n`;
+                csvContent += `Date: ${today}\n`;
+                csvContent += `Reported By: ${reportedBy}\n`;
+                csvContent += `Weather: ${weather}\n`;
+                csvContent += `Site Conditions: ${siteConditions}\n\n`;
+
+                // Activities Section
+                if (dailyActivities.length > 0) {
+                    csvContent += `DAILY ACTIVITIES\n`;
+                    const activityHeaders = [
+                        'Start Time', 'End Time', 'Location', 'Area', 'Location Details',
+                        'Contractor', 'Work Category', 'Work Type', 'Description', 'Status', 'Quality',
+                        'Workers', 'Supervisors', 'Specialists', 'Equipment', 'Equipment Count', 'Equipment Details',
+                        'Material Type', 'Material Details', 'Safety Remarks', 'General Remarks',
+                        'Photo 1', 'Photo 2', 'Timestamp'
+                    ];
+                    csvContent += activityHeaders.join(',') + '\n';
+                    
+                    dailyActivities.forEach(activity => {
+                        const row = [
+                            activity.startTime || '',
+                            activity.endTime || '',
+                            `"${activity.location || ''}"`,
+                            `"${activity.specificArea || ''}"`,
+                            `"${activity.locationDetails || ''}"`,
+                            `"${activity.contractor || ''}"`,
+                            `"${activity.workCategory || ''}"`,
+                            `"${activity.workType || ''}"`,
+                            `"${(activity.workDescription || '').replace(/"/g, '""')}"`,
+                            `"${activity.workStatus || ''}"`,
+                            `"${activity.qualityStatus || ''}"`,
+                            activity.workerCount || '',
+                            activity.supervisorCount || '',
+                            activity.specialistCount || '',
+                            `"${activity.equipmentUsed || ''}"`,
+                            activity.equipmentCount || '',
+                            `"${(activity.equipmentDetails || '').replace(/"/g, '""')}"`,
+                            `"${activity.materialType || ''}"`,
+                            `"${(activity.materialDetails || '').replace(/"/g, '""')}"`,
+                            `"${(activity.activitySafetyRemarks || '').replace(/"/g, '""')}"`,
+                            `"${(activity.activityGeneralRemarks || '').replace(/"/g, '""')}"`,
+                            `"${(activity.photos && activity.photos[1] ? activity.photos[1].name : '')}"`,
+                            `"${(activity.photos && activity.photos[2] ? activity.photos[2].name : '')}"`,
+                            `"${activity.timestamp || ''}"`
+                        ];
+                        csvContent += row.join(',') + '\n';
+                    });
+                    csvContent += '\n';
+                }
+
+                // Safety Reports Section
+                if (dailySafetyReports.length > 0) {
+                    csvContent += `SAFETY REPORTS\n`;
+                    const safetyHeaders = [
+                        'Safety Status', 'Safety Officer', 'PPE Compliance', 'Safety Observations', 
+                        'Near-Missed Issues', 'Linked Activity', 'Timestamp'
+                    ];
+                    csvContent += safetyHeaders.join(',') + '\n';
+                    
+                    dailySafetyReports.forEach(safety => {
+                        const row = [
+                            `"${safety.safetyStatus || ''}"`,
+                            `"${safety.safetyOfficer || ''}"`,
+                            `"${safety.ppeCompliance || ''}"`,
+                            `"${(safety.safetyObservations || '').replace(/"/g, '""')}"`,
+                            `"${(safety.nearMissedIssues || '').replace(/"/g, '""')}"`,
+                            `"${safety.linkedActivity || ''}"`,
+                            `"${safety.timestamp || ''}"`
+                        ];
+                        csvContent += row.join(',') + '\n';
+                    });
+                    csvContent += '\n';
+                }
+
+                // Progress Reports Section
+                if (dailyProgressReports.length > 0) {
+                    csvContent += `PROGRESS REPORTS\n`;
+                    const progressHeaders = [
+                        'Progress Rating', 'Key Achievements', 'Issues & Challenges', 
+                        'Tomorrow Plan', 'Timestamp'
+                    ];
+                    csvContent += progressHeaders.join(',') + '\n';
+                    
+                    dailyProgressReports.forEach(progress => {
+                        const row = [
+                            `"${progress.progressRating || ''}"`,
+                            `"${(progress.keyAchievements || '').replace(/"/g, '""')}"`,
+                            `"${(progress.issuesChallenges || '').replace(/"/g, '""')}"`,
+                            `"${(progress.tomorrowPlan || '').replace(/"/g, '""')}"`,
+                            `"${progress.timestamp || ''}"`
+                        ];
+                        csvContent += row.join(',') + '\n';
+                    });
+                    csvContent += '\n';
+                }
+
+                // Quality Control Reports Section
+                if (dailyQualityReports.length > 0) {
+                    csvContent += `QUALITY CONTROL REPORTS\n`;
+                    const qualityHeaders = [
+                        'Overall Quality', 'Rework Required', 'Quality Issues', 'Timestamp'
+                    ];
+                    csvContent += qualityHeaders.join(',') + '\n';
+                    
+                    dailyQualityReports.forEach(quality => {
+                        const row = [
+                            `"${quality.overallQuality || ''}"`,
+                            `"${quality.reworkRequired || ''}"`,
+                            `"${(quality.qualityIssues || '').replace(/"/g, '""')}"`,
+                            `"${quality.timestamp || ''}"`
+                        ];
+                        csvContent += row.join(',') + '\n';
+                    });
+                    csvContent += '\n';
+                }
+
+                // Summary Section
+                csvContent += `SUMMARY\n`;
+                csvContent += `Total Activities: ${dailyActivities.length}\n`;
+                csvContent += `Safety Reports: ${dailySafetyReports.length}\n`;
+                csvContent += `Progress Reports: ${dailyProgressReports.length}\n`;
+                csvContent += `Quality Reports: ${dailyQualityReports.length}\n`;
+                csvContent += `Report Generated: ${new Date().toLocaleString()}\n`;
+                
+                return csvContent;
+            } catch (error) {
+                console.error('CSV generation error:', error);
+                throw new Error('Failed to generate CSV');
+            }
+        }
+
+        // Download CSV
+        function downloadCSV() {
+            try {
+                const hasData = dailyActivities.length > 0 || dailySafetyReports.length > 0 || 
+                               dailyProgressReports.length > 0 || dailyQualityReports.length > 0;
+                               
+                if (!hasData) {
+                    showMessage('❌ No data to export.', 'error');
+                    return;
+                }
+                
+                // Show loading
+                document.getElementById('csv-loading').classList.remove('hidden');
+                document.getElementById('csv-text').textContent = 'Generating...';
+                
+                setTimeout(() => {
+                    try {
+                        const csvContent = generateCSV();
+                        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                        const link = document.createElement('a');
+                        const url = URL.createObjectURL(blob);
+                        
+                        const today = new Date().toISOString().split('T')[0];
+                        const projectSelect = document.getElementById('project-name').value;
+                        const customProject = document.getElementById('custom-project-name').value;
+                        const finalProject = projectSelect === 'Others' ? customProject : projectSelect;
+                        const projectName = (finalProject || 'Project').replace(/\s+/g, '_');
+                        
+                        const fileName = `Daily_Site_Report_${projectName}_${today}.csv`;
+                        
+                        link.setAttribute('href', url);
+                        link.setAttribute('download', fileName);
+                        link.style.visibility = 'hidden';
+                        
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        
+                        setTimeout(() => URL.revokeObjectURL(url), 1000);
+                        
+                        showMessage('✅ CSV downloaded! Share it via your phone.', 'success');
+                    } catch (error) {
+                        console.error('CSV download error:', error);
+                        showMessage('❌ CSV export failed.', 'error');
+                    } finally {
+                        // Hide loading
+                        document.getElementById('csv-loading').classList.add('hidden');
+                        document.getElementById('csv-text').textContent = '⬇️ Download CSV Report';
+                    }
+                }, 500);
+                
+            } catch (error) {
+                console.error('CSV download error:', error);
+                showMessage('❌ CSV export failed.', 'error');
+            }
+        }
+
+        // Sync to cloud
+        async function syncToCloud() {
+            if (!window.firebase.db) {
+                showMessage('❌ Cloud sync not available in demo mode.', 'error');
+                return;
+            }
+            
+            if (!window.isOnline) {
+                showMessage('❌ No internet connection. Data will sync when online.', 'error');
+                return;
+            }
+            
+            const hasData = dailyActivities.length > 0 || dailySafetyReports.length > 0 || 
+                           dailyProgressReports.length > 0 || dailyQualityReports.length > 0;
+                           
+            if (!hasData) {
+                showMessage('❌ No data to sync.', 'error');
+                return;
+            }
+            
+            try {
+                // Show loading
+                document.getElementById('sync-loading').classList.remove('hidden');
+                document.getElementById('sync-text').textContent = 'Syncing...';
+                
+                // Upload activities to Firestore
+                for (const activity of dailyActivities) {
+                    await window.firebase.addDoc(window.firebase.collection(window.firebase.db, 'daily-activities'), {
+                        ...activity,
+                        createdAt: window.firebase.serverTimestamp()
+                    });
+                }
+                
+                // Upload safety reports to Firestore
+                for (const safety of dailySafetyReports) {
+                    await window.firebase.addDoc(window.firebase.collection(window.firebase.db, 'safety-reports'), {
+                        ...safety,
+                        createdAt: window.firebase.serverTimestamp()
+                    });
+                }
+                
+                // Upload progress reports to Firestore
+                for (const progress of dailyProgressReports) {
+                    await window.firebase.addDoc(window.firebase.collection(window.firebase.db, 'progress-reports'), {
+                        ...progress,
+                        createdAt: window.firebase.serverTimestamp()
+                    });
+                }
+                
+                // Upload quality reports to Firestore
+                for (const quality of dailyQualityReports) {
+                    await window.firebase.addDoc(window.firebase.collection(window.firebase.db, 'quality-reports'), {
+                        ...quality,
+                        createdAt: window.firebase.serverTimestamp()
+                    });
+                }
+                
+                showMessage('✅ All data synced to cloud successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Cloud sync error:', error);
+                showMessage('❌ Cloud sync failed. Will retry automatically.', 'error');
+            } finally {
+                // Hide loading
+                document.getElementById('sync-loading').classList.add('hidden');
+                document.getElementById('sync-text').textContent = '☁️ Sync to Cloud';
+            }
+        }
+
+        // Auto sync to cloud when online
+        async function autoSyncToCloud() {
+            const hasData = dailyActivities.length > 0 || dailySafetyReports.length > 0 || 
+                           dailyProgressReports.length > 0 || dailyQualityReports.length > 0;
+                           
+            if (window.firebase.db && window.isOnline && hasData) {
+                console.log('Auto-syncing to cloud...');
+                await syncToCloud();
+            }
+        }
+
+        // Auto-save function
+        function autoSave() {
+            try {
+                const hasData = dailyActivities.length > 0 || dailySafetyReports.length > 0 || 
+                               dailyProgressReports.length > 0 || dailyQualityReports.length > 0;
+                               
+                if (hasData) {
+                    const today = new Date().toISOString().split('T')[0];
+                    const draftData = {
+                        date: today,
+                        dailyActivities: dailyActivities,
+                        dailySafetyReports: dailySafetyReports,
+                        dailyProgressReports: dailyProgressReports,
+                        dailyQualityReports: dailyQualityReports,
+                        overviewData: {
+                            projectName: document.getElementById('project-name').value,
+                            customProjectName: document.getElementById('custom-project-name').value,
+                            reportedBy: document.getElementById('reported-by').value,
+                            weather: document.getElementById('weather').value,
+                            siteConditions: document.getElementById('site-conditions').value
+                        },
+                        savedAt: new Date().toLocaleString()
+                    };
+                    
+                    // Save to localStorage
+                    try {
+                        localStorage.setItem('dailySiteReportData', JSON.stringify(draftData));
+                    } catch (e) {
+                        console.warn('localStorage save failed:', e);
+                    }
+                    
+                    // Update sync status
+                    document.getElementById('sync-status').textContent = 'Saved locally';
+                    
+                    console.log('Data auto-saved');
+                }
+            } catch (error) {
+                console.error('Auto-save error:', error);
+            }
+        }
+
+        // Load saved data
+        function loadSavedData() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                let data = null;
+                
+                // Try to load from localStorage
+                try {
+                    const stored = localStorage.getItem('dailySiteReportData');
+                    if (stored) {
+                        data = JSON.parse(stored);
+                    }
+                } catch (e) {
+                    console.warn('localStorage load failed:', e);
+                }
+                
+                if (data && data.date === today) {
+                    // Load activities
+                    if (data.dailyActivities) {
+                        dailyActivities = data.dailyActivities;
+                        updateActivityDisplay();
+                        updateLinkedActivities();
+                    }
+                    
+                    // Load safety reports
+                    if (data.dailySafetyReports) {
+                        dailySafetyReports = data.dailySafetyReports;
+                        updateSafetyDisplay();
+                    }
+                    
+                    // Load progress reports
+                    if (data.dailyProgressReports) {
+                        dailyProgressReports = data.dailyProgressReports;
+                        updateProgressDisplay();
+                    }
+                    
+                    // Load quality reports
+                    if (data.dailyQualityReports) {
+                        dailyQualityReports = data.dailyQualityReports;
+                        updateQualityDisplay();
+                    }
+                    
+                    // Update summary stats
+                    updateSummaryStats();
+                    
+                    // Load overview data
+                    if (data.overviewData) {
+                        const overview = data.overviewData;
+                        if (overview.projectName) document.getElementById('project-name').value = overview.projectName;
+                        if (overview.customProjectName) document.getElementById('custom-project-name').value = overview.customProjectName;
+                        if (overview.reportedBy) document.getElementById('reported-by').value = overview.reportedBy;
+                        if (overview.weather) document.getElementById('weather').value = overview.weather;
+                        if (overview.siteConditions) document.getElementById('site-conditions').value = overview.siteConditions;
+                        
+                        // Handle custom project display
+                        handleProjectChange();
+                    }
+                    
+                    console.log('Saved data loaded successfully');
+                }
+            } catch (error) {
+                console.warn('Load saved data failed:', error);
+            }
+        }
+
+        // PWA Install functionality
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('install-prompt').classList.add('show');
+        });
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted PWA install');
+                        isAppInstalled = true;
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('install-prompt').classList.remove('show');
+                });
+            }
+        }
+
+        function dismissInstall() {
+            document.getElementById('install-prompt').classList.remove('show');
+            deferredPrompt = null;
+        }
+
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Loading Daily Site Report PWA...');
+            init();
+        });
+
+        console.log('Daily Site Report PWA script loaded');
+    </script>
+</body>
+</html>
