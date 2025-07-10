@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#1e40af">
     <meta name="description" content="Professional construction site daily reporting system">
     
-    <title>Daily Site Report PWA</title>
+    <title>Daily Site Report PWA - Enhanced</title>
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -76,6 +76,10 @@
             justify-content: space-between;
             align-items: center;
             font-size: 13px;
+        }
+        
+        .status-bar.delivered {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
         }
         
         .connection-status {
@@ -295,11 +299,113 @@
             color: white;
         }
         
+        .btn-purple {
+            background: #7c3aed;
+            color: white;
+        }
+        
+        .btn-purple:hover {
+            background: #6d28d9;
+        }
+        
         .btn:disabled {
             background: #9ca3af;
             color: #6b7280;
             cursor: not-allowed;
             transform: none;
+        }
+        
+        /* Equipment/Materials List Styles */
+        .equipment-list, .materials-list {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            background: #f9fafb;
+        }
+        
+        .equipment-item, .material-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            background: white;
+            margin: 4px;
+            border-radius: 4px;
+        }
+        
+        .equipment-item:last-child, .material-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-details {
+            flex: 1;
+            font-size: 14px;
+        }
+        
+        .item-quantity {
+            font-weight: 600;
+            color: #1e40af;
+            margin-right: 8px;
+        }
+        
+        .remove-item-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .add-item-form {
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+        }
+        
+        /* Report Sections */
+        .report-section {
+            margin-bottom: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .report-section-header {
+            background: #f3f4f6;
+            padding: 12px 16px;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .report-section-content {
+            padding: 16px;
+        }
+        
+        .report-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .report-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .report-timestamp {
+            background: #1e40af;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
         }
         
         /* Photo Section */
@@ -440,6 +546,69 @@
             color: #1e40af;
         }
         
+        /* Delivery Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 20px;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e40af;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        
+        .delivery-summary {
+            margin-bottom: 20px;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
         /* Loading Spinner */
         .loading {
             display: inline-block;
@@ -534,10 +703,13 @@
         </div>
         
         <!-- Status Bar -->
-        <div class="status-bar">
+        <div class="status-bar" id="status-bar">
             <div>
-                <div style="font-weight: 600;">📅 Today's Report</div>
-                <div style="font-size: 11px; opacity: 0.9;"><span id="activity-count">0</span> activities recorded</div>
+                <div style="font-weight: 600;" id="report-title">📅 Today's Report</div>
+                <div style="font-size: 11px; opacity: 0.9;">
+                    <span id="activity-count">0</span> activities • 
+                    <span id="total-reports">0</span> reports
+                </div>
             </div>
             <div class="connection-status">
                 <div class="status-dot" id="connection-dot"></div>
@@ -552,7 +724,7 @@
         <div class="tabs">
             <button class="tab active" onclick="showTab('activity')">📝 Activity</button>
             <button class="tab" onclick="showTab('safety')">🛡️ Safety</button>
-            <button class="tab" onclick="showTab('progress')">📈 Progress + QA</button>
+            <button class="tab" onclick="showTab('progress')">📈 Progress + QA/QC</button>
             <button class="tab" onclick="showTab('report')">📊 Report</button>
         </div>
 
@@ -815,38 +987,45 @@
                             </div>
                         </div>
                         
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Equipment Used</label>
-                                <select id="equipment-used" class="form-select">
-                                    <option value="">Select Equipment</option>
-                                    <option value="Tower Crane">Tower Crane</option>
-                                    <option value="Mobile Crane">Mobile Crane</option>
-                                    <option value="Excavator">Excavator</option>
-                                    <option value="Concrete Mixer">Concrete Mixer</option>
-                                    <option value="Scaffold System">Scaffold System</option>
-                                    <option value="Working Platform">Working Platform</option>
-                                    <option value="Welding Equipment">Welding Equipment</option>
-                                    <option value="Hand Tools Only">Hand Tools Only</option>
-                                    <option value="Multiple Equipment">Multiple Equipment</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Equipment Count</label>
-                                <select id="equipment-count" class="form-select">
-                                    <option value="">Count</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
-                                </select>
-                            </div>
-                        </div>
-                        
+                        <!-- Equipment Section -->
                         <div class="form-group">
-                            <label class="form-label">Equipment Details</label>
-                            <textarea id="equipment-details" placeholder="Equipment quantities and specifications..." rows="2" class="form-textarea"></textarea>
+                            <label class="form-label">Equipment & Plant Used</label>
+                            
+                            <!-- Equipment List Display -->
+                            <div class="equipment-list" id="equipment-list">
+                                <div style="padding: 12px; text-align: center; color: #6b7280; font-size: 14px;">
+                                    No equipment added yet
+                                </div>
+                            </div>
+                            
+                            <!-- Add Equipment Form -->
+                            <div class="add-item-form">
+                                <div class="form-row">
+                                    <div class="form-group" style="margin-bottom: 8px;">
+                                        <select id="new-equipment" class="form-select" style="font-size: 13px; padding: 8px;">
+                                            <option value="">Select Equipment</option>
+                                            <option value="Tower Crane">Tower Crane</option>
+                                            <option value="Mobile Crane">Mobile Crane</option>
+                                            <option value="Excavator">Excavator</option>
+                                            <option value="Concrete Mixer">Concrete Mixer</option>
+                                            <option value="Scaffold System">Scaffold System</option>
+                                            <option value="Working Platform">Working Platform</option>
+                                            <option value="Welding Equipment">Welding Equipment</option>
+                                            <option value="Compactor">Compactor</option>
+                                            <option value="Generator">Generator</option>
+                                            <option value="Concrete Pump">Concrete Pump</option>
+                                            <option value="Hand Tools">Hand Tools</option>
+                                            <option value="Safety Equipment">Safety Equipment</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 8px;">
+                                        <input type="number" id="new-equipment-quantity" placeholder="Qty" min="1" class="form-input" style="font-size: 13px; padding: 8px;">
+                                    </div>
+                                </div>
+                                <button onclick="addEquipment()" class="btn btn-primary" style="padding: 8px; font-size: 13px;">
+                                    ➕ Add Equipment
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -859,77 +1038,107 @@
                     </div>
                     <div class="section-content" id="materials-content">
                         <div class="form-group">
-                            <label class="form-label">Material Type</label>
-                            <select id="material-type" class="form-select">
-                                <option value="">Select Material Type</option>
-                                <option value="Concrete">Concrete</option>
-                                <option value="Steel/Rebar">Steel/Rebar</option>
-                                <option value="Bricks/Blocks">Bricks/Blocks</option>
-                                <option value="Electrical Materials">Electrical Materials</option>
-                                <option value="Plumbing Materials">Plumbing Materials</option>
-                                <option value="HVAC Components">HVAC Components</option>
-                                <option value="Windows/Doors">Windows/Doors</option>
-                                <option value="Paint/Coatings">Paint/Coatings</option>
-                                <option value="Multiple Materials">Multiple Materials</option>
-                                <option value="No Materials Used">No Materials Used</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Material Details & Quantities</label>
-                            <textarea id="material-details" placeholder="Material types, quantities, quality notes..." rows="2" class="form-textarea"></textarea>
+                            <label class="form-label">Materials Used</label>
+                            
+                            <!-- Materials List Display -->
+                            <div class="materials-list" id="materials-list">
+                                <div style="padding: 12px; text-align: center; color: #6b7280; font-size: 14px;">
+                                    No materials added yet
+                                </div>
+                            </div>
+                            
+                            <!-- Add Materials Form -->
+                            <div class="add-item-form">
+                                <div class="form-group" style="margin-bottom: 8px;">
+                                    <select id="new-material" class="form-select" style="font-size: 13px; padding: 8px;">
+                                        <option value="">Select Material Type</option>
+                                        <option value="Concrete">Concrete</option>
+                                        <option value="Steel/Rebar">Steel/Rebar</option>
+                                        <option value="Bricks/Blocks">Bricks/Blocks</option>
+                                        <option value="Electrical Materials">Electrical Materials</option>
+                                        <option value="Plumbing Materials">Plumbing Materials</option>
+                                        <option value="HVAC Components">HVAC Components</option>
+                                        <option value="Windows/Doors">Windows/Doors</option>
+                                        <option value="Paint/Coatings">Paint/Coatings</option>
+                                        <option value="Tiles/Flooring">Tiles/Flooring</option>
+                                        <option value="Insulation">Insulation</option>
+                                        <option value="Fasteners">Fasteners</option>
+                                        <option value="Sealants">Sealants</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 8px;">
+                                    <input type="text" id="new-material-details" placeholder="Details & quantity (e.g., 5 bags, 10 m³, 200 pieces)" class="form-input" style="font-size: 13px; padding: 8px;">
+                                </div>
+                                <button onclick="addMaterial()" class="btn btn-primary" style="padding: 8px; font-size: 13px;">
+                                    ➕ Add Material
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Photos Section -->
+                <!-- Photos Section with Expandable Feature -->
                 <div class="section">
                     <div class="section-header" onclick="toggleSection('photos')">
                         <span>📸 Photos</span>
                         <span class="section-toggle" id="photos-toggle">▼</span>
                     </div>
                     <div class="section-content" id="photos-content">
-                        <div class="form-row">
-                            <div class="photo-section">
-                                <label class="form-label">Before Photo</label>
-                                <div id="photo1-preview" class="hidden">
-                                    <img id="photo1-img" class="photo-preview">
-                                    <div class="photo-name" id="photo1-name"></div>
-                                    <button onclick="removePhoto(1)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                        <div id="activity-photos-container">
+                            <!-- Default 2 photo slots -->
+                            <div class="form-row">
+                                <div class="photo-section">
+                                    <label class="form-label">Before Photo</label>
+                                    <div id="photo1-preview" class="hidden">
+                                        <img id="photo1-img" class="photo-preview">
+                                        <div class="photo-name" id="photo1-name"></div>
+                                        <button onclick="removePhoto(1)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                                    </div>
+                                    <div id="photo1-input">
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                                            <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                                                📷 Camera
+                                                <input type="file" id="photo1-camera" accept="image/*" capture="environment" style="display: none;">
+                                            </label>
+                                            <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                                                📁 Gallery
+                                                <input type="file" id="photo1-gallery" accept="image/*" style="display: none;">
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div id="photo1-input">
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                                        <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
-                                            📷 Camera
-                                            <input type="file" id="photo1-camera" accept="image/*" capture="environment" style="display: none;">
-                                        </label>
-                                        <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
-                                            📁 Gallery
-                                            <input type="file" id="photo1-gallery" accept="image/*" style="display: none;">
-                                        </label>
+                                
+                                <div class="photo-section">
+                                    <label class="form-label">After Photo</label>
+                                    <div id="photo2-preview" class="hidden">
+                                        <img id="photo2-img" class="photo-preview">
+                                        <div class="photo-name" id="photo2-name"></div>
+                                        <button onclick="removePhoto(2)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                                    </div>
+                                    <div id="photo2-input">
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                                            <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                                                📷 Camera
+                                                <input type="file" id="photo2-camera" accept="image/*" capture="environment" style="display: none;">
+                                            </label>
+                                            <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                                                📁 Gallery
+                                                <input type="file" id="photo2-gallery" accept="image/*" style="display: none;">
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div class="photo-section">
-                                <label class="form-label">After Photo</label>
-                                <div id="photo2-preview" class="hidden">
-                                    <img id="photo2-img" class="photo-preview">
-                                    <div class="photo-name" id="photo2-name"></div>
-                                    <button onclick="removePhoto(2)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
-                                </div>
-                                <div id="photo2-input">
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                                        <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
-                                            📷 Camera
-                                            <input type="file" id="photo2-camera" accept="image/*" capture="environment" style="display: none;">
-                                        </label>
-                                        <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
-                                            📁 Gallery
-                                            <input type="file" id="photo2-gallery" accept="image/*" style="display: none;">
-                                        </label>
-                                    </div>
-                                </div>
+                            <!-- Additional photo slots will be added here -->
+                        </div>
+                        
+                        <!-- Add More Photos Button -->
+                        <div style="text-align: center; margin-top: 12px;">
+                            <button onclick="addMoreActivityPhotos()" class="btn" id="add-activity-photos-btn" style="background: #6b7280; color: white; padding: 8px 16px; font-size: 13px;">
+                                ➕ Add More Photos (Max 6)
+                            </button>
+                            <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">
+                                <span id="activity-photo-count">2</span> of 6 photo slots available
                             </div>
                         </div>
                     </div>
@@ -964,8 +1173,9 @@
 
             <!-- Safety Tab -->
             <div id="safety-content" class="tab-content">
+                <!-- Section 1: Overall Safety Performance -->
                 <div class="card">
-                    <h3>🛡️ Daily Safety Status</h3>
+                    <h3>🛡️ Section 1: Overall Safety Performance</h3>
                     <div class="form-group">
                         <label class="form-label">Overall Safety Status</label>
                         <select id="safety-status" class="form-select">
@@ -1001,12 +1211,7 @@
                     
                     <div class="form-group">
                         <label class="form-label">Safety Observations</label>
-                        <textarea id="safety-observations" placeholder="Safety incidents, observations, actions taken..." rows="3" class="form-textarea"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Near-Missed Issues</label>
-                        <textarea id="near-missed-issues" placeholder="Near-miss incidents and potential hazards identified..." rows="3" class="form-textarea"></textarea>
+                        <textarea id="safety-observations" placeholder="General safety observations, incidents, actions taken..." rows="3" class="form-textarea"></textarea>
                     </div>
 
                     <div class="form-group">
@@ -1014,6 +1219,93 @@
                         <select id="linked-activity" class="form-select">
                             <option value="">Select Activity</option>
                         </select>
+                    </div>
+
+                    <!-- Safety Photos Section with Expandable Feature -->
+                    <div class="form-group">
+                        <label class="form-label">Safety Photos</label>
+                        <div id="safety-photos-container">
+                            <!-- Default 2 photo slots -->
+                            <div class="form-row">
+                                <div class="photo-section">
+                                    <label class="form-label">Safety Photo 1</label>
+                                    <div id="safety-photo1-preview" class="hidden">
+                                        <img id="safety-photo1-img" class="photo-preview">
+                                        <div class="photo-name" id="safety-photo1-name"></div>
+                                        <button onclick="removeSafetyPhoto(1)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                                    </div>
+                                    <div id="safety-photo1-input">
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                                            <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                                                📷 Camera
+                                                <input type="file" id="safety-photo1-camera" accept="image/*" capture="environment" style="display: none;">
+                                            </label>
+                                            <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                                                📁 Gallery
+                                                <input type="file" id="safety-photo1-gallery" accept="image/*" style="display: none;">
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="photo-section">
+                                    <label class="form-label">Safety Photo 2</label>
+                                    <div id="safety-photo2-preview" class="hidden">
+                                        <img id="safety-photo2-img" class="photo-preview">
+                                        <div class="photo-name" id="safety-photo2-name"></div>
+                                        <button onclick="removeSafetyPhoto(2)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                                    </div>
+                                    <div id="safety-photo2-input">
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                                            <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                                                📷 Camera
+                                                <input type="file" id="safety-photo2-camera" accept="image/*" capture="environment" style="display: none;">
+                                            </label>
+                                            <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                                                📁 Gallery
+                                                <input type="file" id="safety-photo2-gallery" accept="image/*" style="display: none;">
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Additional photo slots will be added here -->
+                        </div>
+                        
+                        <!-- Add More Photos Button -->
+                        <div style="text-align: center; margin-top: 12px;">
+                            <button onclick="addMoreSafetyPhotos()" class="btn" id="add-safety-photos-btn" style="background: #6b7280; color: white; padding: 8px 16px; font-size: 13px;">
+                                ➕ Add More Photos (Max 6)
+                            </button>
+                            <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">
+                                <span id="safety-photo-count">2</span> of 6 photo slots available
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Near-Miss Issues -->
+                <div class="card">
+                    <h3>⚠️ Section 2: Near-Miss Issues</h3>
+                    <div class="form-group">
+                        <label class="form-label">Near-Miss Issue Record</label>
+                        <textarea id="near-miss-record" placeholder="Describe the near-miss incident in detail: what happened, where, when, who was involved..." rows="4" class="form-textarea"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Near-Miss Issue Range (Risk Level)</label>
+                        <select id="near-miss-range" class="form-select">
+                            <option value="">Select Risk Level</option>
+                            <option value="Low Risk">🟢 Low Risk - No injury potential</option>
+                            <option value="Medium Risk">🟡 Medium Risk - Minor injury potential</option>
+                            <option value="High Risk">🟠 High Risk - Serious injury potential</option>
+                            <option value="Critical Risk">🔴 Critical Risk - Fatal injury potential</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Corrective Actions Taken</label>
+                        <textarea id="corrective-actions" placeholder="Actions taken to prevent recurrence, responsible person, timeline..." rows="3" class="form-textarea"></textarea>
                     </div>
 
                     <!-- Add Safety Status Button -->
@@ -1025,7 +1317,7 @@
                 </div>
             </div>
 
-            <!-- Progress + QA Tab -->
+            <!-- Progress + QA/QC Tab -->
             <div id="progress-content" class="tab-content">
                 <div class="card">
                     <h3>📈 Daily Progress</h3>
@@ -1064,7 +1356,7 @@
                 </div>
 
                 <div class="card">
-                    <h3>🔍 Quality Control</h3>
+                    <h3>🔍 QA/QC</h3>
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Overall Quality</label>
@@ -1092,9 +1384,71 @@
                         <textarea id="quality-issues" placeholder="Quality problems and corrective actions..." rows="2" class="form-textarea"></textarea>
                     </div>
 
-                    <!-- Add QA/QV Button -->
+                    <!-- QA/QC Photos Section with Expandable Feature -->
+                    <div class="form-group">
+                        <label class="form-label">QA/QC Photos</label>
+                        <div id="qaqc-photos-container">
+                            <!-- Default 2 photo slots -->
+                            <div class="form-row">
+                                <div class="photo-section">
+                                    <label class="form-label">QA/QC Photo 1</label>
+                                    <div id="qaqc-photo1-preview" class="hidden">
+                                        <img id="qaqc-photo1-img" class="photo-preview">
+                                        <div class="photo-name" id="qaqc-photo1-name"></div>
+                                        <button onclick="removeQAQCPhoto(1)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                                    </div>
+                                    <div id="qaqc-photo1-input">
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                                            <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                                                📷 Camera
+                                                <input type="file" id="qaqc-photo1-camera" accept="image/*" capture="environment" style="display: none;">
+                                            </label>
+                                            <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                                                📁 Gallery
+                                                <input type="file" id="qaqc-photo1-gallery" accept="image/*" style="display: none;">
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="photo-section">
+                                    <label class="form-label">QA/QC Photo 2</label>
+                                    <div id="qaqc-photo2-preview" class="hidden">
+                                        <img id="qaqc-photo2-img" class="photo-preview">
+                                        <div class="photo-name" id="qaqc-photo2-name"></div>
+                                        <button onclick="removeQAQCPhoto(2)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                                    </div>
+                                    <div id="qaqc-photo2-input">
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                                            <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                                                📷 Camera
+                                                <input type="file" id="qaqc-photo2-camera" accept="image/*" capture="environment" style="display: none;">
+                                            </label>
+                                            <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                                                📁 Gallery
+                                                <input type="file" id="qaqc-photo2-gallery" accept="image/*" style="display: none;">
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Additional photo slots will be added here -->
+                        </div>
+                        
+                        <!-- Add More Photos Button -->
+                        <div style="text-align: center; margin-top: 12px;">
+                            <button onclick="addMoreQAQCPhotos()" class="btn" id="add-qaqc-photos-btn" style="background: #6b7280; color: white; padding: 8px 16px; font-size: 13px;">
+                                ➕ Add More Photos (Max 6)
+                            </button>
+                            <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">
+                                <span id="qaqc-photo-count">2</span> of 6 photo slots available
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add QA/QC Button -->
                     <button onclick="addQualityControl()" class="btn btn-success" style="margin-top: 16px; font-size: 16px;">
-                        🔍 Add QA/QV to Report
+                        🔍 Add QA/QC to Report
                     </button>
                     
                     <div id="quality-message"></div>
@@ -1125,18 +1479,68 @@
                     </div>
                 </div>
 
-                <div class="card">
-                    <h3>📝 Activities Review</h3>
-                    <div id="activities-review">
-                        <div style="text-center; padding: 40px; color: #6b7280;">
-                            <div style="font-size: 48px; margin-bottom: 16px;">📝</div>
-                            <p>No activities recorded yet.<br>Add activities in the Activity tab first.</p>
+                <!-- Complete Report Display -->
+                <div id="complete-report-display">
+                    <!-- Activities Section -->
+                    <div class="report-section">
+                        <div class="report-section-header">
+                            📝 Activities (<span id="activities-count">0</span>)
+                        </div>
+                        <div class="report-section-content" id="activities-report">
+                            <div style="text-align: center; padding: 20px; color: #6b7280;">
+                                No activities recorded yet
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Safety Reports Section -->
+                    <div class="report-section">
+                        <div class="report-section-header">
+                            🛡️ Safety Reports (<span id="safety-count">0</span>)
+                        </div>
+                        <div class="report-section-content" id="safety-reports">
+                            <div style="text-align: center; padding: 20px; color: #6b7280;">
+                                No safety reports added yet
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Reports Section -->
+                    <div class="report-section">
+                        <div class="report-section-header">
+                            📈 Progress Reports (<span id="progress-count">0</span>)
+                        </div>
+                        <div class="report-section-content" id="progress-reports">
+                            <div style="text-align: center; padding: 20px; color: #6b7280;">
+                                No progress reports added yet
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- QA/QC Reports Section -->
+                    <div class="report-section">
+                        <div class="report-section-header">
+                            🔍 QA/QC Reports (<span id="quality-count">0</span>)
+                        </div>
+                        <div class="report-section-content" id="quality-reports">
+                            <div style="text-align: center; padding: 20px; color: #6b7280;">
+                                No QA/QC reports added yet
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="card">
                     <h3>📤 Export Report</h3>
+                    
+                    <!-- Deliver Report Button -->
+                    <div class="form-group">
+                        <button onclick="deliverReport()" class="btn btn-purple" id="deliver-btn" disabled>
+                            <span class="loading hidden" id="deliver-loading"></span>
+                            <span id="deliver-text">📋 Deliver Report</span>
+                        </button>
+                    </div>
+                    
                     <div class="form-group">
                         <button onclick="downloadCSV()" class="btn btn-success" id="download-csv-btn" disabled>
                             <span class="loading hidden" id="csv-loading"></span>
@@ -1145,24 +1549,89 @@
                     </div>
                     
                     <div class="form-group">
-                        <button onclick="syncToCloud()" class="btn btn-primary" id="sync-btn">
+                        <button onclick="syncToCloud()" class="btn btn-primary" id="sync-btn" disabled>
                             <span class="loading hidden" id="sync-loading"></span>
                             <span id="sync-text">☁️ Sync to Cloud</span>
                         </button>
                     </div>
                     
                     <p id="export-status" style="text-align: center; color: #6b7280; margin-top: 12px; font-size: 14px;">
-                        Add activities to enable export
+                        Add data to enable export
                     </p>
                     
                     <div class="message info">
-                        <strong>💡 How to use:</strong><br>
-                        1. Download CSV file to your phone<br>
-                        2. Share via WhatsApp/Email to your computer<br>
-                        3. Open in Excel for further processing<br>
-                        4. Use "Sync to Cloud" for automatic backup
+                        <strong>💡 Workflow:</strong><br>
+                        1. Add activities, safety, progress, and QA/QC reports<br>
+                        2. Deliver report to finalize all entries<br>
+                        3. Download CSV or sync to cloud<br>
+                        4. Share via WhatsApp/Email for processing
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delivery Modal -->
+    <div id="delivery-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">📋 Deliver Daily Report</div>
+                <button class="close-modal" onclick="closeDeliveryModal()">&times;</button>
+            </div>
+            
+            <div class="delivery-summary">
+                <p style="margin-bottom: 16px; color: #6b7280;">
+                    Please review the summary below and confirm that all activities have been recorded for today.
+                </p>
+                
+                <div class="summary-row">
+                    <span><strong>📝 Activities:</strong></span>
+                    <span id="modal-activities">0</span>
+                </div>
+                <div class="summary-row">
+                    <span><strong>🛡️ Safety Reports:</strong></span>
+                    <span id="modal-safety">0</span>
+                </div>
+                <div class="summary-row">
+                    <span><strong>📈 Progress Reports:</strong></span>
+                    <span id="modal-progress">0</span>
+                </div>
+                <div class="summary-row">
+                    <span><strong>🔍 QA/QC Reports:</strong></span>
+                    <span id="modal-quality">0</span>
+                </div>
+                <div class="summary-row">
+                    <span><strong>👥 Total Workers:</strong></span>
+                    <span id="modal-workers">0</span>
+                </div>
+                <div class="summary-row">
+                    <span><strong>🏢 Contractors:</strong></span>
+                    <span id="modal-contractors">0</span>
+                </div>
+                <div class="summary-row">
+                    <span><strong>📅 Report Date:</strong></span>
+                    <span id="modal-date">Today</span>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 16px;">
+                <p style="font-weight: 600; color: #1e40af; margin-bottom: 8px;">
+                    ✅ I confirm that:
+                </p>
+                <ul style="font-size: 14px; color: #6b7280; list-style-position: inside;">
+                    <li>All activities for today have been recorded</li>
+                    <li>Safety, progress, and quality information is complete</li>
+                    <li>The report is ready for delivery and export</li>
+                </ul>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <button onclick="closeDeliveryModal()" class="btn" style="background: #6b7280; color: white;">
+                    Cancel
+                </button>
+                <button onclick="confirmDelivery()" class="btn btn-purple">
+                    🚀 Confirm Delivery
+                </button>
             </div>
         </div>
     </div>
@@ -1226,9 +1695,21 @@
         let dailySafetyReports = [];
         let dailyProgressReports = [];
         let dailyQualityReports = [];
-        let photos = {1: null, 2: null};
+        let photos = {1: null, 2: null, 3: null, 4: null, 5: null, 6: null};
+        let safetyPhotos = {1: null, 2: null, 3: null, 4: null, 5: null, 6: null};
+        let qaqcPhotos = {1: null, 2: null, 3: null, 4: null, 5: null, 6: null};
         let deferredPrompt;
         let isAppInstalled = false;
+        let isReportDelivered = false;
+
+        // Photo slot tracking
+        let activityPhotoSlots = 2;
+        let safetyPhotoSlots = 2;
+        let qaqcPhotoSlots = 2;
+
+        // Equipment and Materials arrays
+        let activityEquipment = [];
+        let activityMaterials = [];
 
         // Work type mappings
         const workTypeMap = {
@@ -1353,11 +1834,23 @@
             // Work category change
             document.getElementById('work-category').addEventListener('change', updateWorkTypes);
             
-            // Photo upload handlers
+            // Activity photo upload handlers (default 2 slots)
             document.getElementById('photo1-camera').addEventListener('change', (e) => handlePhoto(1, e));
             document.getElementById('photo1-gallery').addEventListener('change', (e) => handlePhoto(1, e));
             document.getElementById('photo2-camera').addEventListener('change', (e) => handlePhoto(2, e));
             document.getElementById('photo2-gallery').addEventListener('change', (e) => handlePhoto(2, e));
+            
+            // Safety photo upload handlers (default 2 slots)
+            document.getElementById('safety-photo1-camera').addEventListener('change', (e) => handleSafetyPhoto(1, e));
+            document.getElementById('safety-photo1-gallery').addEventListener('change', (e) => handleSafetyPhoto(1, e));
+            document.getElementById('safety-photo2-camera').addEventListener('change', (e) => handleSafetyPhoto(2, e));
+            document.getElementById('safety-photo2-gallery').addEventListener('change', (e) => handleSafetyPhoto(2, e));
+            
+            // QA/QC photo upload handlers (default 2 slots)
+            document.getElementById('qaqc-photo1-camera').addEventListener('change', (e) => handleQAQCPhoto(1, e));
+            document.getElementById('qaqc-photo1-gallery').addEventListener('change', (e) => handleQAQCPhoto(1, e));
+            document.getElementById('qaqc-photo2-camera').addEventListener('change', (e) => handleQAQCPhoto(2, e));
+            document.getElementById('qaqc-photo2-gallery').addEventListener('change', (e) => handleQAQCPhoto(2, e));
         }
 
         // Tab navigation
@@ -1451,7 +1944,137 @@
             }
         }
 
-        // Photo functions
+        // Equipment Management Functions
+        function addEquipment() {
+            try {
+                const equipmentSelect = document.getElementById('new-equipment');
+                const quantityInput = document.getElementById('new-equipment-quantity');
+                
+                const equipment = equipmentSelect.value;
+                const quantity = parseInt(quantityInput.value);
+                
+                if (!equipment || !quantity || quantity < 1) {
+                    showMessage('❌ Please select equipment and enter quantity', 'error');
+                    return;
+                }
+                
+                // Check if equipment already exists
+                const existingIndex = activityEquipment.findIndex(item => item.equipment === equipment);
+                if (existingIndex !== -1) {
+                    activityEquipment[existingIndex].quantity += quantity;
+                } else {
+                    activityEquipment.push({
+                        equipment: equipment,
+                        quantity: quantity,
+                        id: Date.now()
+                    });
+                }
+                
+                // Clear inputs
+                equipmentSelect.value = '';
+                quantityInput.value = '';
+                
+                // Update display
+                updateEquipmentDisplay();
+                showMessage('✅ Equipment added!', 'success');
+                
+            } catch (error) {
+                console.error('Add equipment error:', error);
+                showMessage('❌ Failed to add equipment', 'error');
+            }
+        }
+
+        function removeEquipment(id) {
+            try {
+                activityEquipment = activityEquipment.filter(item => item.id !== id);
+                updateEquipmentDisplay();
+                showMessage('✅ Equipment removed', 'success');
+            } catch (error) {
+                console.error('Remove equipment error:', error);
+            }
+        }
+
+        function updateEquipmentDisplay() {
+            const equipmentList = document.getElementById('equipment-list');
+            
+            if (activityEquipment.length === 0) {
+                equipmentList.innerHTML = '<div style="padding: 12px; text-align: center; color: #6b7280; font-size: 14px;">No equipment added yet</div>';
+            } else {
+                equipmentList.innerHTML = activityEquipment.map(item => `
+                    <div class="equipment-item">
+                        <div class="item-details">
+                            <span class="item-quantity">${item.quantity}x</span>
+                            ${item.equipment}
+                        </div>
+                        <button class="remove-item-btn" onclick="removeEquipment(${item.id})">🗑️</button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Materials Management Functions
+        function addMaterial() {
+            try {
+                const materialSelect = document.getElementById('new-material');
+                const detailsInput = document.getElementById('new-material-details');
+                
+                const material = materialSelect.value;
+                const details = detailsInput.value.trim();
+                
+                if (!material || !details) {
+                    showMessage('❌ Please select material type and enter details', 'error');
+                    return;
+                }
+                
+                activityMaterials.push({
+                    material: material,
+                    details: details,
+                    id: Date.now()
+                });
+                
+                // Clear inputs
+                materialSelect.value = '';
+                detailsInput.value = '';
+                
+                // Update display
+                updateMaterialsDisplay();
+                showMessage('✅ Material added!', 'success');
+                
+            } catch (error) {
+                console.error('Add material error:', error);
+                showMessage('❌ Failed to add material', 'error');
+            }
+        }
+
+        function removeMaterial(id) {
+            try {
+                activityMaterials = activityMaterials.filter(item => item.id !== id);
+                updateMaterialsDisplay();
+                showMessage('✅ Material removed', 'success');
+            } catch (error) {
+                console.error('Remove material error:', error);
+            }
+        }
+
+        function updateMaterialsDisplay() {
+            const materialsList = document.getElementById('materials-list');
+            
+            if (activityMaterials.length === 0) {
+                materialsList.innerHTML = '<div style="padding: 12px; text-align: center; color: #6b7280; font-size: 14px;">No materials added yet</div>';
+            } else {
+                materialsList.innerHTML = activityMaterials.map(item => `
+                    <div class="material-item">
+                        <div class="item-details">
+                            <div style="font-weight: 600;">${item.material}</div>
+                            <div style="font-size: 12px; color: #6b7280;">${item.details}</div>
+                        </div>
+                        <button class="remove-item-btn" onclick="removeMaterial(${item.id})">🗑️</button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Activity Photo functions
         function handlePhoto(photoNum, event) {
             try {
                 const file = event.target.files[0];
@@ -1513,6 +2136,353 @@
             }
         }
 
+        // Safety Photo functions
+        function handleSafetyPhoto(photoNum, event) {
+            try {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                if (file.size > 5 * 1024 * 1024) {
+                    showSafetyMessage('❌ Photo too large. Max 5MB allowed.', 'error');
+                    return;
+                }
+                
+                if (!file.type.startsWith('image/')) {
+                    showSafetyMessage('❌ Please select a valid image file.', 'error');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        safetyPhotos[photoNum] = {
+                            data: e.target.result,
+                            name: file.name,
+                            size: file.size
+                        };
+                        
+                        // Show preview
+                        document.getElementById(`safety-photo${photoNum}-img`).src = e.target.result;
+                        document.getElementById(`safety-photo${photoNum}-name`).textContent = file.name;
+                        document.getElementById(`safety-photo${photoNum}-preview`).classList.remove('hidden');
+                        document.getElementById(`safety-photo${photoNum}-input`).classList.add('hidden');
+                        
+                        showSafetyMessage(`✅ Safety photo ${photoNum} uploaded!`, 'success');
+                    } catch (error) {
+                        console.error('Safety photo preview error:', error);
+                        showSafetyMessage('❌ Safety photo preview failed.', 'error');
+                    }
+                };
+                
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Safety photo handling error:', error);
+                showSafetyMessage('❌ Safety photo upload failed.', 'error');
+            }
+        }
+
+        function removeSafetyPhoto(photoNum) {
+            try {
+                safetyPhotos[photoNum] = null;
+                
+                document.getElementById(`safety-photo${photoNum}-preview`).classList.add('hidden');
+                document.getElementById(`safety-photo${photoNum}-input`).classList.remove('hidden');
+                
+                // Clear file inputs
+                document.getElementById(`safety-photo${photoNum}-camera`).value = '';
+                document.getElementById(`safety-photo${photoNum}-gallery`).value = '';
+                
+                showSafetyMessage(`✅ Safety photo ${photoNum} removed.`, 'success');
+            } catch (error) {
+                console.error('Safety photo removal error:', error);
+            }
+        }
+
+        // QA/QC Photo functions
+        function handleQAQCPhoto(photoNum, event) {
+            try {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                if (file.size > 5 * 1024 * 1024) {
+                    showQualityMessage('❌ Photo too large. Max 5MB allowed.', 'error');
+                    return;
+                }
+                
+                if (!file.type.startsWith('image/')) {
+                    showQualityMessage('❌ Please select a valid image file.', 'error');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        qaqcPhotos[photoNum] = {
+                            data: e.target.result,
+                            name: file.name,
+                            size: file.size
+                        };
+                        
+                        // Show preview
+                        document.getElementById(`qaqc-photo${photoNum}-img`).src = e.target.result;
+                        document.getElementById(`qaqc-photo${photoNum}-name`).textContent = file.name;
+                        document.getElementById(`qaqc-photo${photoNum}-preview`).classList.remove('hidden');
+                        document.getElementById(`qaqc-photo${photoNum}-input`).classList.add('hidden');
+                        
+                        showQualityMessage(`✅ QA/QC photo ${photoNum} uploaded!`, 'success');
+                    } catch (error) {
+                        console.error('QA/QC photo preview error:', error);
+                        showQualityMessage('❌ QA/QC photo preview failed.', 'error');
+                    }
+                };
+                
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('QA/QC photo handling error:', error);
+                showQualityMessage('❌ QA/QC photo upload failed.', 'error');
+            }
+        }
+
+        function removeQAQCPhoto(photoNum) {
+            try {
+                qaqcPhotos[photoNum] = null;
+                
+                document.getElementById(`qaqc-photo${photoNum}-preview`).classList.add('hidden');
+                document.getElementById(`qaqc-photo${photoNum}-input`).classList.remove('hidden');
+                
+                // Clear file inputs
+                document.getElementById(`qaqc-photo${photoNum}-camera`).value = '';
+                document.getElementById(`qaqc-photo${photoNum}-gallery`).value = '';
+                
+                showQualityMessage(`✅ QA/QC photo ${photoNum} removed.`, 'success');
+            } catch (error) {
+                console.error('QA/QC photo removal error:', error);
+            }
+        }
+
+        // Expandable Photo Functions
+        function addMoreActivityPhotos() {
+            if (activityPhotoSlots >= 6) {
+                showMessage('❌ Maximum 6 photos allowed per activity.', 'error');
+                return;
+            }
+
+            const container = document.getElementById('activity-photos-container');
+            const newSlotNum = activityPhotoSlots + 1;
+            
+            // Create new photo slot
+            const newPhotoSection = document.createElement('div');
+            newPhotoSection.className = 'photo-section';
+            newPhotoSection.style.width = '100%';
+            newPhotoSection.style.marginBottom = '12px';
+            
+            newPhotoSection.innerHTML = `
+                <label class="form-label">Activity Photo ${newSlotNum}</label>
+                <div id="photo${newSlotNum}-preview" class="hidden">
+                    <img id="photo${newSlotNum}-img" class="photo-preview">
+                    <div class="photo-name" id="photo${newSlotNum}-name"></div>
+                    <button onclick="removePhoto(${newSlotNum})" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                </div>
+                <div id="photo${newSlotNum}-input">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                        <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                            📷 Camera
+                            <input type="file" id="photo${newSlotNum}-camera" accept="image/*" capture="environment" style="display: none;">
+                        </label>
+                        <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                            📁 Gallery
+                            <input type="file" id="photo${newSlotNum}-gallery" accept="image/*" style="display: none;">
+                        </label>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(newPhotoSection);
+            
+            // Add event listeners for new photo inputs
+            document.getElementById(`photo${newSlotNum}-camera`).addEventListener('change', (e) => handlePhoto(newSlotNum, e));
+            document.getElementById(`photo${newSlotNum}-gallery`).addEventListener('change', (e) => handlePhoto(newSlotNum, e));
+            
+            activityPhotoSlots++;
+            updatePhotoSlotDisplay('activity');
+            
+            showMessage(`✅ Photo slot ${newSlotNum} added!`, 'success');
+        }
+
+        function addMoreSafetyPhotos() {
+            if (safetyPhotoSlots >= 6) {
+                showSafetyMessage('❌ Maximum 6 photos allowed per safety report.', 'error');
+                return;
+            }
+
+            const container = document.getElementById('safety-photos-container');
+            const newSlotNum = safetyPhotoSlots + 1;
+            
+            // Create new photo slot
+            const newPhotoSection = document.createElement('div');
+            newPhotoSection.className = 'photo-section';
+            newPhotoSection.style.width = '100%';
+            newPhotoSection.style.marginBottom = '12px';
+            
+            newPhotoSection.innerHTML = `
+                <label class="form-label">Safety Photo ${newSlotNum}</label>
+                <div id="safety-photo${newSlotNum}-preview" class="hidden">
+                    <img id="safety-photo${newSlotNum}-img" class="photo-preview">
+                    <div class="photo-name" id="safety-photo${newSlotNum}-name"></div>
+                    <button onclick="removeSafetyPhoto(${newSlotNum})" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                </div>
+                <div id="safety-photo${newSlotNum}-input">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                        <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                            📷 Camera
+                            <input type="file" id="safety-photo${newSlotNum}-camera" accept="image/*" capture="environment" style="display: none;">
+                        </label>
+                        <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                            📁 Gallery
+                            <input type="file" id="safety-photo${newSlotNum}-gallery" accept="image/*" style="display: none;">
+                        </label>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(newPhotoSection);
+            
+            // Add event listeners for new photo inputs
+            document.getElementById(`safety-photo${newSlotNum}-camera`).addEventListener('change', (e) => handleSafetyPhoto(newSlotNum, e));
+            document.getElementById(`safety-photo${newSlotNum}-gallery`).addEventListener('change', (e) => handleSafetyPhoto(newSlotNum, e));
+            
+            safetyPhotoSlots++;
+            updatePhotoSlotDisplay('safety');
+            
+            showSafetyMessage(`✅ Photo slot ${newSlotNum} added!`, 'success');
+        }
+
+        function addMoreQAQCPhotos() {
+            if (qaqcPhotoSlots >= 6) {
+                showQualityMessage('❌ Maximum 6 photos allowed per QA/QC report.', 'error');
+                return;
+            }
+
+            const container = document.getElementById('qaqc-photos-container');
+            const newSlotNum = qaqcPhotoSlots + 1;
+            
+            // Create new photo slot
+            const newPhotoSection = document.createElement('div');
+            newPhotoSection.className = 'photo-section';
+            newPhotoSection.style.width = '100%';
+            newPhotoSection.style.marginBottom = '12px';
+            
+            newPhotoSection.innerHTML = `
+                <label class="form-label">QA/QC Photo ${newSlotNum}</label>
+                <div id="qaqc-photo${newSlotNum}-preview" class="hidden">
+                    <img id="qaqc-photo${newSlotNum}-img" class="photo-preview">
+                    <div class="photo-name" id="qaqc-photo${newSlotNum}-name"></div>
+                    <button onclick="removeQAQCPhoto(${newSlotNum})" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                </div>
+                <div id="qaqc-photo${newSlotNum}-input">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                        <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                            📷 Camera
+                            <input type="file" id="qaqc-photo${newSlotNum}-camera" accept="image/*" capture="environment" style="display: none;">
+                        </label>
+                        <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                            📁 Gallery
+                            <input type="file" id="qaqc-photo${newSlotNum}-gallery" accept="image/*" style="display: none;">
+                        </label>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(newPhotoSection);
+            
+            // Add event listeners for new photo inputs
+            document.getElementById(`qaqc-photo${newSlotNum}-camera`).addEventListener('change', (e) => handleQAQCPhoto(newSlotNum, e));
+            document.getElementById(`qaqc-photo${newSlotNum}-gallery`).addEventListener('change', (e) => handleQAQCPhoto(newSlotNum, e));
+            
+            qaqcPhotoSlots++;
+            updatePhotoSlotDisplay('qaqc');
+            
+            showQualityMessage(`✅ Photo slot ${newSlotNum} added!`, 'success');
+        }
+
+        function updatePhotoSlotDisplay(type) {
+            try {
+                let currentSlots, maxSlots;
+                
+                if (type === 'activity') {
+                    currentSlots = activityPhotoSlots;
+                    document.getElementById('activity-photo-count').textContent = currentSlots;
+                    if (currentSlots >= 6) {
+                        document.getElementById('add-activity-photos-btn').style.display = 'none';
+                    }
+                } else if (type === 'safety') {
+                    currentSlots = safetyPhotoSlots;
+                    document.getElementById('safety-photo-count').textContent = currentSlots;
+                    if (currentSlots >= 6) {
+                        document.getElementById('add-safety-photos-btn').style.display = 'none';
+                    }
+                } else if (type === 'qaqc') {
+                    currentSlots = qaqcPhotoSlots;
+                    document.getElementById('qaqc-photo-count').textContent = currentSlots;
+                    if (currentSlots >= 6) {
+                        document.getElementById('add-qaqc-photos-btn').style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Update photo slot display error:', error);
+            }
+        }
+
+        // Add activity
+        function addActivity() {
+            try {
+                const startTime = document.getElementById('start-time').value;
+                const location = document.getElementById('location').value;
+                const contractor = document.getElementById('contractor').value;
+                const workCategory = document.getElementById('work-category').value;
+                
+                if (!startTime || !location || !contractor || !workCategory) {
+                    showMessage('❌ Please fill in Start Time, Location, Contractor, and Work Category', 'error');
+                    return;
+                }
+
+                const activity = {
+                    id: Date.now(),
+                    timestamp: new Date().toLocaleString(),
+                    startTime: startTime,
+                    endTime: document.getElementById('end-time').value || '',
+                    location: location,
+                    specificArea: document.getElementById('specific-area').value || '',
+                    locationDetails: document.getElementById('location-details').value || '',
+                    contractor: contractor,
+                    workCategory: workCategory,
+                    workType: document.getElementById('work-type').value || '',
+                    workDescription: document.getElementById('work-description').value || '',
+                    workStatus: document.getElementById('work-status').value || '',
+                    qualityStatus: document.getElementById('quality-status').value || '',
+                    workerCount: document.getElementById('worker-count').value || '',
+                    supervisorCount: document.getElementById('supervisor-count').value || '',
+                    specialistCount: document.getElementById('specialist-count').value || '',
+                    equipment: [...activityEquipment],
+                    materials: [...activityMaterials],
+                    activitySafetyRemarks: document.getElementById('activity-safety-remarks').value || '',
+                    activityGeneralRemarks: document.getElementById('activity-general-remarks').value || '',
+                    photos: JSON.parse(JSON.stringify(photos))
+                };
+
+                dailyActivities.push(activity);
+                clearActivityForm();
+                updateAllDisplays();
+                autoSave();
+                
+                showMessage('✅ Activity added successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Add activity error:', error);
+                showMessage('❌ Failed to add activity.', 'error');
+            }
+        }
+
         // Add safety status
         function addSafetyStatus() {
             try {
@@ -1528,17 +2498,22 @@
                 const safetyReport = {
                     id: Date.now(),
                     timestamp: new Date().toLocaleString(),
+                    // Section 1: Overall Safety Performance
                     safetyStatus: safetyStatus,
                     safetyOfficer: safetyOfficer,
                     ppeCompliance: ppeCompliance,
                     safetyObservations: document.getElementById('safety-observations').value || '',
-                    nearMissedIssues: document.getElementById('near-missed-issues').value || '',
-                    linkedActivity: document.getElementById('linked-activity').value || ''
+                    linkedActivity: document.getElementById('linked-activity').value || '',
+                    // Section 2: Near-Miss Issues
+                    nearMissRecord: document.getElementById('near-miss-record').value || '',
+                    nearMissRange: document.getElementById('near-miss-range').value || '',
+                    correctiveActions: document.getElementById('corrective-actions').value || '',
+                    safetyPhotos: JSON.parse(JSON.stringify(safetyPhotos))
                 };
 
                 dailySafetyReports.push(safetyReport);
                 clearSafetyForm();
-                updateSafetyDisplay();
+                updateAllDisplays();
                 autoSave();
                 
                 showSafetyMessage('✅ Safety status added to report!', 'success');
@@ -1571,7 +2546,7 @@
 
                 dailyProgressReports.push(progressReport);
                 clearProgressForm();
-                updateProgressDisplay();
+                updateAllDisplays();
                 autoSave();
                 
                 showProgressMessage('✅ Progress report added!', 'success');
@@ -1598,87 +2573,84 @@
                     timestamp: new Date().toLocaleString(),
                     overallQuality: overallQuality,
                     reworkRequired: reworkRequired,
-                    qualityIssues: document.getElementById('quality-issues').value || ''
+                    qualityIssues: document.getElementById('quality-issues').value || '',
+                    qaqcPhotos: JSON.parse(JSON.stringify(qaqcPhotos))
                 };
 
                 dailyQualityReports.push(qualityReport);
                 clearQualityForm();
-                updateQualityDisplay();
+                updateAllDisplays();
                 autoSave();
                 
-                showQualityMessage('✅ QA/QV report added!', 'success');
+                showQualityMessage('✅ QA/QC report added!', 'success');
                 
             } catch (error) {
                 console.error('Add quality control error:', error);
-                showQualityMessage('❌ Failed to add QA/QV report.', 'error');
-            }
-        }
-        // Add activity
-        function addActivity() {
-            try {
-                const startTime = document.getElementById('start-time').value;
-                const location = document.getElementById('location').value;
-                const contractor = document.getElementById('contractor').value;
-                const workCategory = document.getElementById('work-category').value;
-                
-                if (!startTime || !location || !contractor || !workCategory) {
-                    showMessage('❌ Please fill in Start Time, Location, Contractor, and Work Category', 'error');
-                    return;
-                }
-
-                const activity = {
-                    id: Date.now(),
-                    timestamp: new Date().toLocaleString(),
-                    startTime: startTime,
-                    endTime: document.getElementById('end-time').value || '',
-                    location: location,
-                    specificArea: document.getElementById('specific-area').value || '',
-                    locationDetails: document.getElementById('location-details').value || '',
-                    contractor: contractor,
-                    workCategory: workCategory,
-                    workType: document.getElementById('work-type').value || '',
-                    workDescription: document.getElementById('work-description').value || '',
-                    workStatus: document.getElementById('work-status').value || '',
-                    qualityStatus: document.getElementById('quality-status').value || '',
-                    workerCount: document.getElementById('worker-count').value || '',
-                    supervisorCount: document.getElementById('supervisor-count').value || '',
-                    specialistCount: document.getElementById('specialist-count').value || '',
-                    equipmentUsed: document.getElementById('equipment-used').value || '',
-                    equipmentCount: document.getElementById('equipment-count').value || '',
-                    equipmentDetails: document.getElementById('equipment-details').value || '',
-                    materialType: document.getElementById('material-type').value || '',
-                    materialDetails: document.getElementById('material-details').value || '',
-                    activitySafetyRemarks: document.getElementById('activity-safety-remarks').value || '',
-                    activityGeneralRemarks: document.getElementById('activity-general-remarks').value || '',
-                    photos: JSON.parse(JSON.stringify(photos))
-                };
-
-                dailyActivities.push(activity);
-                clearActivityForm();
-                updateActivityDisplay();
-                updateSummaryStats();
-                autoSave();
-                
-                showMessage('✅ Activity added successfully!', 'success');
-                
-            } catch (error) {
-                console.error('Add activity error:', error);
-                showMessage('❌ Failed to add activity.', 'error');
+                showQualityMessage('❌ Failed to add QA/QC report.', 'error');
             }
         }
 
         // Clear forms
-        function clearSafetyForm() {
+        function clearActivityForm() {
             try {
                 const formFields = [
-                    'safety-status', 'safety-officer', 'ppe-compliance', 
-                    'safety-observations', 'near-missed-issues', 'linked-activity'
+                    'end-time', 'location', 'specific-area', 'location-details',
+                    'contractor', 'work-category', 'work-type', 'work-description',
+                    'work-status', 'quality-status', 'worker-count', 'supervisor-count',
+                    'specialist-count', 'activity-safety-remarks', 'activity-general-remarks'
                 ];
                 
                 formFields.forEach(fieldId => {
                     const field = document.getElementById(fieldId);
                     if (field) field.value = '';
                 });
+                
+                // Clear photos
+                for (let i = 1; i <= activityPhotoSlots; i++) {
+                    removePhoto(i);
+                }
+                
+                // Clear equipment and materials
+                activityEquipment = [];
+                activityMaterials = [];
+                updateEquipmentDisplay();
+                updateMaterialsDisplay();
+                
+                // Reset work types
+                document.getElementById('work-type').innerHTML = '<option value="">Select Work Type</option>';
+                document.getElementById('work-type').disabled = true;
+                
+                // Reset photo slots to default
+                resetPhotoSlots('activity');
+                
+                // Update start time
+                setCurrentTime();
+                
+            } catch (error) {
+                console.error('Form clearing error:', error);
+            }
+        }
+
+        function clearSafetyForm() {
+            try {
+                const formFields = [
+                    'safety-status', 'safety-officer', 'ppe-compliance', 
+                    'safety-observations', 'linked-activity',
+                    'near-miss-record', 'near-miss-range', 'corrective-actions'
+                ];
+                
+                formFields.forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (field) field.value = '';
+                });
+                
+                // Clear safety photos
+                for (let i = 1; i <= safetyPhotoSlots; i++) {
+                    removeSafetyPhoto(i);
+                }
+                
+                // Reset photo slots to default
+                resetPhotoSlots('safety');
             } catch (error) {
                 console.error('Safety form clearing error:', error);
             }
@@ -1709,12 +2681,524 @@
                     const field = document.getElementById(fieldId);
                     if (field) field.value = '';
                 });
+                
+                // Clear QA/QC photos
+                for (let i = 1; i <= qaqcPhotoSlots; i++) {
+                    removeQAQCPhoto(i);
+                }
+                
+                // Reset photo slots to default
+                resetPhotoSlots('qaqc');
             } catch (error) {
                 console.error('Quality form clearing error:', error);
             }
         }
 
+        function resetPhotoSlots(type) {
+            try {
+                if (type === 'activity') {
+                    // Remove extra photo slots beyond the default 2
+                    const container = document.getElementById('activity-photos-container');
+                    const children = container.children;
+                    while (children.length > 1) { // Keep only the first row (default 2 photos)
+                        container.removeChild(children[children.length - 1]);
+                    }
+                    activityPhotoSlots = 2;
+                    document.getElementById('add-activity-photos-btn').style.display = 'inline-flex';
+                    updatePhotoSlotDisplay('activity');
+                } else if (type === 'safety') {
+                    const container = document.getElementById('safety-photos-container');
+                    const children = container.children;
+                    while (children.length > 1) {
+                        container.removeChild(children[children.length - 1]);
+                    }
+                    safetyPhotoSlots = 2;
+                    document.getElementById('add-safety-photos-btn').style.display = 'inline-flex';
+                    updatePhotoSlotDisplay('safety');
+                } else if (type === 'qaqc') {
+                    const container = document.getElementById('qaqc-photos-container');
+                    const children = container.children;
+                    while (children.length > 1) {
+                        container.removeChild(children[children.length - 1]);
+                    }
+                    qaqcPhotoSlots = 2;
+                    document.getElementById('add-qaqc-photos-btn').style.display = 'inline-flex';
+                    updatePhotoSlotDisplay('qaqc');
+                }
+            } catch (error) {
+                console.error('Reset photo slots error:', error);
+            }
+        }
+
+        // Update all displays
+        function updateAllDisplays() {
+            updateActivityDisplay();
+            updateSafetyDisplay();
+            updateProgressDisplay();
+            updateQualityDisplay();
+            updateSummaryStats();
+            updateLinkedActivities();
+        }
+
+        // Display functions
+        function updateActivityDisplay() {
+            try {
+                document.getElementById('activity-count').textContent = dailyActivities.length;
+                document.getElementById('activities-count').textContent = dailyActivities.length;
+                
+                const activitiesReport = document.getElementById('activities-report');
+                
+                if (dailyActivities.length === 0) {
+                    activitiesReport.innerHTML = `
+                        <div style="text-align: center; padding: 20px; color: #6b7280;">
+                            No activities recorded yet
+                        </div>
+                    `;
+                } else {
+                    activitiesReport.innerHTML = dailyActivities.map((activity, index) => `
+                        <div class="report-item">
+                            <div class="report-item-header">
+                                <div><strong>Activity #${index + 1}</strong></div>
+                                <div class="report-timestamp">${activity.startTime}${activity.endTime ? ' - ' + activity.endTime : ''}</div>
+                            </div>
+                            <div>
+                                <div><strong>📍 Location:</strong> ${activity.location}${activity.specificArea ? ' - ' + activity.specificArea : ''}</div>
+                                <div><strong>👷 Contractor:</strong> ${activity.contractor}</div>
+                                <div><strong>🔧 Work:</strong> ${activity.workCategory}${activity.workType ? ' - ' + activity.workType : ''}</div>
+                                ${activity.workDescription ? `<div><strong>📝 Description:</strong> ${activity.workDescription}</div>` : ''}
+                                ${activity.workerCount ? `<div><strong>👥 Workers:</strong> ${activity.workerCount}</div>` : ''}
+                                ${getEquipmentHTML(activity.equipment)}
+                                ${getMaterialsHTML(activity.materials)}
+                                ${activity.workStatus ? `<div><strong>📊 Status:</strong> ${activity.workStatus}</div>` : ''}
+                                ${getActivityPhotosHTML(activity.photos)}
+                                <button class="delete-btn" onclick="deleteActivity(${index})" style="margin-top: 8px;">🗑️ Delete</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Activity display error:', error);
+            }
+        }
+
+        function updateSafetyDisplay() {
+            try {
+                document.getElementById('safety-count').textContent = dailySafetyReports.length;
+                
+                const safetyReports = document.getElementById('safety-reports');
+                
+                if (dailySafetyReports.length === 0) {
+                    safetyReports.innerHTML = `
+                        <div style="text-align: center; padding: 20px; color: #6b7280;">
+                            No safety reports added yet
+                        </div>
+                    `;
+                } else {
+                    safetyReports.innerHTML = dailySafetyReports.map((report, index) => `
+                        <div class="report-item">
+                            <div class="report-item-header">
+                                <div><strong>Safety Report #${index + 1}</strong></div>
+                                <div class="report-timestamp">${report.timestamp}</div>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; color: #1e40af; margin-bottom: 8px;">Section 1: Overall Safety Performance</div>
+                                <div><strong>🛡️ Status:</strong> ${report.safetyStatus}</div>
+                                <div><strong>👮 Officer:</strong> ${report.safetyOfficer}</div>
+                                <div><strong>🦺 PPE:</strong> ${report.ppeCompliance}</div>
+                                ${report.safetyObservations ? `<div><strong>📝 Observations:</strong> ${report.safetyObservations}</div>` : ''}
+                                ${report.linkedActivity ? `<div><strong>🔗 Linked Activity:</strong> ${report.linkedActivity}</div>` : ''}
+                                
+                                ${report.nearMissRecord || report.nearMissRange || report.correctiveActions ? `
+                                    <div style="font-weight: 600; color: #dc2626; margin: 12px 0 8px 0;">Section 2: Near-Miss Issues</div>
+                                    ${report.nearMissRecord ? `<div><strong>⚠️ Near-Miss Record:</strong> ${report.nearMissRecord}</div>` : ''}
+                                    ${report.nearMissRange ? `<div><strong>🎯 Risk Level:</strong> ${report.nearMissRange}</div>` : ''}
+                                    ${report.correctiveActions ? `<div><strong>🔧 Corrective Actions:</strong> ${report.correctiveActions}</div>` : ''}
+                                ` : ''}
+                                
+                                ${getSafetyPhotosHTML(report.safetyPhotos)}
+                                <button class="delete-btn" onclick="deleteSafetyReport(${index})" style="margin-top: 8px;">🗑️ Delete</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Safety display error:', error);
+            }
+        }
+
+        function updateProgressDisplay() {
+            try {
+                document.getElementById('progress-count').textContent = dailyProgressReports.length;
+                
+                const progressReports = document.getElementById('progress-reports');
+                
+                if (dailyProgressReports.length === 0) {
+                    progressReports.innerHTML = `
+                        <div style="text-align: center; padding: 20px; color: #6b7280;">
+                            No progress reports added yet
+                        </div>
+                    `;
+                } else {
+                    progressReports.innerHTML = dailyProgressReports.map((report, index) => `
+                        <div class="report-item">
+                            <div class="report-item-header">
+                                <div><strong>Progress Report #${index + 1}</strong></div>
+                                <div class="report-timestamp">${report.timestamp}</div>
+                            </div>
+                            <div>
+                                <div><strong>📈 Rating:</strong> ${report.progressRating}</div>
+                                ${report.keyAchievements ? `<div><strong>🎯 Achievements:</strong> ${report.keyAchievements}</div>` : ''}
+                                ${report.issuesChallenges ? `<div><strong>⚠️ Issues:</strong> ${report.issuesChallenges}</div>` : ''}
+                                ${report.tomorrowPlan ? `<div><strong>📅 Tomorrow:</strong> ${report.tomorrowPlan}</div>` : ''}
+                                <button class="delete-btn" onclick="deleteProgressReport(${index})" style="margin-top: 8px;">🗑️ Delete</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Progress display error:', error);
+            }
+        }
+
+        function updateQualityDisplay() {
+            try {
+                document.getElementById('quality-count').textContent = dailyQualityReports.length;
+                
+                const qualityReports = document.getElementById('quality-reports');
+                
+                if (dailyQualityReports.length === 0) {
+                    qualityReports.innerHTML = `
+                        <div style="text-align: center; padding: 20px; color: #6b7280;">
+                            No QA/QC reports added yet
+                        </div>
+                    `;
+                } else {
+                    qualityReports.innerHTML = dailyQualityReports.map((report, index) => `
+                        <div class="report-item">
+                            <div class="report-item-header">
+                                <div><strong>QA/QC Report #${index + 1}</strong></div>
+                                <div class="report-timestamp">${report.timestamp}</div>
+                            </div>
+                            <div>
+                                <div><strong>🔍 Quality:</strong> ${report.overallQuality}</div>
+                                <div><strong>🔄 Rework:</strong> ${report.reworkRequired}</div>
+                                ${report.qualityIssues ? `<div><strong>📝 Issues:</strong> ${report.qualityIssues}</div>` : ''}
+                                ${getQAQCPhotosHTML(report.qaqcPhotos)}
+                                <button class="delete-btn" onclick="deleteQualityReport(${index})" style="margin-top: 8px;">🗑️ Delete</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Quality display error:', error);
+            }
+        }
+
+        // Helper functions for display
+        function getEquipmentHTML(equipment) {
+            if (!equipment || equipment.length === 0) return '';
+            
+            const equipmentText = equipment.map(item => `${item.quantity}x ${item.equipment}`).join(', ');
+            return `<div><strong>🔧 Equipment:</strong> ${equipmentText}</div>`;
+        }
+
+        function getMaterialsHTML(materials) {
+            if (!materials || materials.length === 0) return '';
+            
+            const materialsText = materials.map(item => `${item.material} (${item.details})`).join(', ');
+            return `<div><strong>📦 Materials:</strong> ${materialsText}</div>`;
+        }
+
+        // Get photos HTML for display
+        function getActivityPhotosHTML(activityPhotos) {
+            try {
+                const photoElements = [];
+                for (let i = 1; i <= 6; i++) {
+                    if (activityPhotos && activityPhotos[i] && activityPhotos[i].data) {
+                        photoElements.push(`<img src="${activityPhotos[i].data}" alt="Photo ${i}" class="activity-photo">`);
+                    }
+                }
+                
+                if (photoElements.length > 0) {
+                    return `<div class="activity-photos">${photoElements.join('')}</div>`;
+                }
+                return '';
+            } catch (error) {
+                console.error('Activity photos HTML error:', error);
+                return '';
+            }
+        }
+
+        function getSafetyPhotosHTML(safetyPhotos) {
+            try {
+                const photoElements = [];
+                for (let i = 1; i <= 6; i++) {
+                    if (safetyPhotos && safetyPhotos[i] && safetyPhotos[i].data) {
+                        photoElements.push(`<img src="${safetyPhotos[i].data}" alt="Safety Photo ${i}" class="activity-photo">`);
+                    }
+                }
+                
+                if (photoElements.length > 0) {
+                    return `<div class="activity-photos">${photoElements.join('')}</div>`;
+                }
+                return '';
+            } catch (error) {
+                console.error('Safety photos HTML error:', error);
+                return '';
+            }
+        }
+
+        function getQAQCPhotosHTML(qaqcPhotos) {
+            try {
+                const photoElements = [];
+                for (let i = 1; i <= 6; i++) {
+                    if (qaqcPhotos && qaqcPhotos[i] && qaqcPhotos[i].data) {
+                        photoElements.push(`<img src="${qaqcPhotos[i].data}" alt="QA/QC Photo ${i}" class="activity-photo">`);
+                    }
+                }
+                
+                if (photoElements.length > 0) {
+                    return `<div class="activity-photos">${photoElements.join('')}</div>`;
+                }
+                return '';
+            } catch (error) {
+                console.error('QA/QC photos HTML error:', error);
+                return '';
+            }
+        }
+
+        // Delete functions
+        function deleteActivity(index) {
+            try {
+                if (confirm('❌ Delete this activity?')) {
+                    dailyActivities.splice(index, 1);
+                    updateAllDisplays();
+                    autoSave();
+                    showMessage('✅ Activity deleted.', 'success');
+                }
+            } catch (error) {
+                console.error('Delete activity error:', error);
+            }
+        }
+
+        function deleteSafetyReport(index) {
+            try {
+                if (confirm('❌ Delete this safety report?')) {
+                    dailySafetyReports.splice(index, 1);
+                    updateAllDisplays();
+                    autoSave();
+                    showSafetyMessage('✅ Safety report deleted.', 'success');
+                }
+            } catch (error) {
+                console.error('Delete safety report error:', error);
+            }
+        }
+
+        function deleteProgressReport(index) {
+            try {
+                if (confirm('❌ Delete this progress report?')) {
+                    dailyProgressReports.splice(index, 1);
+                    updateAllDisplays();
+                    autoSave();
+                    showProgressMessage('✅ Progress report deleted.', 'success');
+                }
+            } catch (error) {
+                console.error('Delete progress report error:', error);
+            }
+        }
+
+        function deleteQualityReport(index) {
+            try {
+                if (confirm('❌ Delete this QA/QC report?')) {
+                    dailyQualityReports.splice(index, 1);
+                    updateAllDisplays();
+                    autoSave();
+                    showQualityMessage('✅ QA/QC report deleted.', 'success');
+                }
+            } catch (error) {
+                console.error('Delete quality report error:', error);
+            }
+        }
+
+        // Update linked activities dropdown
+        function updateLinkedActivities() {
+            try {
+                const linkedSelect = document.getElementById('linked-activity');
+                linkedSelect.innerHTML = '<option value="">Select Activity</option>';
+                
+                dailyActivities.forEach((activity, index) => {
+                    const option = document.createElement('option');
+                    option.value = activity.id;
+                    option.textContent = `Activity #${index + 1} - ${activity.startTime} - ${activity.workCategory}`;
+                    linkedSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Update linked activities error:', error);
+            }
+        }
+
+        // Delivery Modal functions
+        function deliverReport() {
+            try {
+                const hasData = dailyActivities.length > 0 || dailySafetyReports.length > 0 || 
+                               dailyProgressReports.length > 0 || dailyQualityReports.length > 0;
+                               
+                if (!hasData) {
+                    showMessage('❌ No data to deliver. Add some activities or reports first.', 'error');
+                    return;
+                }
+
+                // Update modal content
+                document.getElementById('modal-activities').textContent = dailyActivities.length;
+                document.getElementById('modal-safety').textContent = dailySafetyReports.length;
+                document.getElementById('modal-progress').textContent = dailyProgressReports.length;
+                document.getElementById('modal-quality').textContent = dailyQualityReports.length;
+
+                const totalWorkers = dailyActivities.reduce((sum, activity) => {
+                    return sum + (parseInt(activity.workerCount) || 0) + (parseInt(activity.supervisorCount) || 0) + (parseInt(activity.specialistCount) || 0);
+                }, 0);
+                document.getElementById('modal-workers').textContent = totalWorkers;
+
+                const activeContractors = [...new Set(dailyActivities.map(a => a.contractor).filter(c => c))].length;
+                document.getElementById('modal-contractors').textContent = activeContractors;
+
+                document.getElementById('modal-date').textContent = new Date().toLocaleDateString();
+
+                // Show modal
+                document.getElementById('delivery-modal').classList.add('show');
+            } catch (error) {
+                console.error('Deliver report error:', error);
+                showMessage('❌ Failed to prepare delivery.', 'error');
+            }
+        }
+
+        function closeDeliveryModal() {
+            document.getElementById('delivery-modal').classList.remove('show');
+        }
+
+        function confirmDelivery() {
+            try {
+                // Mark report as delivered
+                isReportDelivered = true;
+
+                // Update UI
+                document.getElementById('status-bar').classList.add('delivered');
+                document.getElementById('report-title').innerHTML = '📋 Report Delivered';
+                document.getElementById('report-status').textContent = '✅ Delivered';
+
+                // Enable export buttons
+                document.getElementById('download-csv-btn').disabled = false;
+                document.getElementById('sync-btn').disabled = false;
+                document.getElementById('deliver-btn').disabled = true;
+                document.getElementById('deliver-text').textContent = '✅ Report Delivered';
+
+                document.getElementById('export-status').textContent = 'Report delivered - Ready to export';
+
+                // Close modal
+                closeDeliveryModal();
+
+                // Auto-save delivered status
+                autoSave();
+
+                showMessage('✅ Report delivered successfully! You can now export.', 'success');
+            } catch (error) {
+                console.error('Confirm delivery error:', error);
+                showMessage('❌ Failed to deliver report.', 'error');
+            }
+        }
+
+        // Update summary statistics
+        function updateSummaryStats() {
+            try {
+                const totalActivities = dailyActivities.length;
+                const totalSafetyReports = dailySafetyReports.length;
+                const totalProgressReports = dailyProgressReports.length;
+                const totalQualityReports = dailyQualityReports.length;
+                const totalReports = totalActivities + totalSafetyReports + totalProgressReports + totalQualityReports;
+                
+                const totalWorkers = dailyActivities.reduce((sum, activity) => {
+                    return sum + (parseInt(activity.workerCount) || 0) + (parseInt(activity.supervisorCount) || 0) + (parseInt(activity.specialistCount) || 0);
+                }, 0);
+                const activeContractors = [...new Set(dailyActivities.map(a => a.contractor).filter(c => c))].length;
+                
+                // Calculate work hours
+                let totalHours = 0;
+                dailyActivities.forEach(activity => {
+                    if (activity.startTime && activity.endTime) {
+                        const start = new Date(`2000-01-01T${activity.startTime}`);
+                        const end = new Date(`2000-01-01T${activity.endTime}`);
+                        const hours = (end - start) / (1000 * 60 * 60);
+                        if (hours > 0) totalHours += hours;
+                    }
+                });
+                
+                // Update display
+                document.getElementById('total-activities').textContent = totalActivities;
+                document.getElementById('total-reports').textContent = totalReports;
+                document.getElementById('total-workers').textContent = totalWorkers;
+                document.getElementById('active-contractors').textContent = activeContractors;
+                document.getElementById('work-hours').textContent = Math.round(totalHours * 10) / 10;
+                
+                // Update buttons based on delivery status
+                const hasData = totalReports > 0;
+                document.getElementById('deliver-btn').disabled = !hasData || isReportDelivered;
+                document.getElementById('download-csv-btn').disabled = !isReportDelivered;
+                document.getElementById('sync-btn').disabled = !isReportDelivered;
+                
+                if (isReportDelivered) {
+                    document.getElementById('export-status').textContent = 'Report delivered - Ready to export';
+                } else if (hasData) {
+                    document.getElementById('export-status').textContent = 'Deliver report first to enable export';
+                } else {
+                    document.getElementById('export-status').textContent = 'Add data to enable delivery';
+                }
+                
+                // Update report status
+                if (isReportDelivered) {
+                    document.getElementById('report-status').textContent = '✅ Delivered';
+                } else {
+                    document.getElementById('report-status').textContent = 
+                        totalReports === 0 ? '🟡 In Progress' : 
+                        totalReports < 5 ? '🟠 Partial' : '🟢 Ready';
+                }
+                
+            } catch (error) {
+                console.error('Summary stats update error:', error);
+            }
+        }
+
+        // Update connection status
+        function updateConnectionStatus() {
+            const dot = document.getElementById('connection-dot');
+            const syncStatus = document.getElementById('sync-status');
+            
+            if (window.isOnline && window.firebase.db) {
+                dot.classList.remove('offline');
+                syncStatus.textContent = 'Online';
+            } else {
+                dot.classList.add('offline');
+                syncStatus.textContent = 'Offline';
+            }
+        }
+
         // Show messages for different tabs
+        function showMessage(message, type) {
+            try {
+                const messageDiv = document.getElementById('activity-message');
+                if (messageDiv) {
+                    messageDiv.className = type === 'success' ? 'message success' : 'message error';
+                    messageDiv.textContent = message;
+                    
+                    setTimeout(() => {
+                        messageDiv.textContent = '';
+                        messageDiv.className = '';
+                    }, 4000);
+                }
+            } catch (error) {
+                console.error('Message display error:', error);
+            }
+        }
+
         function showSafetyMessage(message, type) {
             try {
                 const messageDiv = document.getElementById('safety-message');
@@ -1765,226 +3249,8 @@
                 console.error('Quality message display error:', error);
             }
         }
-        function clearActivityForm() {
-            try {
-                const formFields = [
-                    'end-time', 'location', 'specific-area', 'location-details',
-                    'contractor', 'work-category', 'work-type', 'work-description',
-                    'work-status', 'quality-status', 'worker-count', 'supervisor-count',
-                    'specialist-count', 'equipment-used', 'equipment-count', 'equipment-details',
-                    'material-type', 'material-details',
-                    'activity-safety-remarks', 'activity-general-remarks'
-                ];
-                
-                formFields.forEach(fieldId => {
-                    const field = document.getElementById(fieldId);
-                    if (field) field.value = '';
-                });
-                
-                // Clear photos
-                for (let i = 1; i <= 2; i++) {
-                    removePhoto(i);
-                }
-                
-                // Reset work types
-                document.getElementById('work-type').innerHTML = '<option value="">Select Work Type</option>';
-                document.getElementById('work-type').disabled = true;
-                
-                // Update start time
-                setCurrentTime();
-                
-            } catch (error) {
-                console.error('Form clearing error:', error);
-            }
-        }
 
-        // Update displays
-        function updateSafetyDisplay() {
-            // For now, just log the count - can be expanded later for detailed view
-            console.log('Safety reports:', dailySafetyReports.length);
-        }
-
-        function updateProgressDisplay() {
-            // For now, just log the count - can be expanded later for detailed view
-            console.log('Progress reports:', dailyProgressReports.length);
-        }
-
-        function updateQualityDisplay() {
-            // For now, just log the count - can be expanded later for detailed view
-            console.log('Quality reports:', dailyQualityReports.length);
-        }
-        function updateActivityDisplay() {
-            try {
-                document.getElementById('activity-count').textContent = dailyActivities.length;
-                
-                const activitiesReview = document.getElementById('activities-review');
-                
-                if (dailyActivities.length === 0) {
-                    activitiesReview.innerHTML = `
-                        <div style="text-align: center; padding: 40px; color: #6b7280;">
-                            <div style="font-size: 48px; margin-bottom: 16px;">📝</div>
-                            <p>No activities recorded yet.<br>Add activities in the Activity tab first.</p>
-                        </div>
-                    `;
-                } else {
-                    activitiesReview.innerHTML = dailyActivities.map((activity, index) => `
-                        <div class="activity-entry">
-                            <div class="activity-header">
-                                <div class="activity-time">${activity.startTime}${activity.endTime ? ' - ' + activity.endTime : ''}</div>
-                                <button class="delete-btn" onclick="deleteActivity(${index})">🗑️</button>
-                            </div>
-                            <div class="activity-details">
-                                <div><strong>📍</strong> ${activity.location}${activity.specificArea ? ' - ' + activity.specificArea : ''}</div>
-                                <div><strong>👷</strong> ${activity.contractor}</div>
-                                <div><strong>🔧</strong> ${activity.workCategory}${activity.workType ? ' - ' + activity.workType : ''}</div>
-                                ${activity.workDescription ? `<div><strong>📝</strong> ${activity.workDescription}</div>` : ''}
-                                ${activity.workerCount ? `<div><strong>👥</strong> ${activity.workerCount} workers</div>` : ''}
-                                ${activity.materialType ? `<div><strong>📦</strong> ${activity.materialType}</div>` : ''}
-                                ${activity.workStatus ? `<div><strong>📊</strong> ${activity.workStatus}</div>` : ''}
-                                ${activity.equipmentUsed ? `<div><strong>🔧</strong> ${activity.equipmentUsed}${activity.equipmentCount ? ' (' + activity.equipmentCount + ')' : ''}</div>` : ''}
-                                ${getActivityPhotosHTML(activity.photos)}
-                            </div>
-                        </div>
-                    `).join('');
-                }
-            } catch (error) {
-                console.error('Activity display error:', error);
-            }
-        }
-
-        // Get photos HTML for display
-        function getActivityPhotosHTML(activityPhotos) {
-            try {
-                const photoElements = [];
-                for (let i = 1; i <= 2; i++) {
-                    if (activityPhotos && activityPhotos[i] && activityPhotos[i].data) {
-                        photoElements.push(`<img src="${activityPhotos[i].data}" alt="Photo ${i}" class="activity-photo">`);
-                    }
-                }
-                
-                if (photoElements.length > 0) {
-                    return `<div class="activity-photos">${photoElements.join('')}</div>`;
-                }
-                return '';
-            } catch (error) {
-                console.error('Activity photos HTML error:', error);
-                return '';
-            }
-        }
-
-        // Delete activity
-        function deleteActivity(index) {
-            try {
-                if (confirm('❌ Delete this activity?')) {
-                    dailyActivities.splice(index, 1);
-                    updateActivityDisplay();
-                    updateSummaryStats();
-                    updateLinkedActivities();
-                    autoSave();
-                    showMessage('✅ Activity deleted.', 'success');
-                }
-            } catch (error) {
-                console.error('Delete activity error:', error);
-            }
-        }
-
-        // Update linked activities dropdown
-        function updateLinkedActivities() {
-            try {
-                const linkedSelect = document.getElementById('linked-activity');
-                linkedSelect.innerHTML = '<option value="">Select Activity</option>';
-                
-                dailyActivities.forEach((activity, index) => {
-                    const option = document.createElement('option');
-                    option.value = activity.id;
-                    option.textContent = `Activity #${index + 1} - ${activity.startTime} - ${activity.workCategory}`;
-                    linkedSelect.appendChild(option);
-                });
-            } catch (error) {
-                console.error('Update linked activities error:', error);
-            }
-        }
-
-        // Update summary statistics
-        function updateSummaryStats() {
-            try {
-                const totalActivities = dailyActivities.length;
-                const totalSafetyReports = dailySafetyReports.length;
-                const totalProgressReports = dailyProgressReports.length;
-                const totalQualityReports = dailyQualityReports.length;
-                
-                const totalWorkers = dailyActivities.reduce((sum, activity) => {
-                    return sum + (parseInt(activity.workerCount) || 0) + (parseInt(activity.supervisorCount) || 0) + (parseInt(activity.specialistCount) || 0);
-                }, 0);
-                const activeContractors = [...new Set(dailyActivities.map(a => a.contractor).filter(c => c))].length;
-                
-                // Calculate work hours
-                let totalHours = 0;
-                dailyActivities.forEach(activity => {
-                    if (activity.startTime && activity.endTime) {
-                        const start = new Date(`2000-01-01T${activity.startTime}`);
-                        const end = new Date(`2000-01-01T${activity.endTime}`);
-                        const hours = (end - start) / (1000 * 60 * 60);
-                        if (hours > 0) totalHours += hours;
-                    }
-                });
-                
-                // Update display
-                document.getElementById('total-activities').textContent = totalActivities;
-                document.getElementById('total-workers').textContent = totalWorkers;
-                document.getElementById('active-contractors').textContent = activeContractors;
-                document.getElementById('work-hours').textContent = Math.round(totalHours * 10) / 10;
-                
-                // Update buttons
-                const hasData = totalActivities > 0 || totalSafetyReports > 0 || totalProgressReports > 0 || totalQualityReports > 0;
-                document.getElementById('download-csv-btn').disabled = !hasData;
-                
-                document.getElementById('export-status').textContent = hasData ? 'Ready to export' : 'Add data to enable export';
-                
-                // Update report status
-                const totalReports = totalActivities + totalSafetyReports + totalProgressReports + totalQualityReports;
-                document.getElementById('report-status').textContent = 
-                    totalReports === 0 ? '🟡 In Progress' : 
-                    totalReports < 5 ? '🟠 Partial' : '🟢 Ready';
-                
-            } catch (error) {
-                console.error('Summary stats update error:', error);
-            }
-        }
-
-        // Update connection status
-        function updateConnectionStatus() {
-            const dot = document.getElementById('connection-dot');
-            const syncStatus = document.getElementById('sync-status');
-            
-            if (window.isOnline && window.firebase.db) {
-                dot.classList.remove('offline');
-                syncStatus.textContent = 'Online';
-            } else {
-                dot.classList.add('offline');
-                syncStatus.textContent = 'Offline';
-            }
-        }
-
-        // Show message
-        function showMessage(message, type) {
-            try {
-                const messageDiv = document.getElementById('activity-message');
-                if (messageDiv) {
-                    messageDiv.className = type === 'success' ? 'message success' : 'message error';
-                    messageDiv.textContent = message;
-                    
-                    setTimeout(() => {
-                        messageDiv.textContent = '';
-                        messageDiv.className = '';
-                    }, 4000);
-                }
-            } catch (error) {
-                console.error('Message display error:', error);
-            }
-        }
-
-        // Generate CSV
+        // Generate CSV - Enhanced with photos
         function generateCSV() {
             try {
                 let csvContent = '';
@@ -2001,7 +3267,8 @@
                 csvContent += `Date: ${today}\n`;
                 csvContent += `Reported By: ${reportedBy}\n`;
                 csvContent += `Weather: ${weather}\n`;
-                csvContent += `Site Conditions: ${siteConditions}\n\n`;
+                csvContent += `Site Conditions: ${siteConditions}\n`;
+                csvContent += `Report Status: ${isReportDelivered ? 'DELIVERED' : 'DRAFT'}\n\n`;
 
                 // Activities Section
                 if (dailyActivities.length > 0) {
@@ -2009,13 +3276,21 @@
                     const activityHeaders = [
                         'Start Time', 'End Time', 'Location', 'Area', 'Location Details',
                         'Contractor', 'Work Category', 'Work Type', 'Description', 'Status', 'Quality',
-                        'Workers', 'Supervisors', 'Specialists', 'Equipment', 'Equipment Count', 'Equipment Details',
-                        'Material Type', 'Material Details', 'Safety Remarks', 'General Remarks',
-                        'Photo 1', 'Photo 2', 'Timestamp'
+                        'Workers', 'Supervisors', 'Specialists', 'Equipment', 'Materials',
+                        'Safety Remarks', 'General Remarks', 'Activity Photos', 'Timestamp'
                     ];
                     csvContent += activityHeaders.join(',') + '\n';
                     
                     dailyActivities.forEach(activity => {
+                        const equipmentText = activity.equipment ? activity.equipment.map(e => `${e.quantity}x ${e.equipment}`).join('; ') : '';
+                        const materialsText = activity.materials ? activity.materials.map(m => `${m.material} (${m.details})`).join('; ') : '';
+                        const activityPhotos = [];
+                        for (let i = 1; i <= 6; i++) {
+                            if (activity.photos && activity.photos[i] && activity.photos[i].name) {
+                                activityPhotos.push(activity.photos[i].name);
+                            }
+                        }
+                        
                         const row = [
                             activity.startTime || '',
                             activity.endTime || '',
@@ -2031,15 +3306,11 @@
                             activity.workerCount || '',
                             activity.supervisorCount || '',
                             activity.specialistCount || '',
-                            `"${activity.equipmentUsed || ''}"`,
-                            activity.equipmentCount || '',
-                            `"${(activity.equipmentDetails || '').replace(/"/g, '""')}"`,
-                            `"${activity.materialType || ''}"`,
-                            `"${(activity.materialDetails || '').replace(/"/g, '""')}"`,
+                            `"${equipmentText}"`,
+                            `"${materialsText}"`,
                             `"${(activity.activitySafetyRemarks || '').replace(/"/g, '""')}"`,
                             `"${(activity.activityGeneralRemarks || '').replace(/"/g, '""')}"`,
-                            `"${(activity.photos && activity.photos[1] ? activity.photos[1].name : '')}"`,
-                            `"${(activity.photos && activity.photos[2] ? activity.photos[2].name : '')}"`,
+                            `"${activityPhotos.join('; ')}"`,
                             `"${activity.timestamp || ''}"`
                         ];
                         csvContent += row.join(',') + '\n';
@@ -2051,19 +3322,29 @@
                 if (dailySafetyReports.length > 0) {
                     csvContent += `SAFETY REPORTS\n`;
                     const safetyHeaders = [
-                        'Safety Status', 'Safety Officer', 'PPE Compliance', 'Safety Observations', 
-                        'Near-Missed Issues', 'Linked Activity', 'Timestamp'
+                        'Safety Status', 'Safety Officer', 'PPE Compliance', 'Safety Observations', 'Linked Activity',
+                        'Near-Miss Record', 'Near-Miss Risk Level', 'Corrective Actions', 'Safety Photos', 'Timestamp'
                     ];
                     csvContent += safetyHeaders.join(',') + '\n';
                     
                     dailySafetyReports.forEach(safety => {
+                        const safetyPhotosList = [];
+                        for (let i = 1; i <= 6; i++) {
+                            if (safety.safetyPhotos && safety.safetyPhotos[i] && safety.safetyPhotos[i].name) {
+                                safetyPhotosList.push(safety.safetyPhotos[i].name);
+                            }
+                        }
+                        
                         const row = [
                             `"${safety.safetyStatus || ''}"`,
                             `"${safety.safetyOfficer || ''}"`,
                             `"${safety.ppeCompliance || ''}"`,
                             `"${(safety.safetyObservations || '').replace(/"/g, '""')}"`,
-                            `"${(safety.nearMissedIssues || '').replace(/"/g, '""')}"`,
                             `"${safety.linkedActivity || ''}"`,
+                            `"${(safety.nearMissRecord || '').replace(/"/g, '""')}"`,
+                            `"${safety.nearMissRange || ''}"`,
+                            `"${(safety.correctiveActions || '').replace(/"/g, '""')}"`,
+                            `"${safetyPhotosList.join('; ')}"`,
                             `"${safety.timestamp || ''}"`
                         ];
                         csvContent += row.join(',') + '\n';
@@ -2093,19 +3374,27 @@
                     csvContent += '\n';
                 }
 
-                // Quality Control Reports Section
+                // QA/QC Reports Section
                 if (dailyQualityReports.length > 0) {
-                    csvContent += `QUALITY CONTROL REPORTS\n`;
+                    csvContent += `QA/QC REPORTS\n`;
                     const qualityHeaders = [
-                        'Overall Quality', 'Rework Required', 'Quality Issues', 'Timestamp'
+                        'Overall Quality', 'Rework Required', 'Quality Issues', 'QA/QC Photos', 'Timestamp'
                     ];
                     csvContent += qualityHeaders.join(',') + '\n';
                     
                     dailyQualityReports.forEach(quality => {
+                        const qaqcPhotosList = [];
+                        for (let i = 1; i <= 6; i++) {
+                            if (quality.qaqcPhotos && quality.qaqcPhotos[i] && quality.qaqcPhotos[i].name) {
+                                qaqcPhotosList.push(quality.qaqcPhotos[i].name);
+                            }
+                        }
+                        
                         const row = [
                             `"${quality.overallQuality || ''}"`,
                             `"${quality.reworkRequired || ''}"`,
                             `"${(quality.qualityIssues || '').replace(/"/g, '""')}"`,
+                            `"${qaqcPhotosList.join('; ')}"`,
                             `"${quality.timestamp || ''}"`
                         ];
                         csvContent += row.join(',') + '\n';
@@ -2118,7 +3407,8 @@
                 csvContent += `Total Activities: ${dailyActivities.length}\n`;
                 csvContent += `Safety Reports: ${dailySafetyReports.length}\n`;
                 csvContent += `Progress Reports: ${dailyProgressReports.length}\n`;
-                csvContent += `Quality Reports: ${dailyQualityReports.length}\n`;
+                csvContent += `QA/QC Reports: ${dailyQualityReports.length}\n`;
+                csvContent += `Report Status: ${isReportDelivered ? 'DELIVERED' : 'DRAFT'}\n`;
                 csvContent += `Report Generated: ${new Date().toLocaleString()}\n`;
                 
                 return csvContent;
@@ -2131,11 +3421,8 @@
         // Download CSV
         function downloadCSV() {
             try {
-                const hasData = dailyActivities.length > 0 || dailySafetyReports.length > 0 || 
-                               dailyProgressReports.length > 0 || dailyQualityReports.length > 0;
-                               
-                if (!hasData) {
-                    showMessage('❌ No data to export.', 'error');
+                if (!isReportDelivered) {
+                    showMessage('❌ Please deliver the report first before downloading.', 'error');
                     return;
                 }
                 
@@ -2156,7 +3443,7 @@
                         const finalProject = projectSelect === 'Others' ? customProject : projectSelect;
                         const projectName = (finalProject || 'Project').replace(/\s+/g, '_');
                         
-                        const fileName = `Daily_Site_Report_${projectName}_${today}.csv`;
+                        const fileName = `Daily_Site_Report_${projectName}_${today}_DELIVERED.csv`;
                         
                         link.setAttribute('href', url);
                         link.setAttribute('download', fileName);
@@ -2187,6 +3474,11 @@
 
         // Sync to cloud
         async function syncToCloud() {
+            if (!isReportDelivered) {
+                showMessage('❌ Please deliver the report first before syncing.', 'error');
+                return;
+            }
+            
             if (!window.firebase.db) {
                 showMessage('❌ Cloud sync not available in demo mode.', 'error');
                 return;
@@ -2197,47 +3489,44 @@
                 return;
             }
             
-            const hasData = dailyActivities.length > 0 || dailySafetyReports.length > 0 || 
-                           dailyProgressReports.length > 0 || dailyQualityReports.length > 0;
-                           
-            if (!hasData) {
-                showMessage('❌ No data to sync.', 'error');
-                return;
-            }
-            
             try {
                 // Show loading
                 document.getElementById('sync-loading').classList.remove('hidden');
                 document.getElementById('sync-text').textContent = 'Syncing...';
                 
-                // Upload activities to Firestore
+                // Upload all data types to Firestore with delivered status
                 for (const activity of dailyActivities) {
                     await window.firebase.addDoc(window.firebase.collection(window.firebase.db, 'daily-activities'), {
                         ...activity,
+                        reportDelivered: true,
+                        deliveredAt: new Date().toISOString(),
                         createdAt: window.firebase.serverTimestamp()
                     });
                 }
                 
-                // Upload safety reports to Firestore
                 for (const safety of dailySafetyReports) {
                     await window.firebase.addDoc(window.firebase.collection(window.firebase.db, 'safety-reports'), {
                         ...safety,
+                        reportDelivered: true,
+                        deliveredAt: new Date().toISOString(),
                         createdAt: window.firebase.serverTimestamp()
                     });
                 }
                 
-                // Upload progress reports to Firestore
                 for (const progress of dailyProgressReports) {
                     await window.firebase.addDoc(window.firebase.collection(window.firebase.db, 'progress-reports'), {
                         ...progress,
+                        reportDelivered: true,
+                        deliveredAt: new Date().toISOString(),
                         createdAt: window.firebase.serverTimestamp()
                     });
                 }
                 
-                // Upload quality reports to Firestore
                 for (const quality of dailyQualityReports) {
                     await window.firebase.addDoc(window.firebase.collection(window.firebase.db, 'quality-reports'), {
                         ...quality,
+                        reportDelivered: true,
+                        deliveredAt: new Date().toISOString(),
                         createdAt: window.firebase.serverTimestamp()
                     });
                 }
@@ -2256,11 +3545,8 @@
 
         // Auto sync to cloud when online
         async function autoSyncToCloud() {
-            const hasData = dailyActivities.length > 0 || dailySafetyReports.length > 0 || 
-                           dailyProgressReports.length > 0 || dailyQualityReports.length > 0;
-                           
-            if (window.firebase.db && window.isOnline && hasData) {
-                console.log('Auto-syncing to cloud...');
+            if (window.firebase.db && window.isOnline && isReportDelivered) {
+                console.log('Auto-syncing delivered report to cloud...');
                 await syncToCloud();
             }
         }
@@ -2275,6 +3561,7 @@
                     const today = new Date().toISOString().split('T')[0];
                     const draftData = {
                         date: today,
+                        isReportDelivered: isReportDelivered,
                         dailyActivities: dailyActivities,
                         dailySafetyReports: dailySafetyReports,
                         dailyProgressReports: dailyProgressReports,
@@ -2323,33 +3610,33 @@
                 }
                 
                 if (data && data.date === today) {
-                    // Load activities
+                    // Load delivery status
+                    if (data.isReportDelivered) {
+                        isReportDelivered = true;
+                        document.getElementById('status-bar').classList.add('delivered');
+                        document.getElementById('report-title').innerHTML = '📋 Report Delivered';
+                        document.getElementById('deliver-text').textContent = '✅ Report Delivered';
+                    }
+                    
+                    // Load all data types
                     if (data.dailyActivities) {
                         dailyActivities = data.dailyActivities;
-                        updateActivityDisplay();
-                        updateLinkedActivities();
                     }
                     
-                    // Load safety reports
                     if (data.dailySafetyReports) {
                         dailySafetyReports = data.dailySafetyReports;
-                        updateSafetyDisplay();
                     }
                     
-                    // Load progress reports
                     if (data.dailyProgressReports) {
                         dailyProgressReports = data.dailyProgressReports;
-                        updateProgressDisplay();
                     }
                     
-                    // Load quality reports
                     if (data.dailyQualityReports) {
                         dailyQualityReports = data.dailyQualityReports;
-                        updateQualityDisplay();
                     }
                     
-                    // Update summary stats
-                    updateSummaryStats();
+                    // Update all displays
+                    updateAllDisplays();
                     
                     // Load overview data
                     if (data.overviewData) {
