@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#1e40af">
     <meta name="description" content="Professional construction site daily reporting system">
     
-    <title>Daily Site Report PWA - Enhanced</title>
+    <title>Daily Site Report PWA - Enhanced v2</title>
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -179,6 +179,26 @@
             font-weight: 600;
             font-size: 14px;
             touch-action: manipulation;
+        }
+        
+        /* Safety section headers */
+        .section-header.safety {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        }
+        
+        /* Progress section headers */
+        .section-header.progress {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+        
+        /* QA/QC section headers */
+        .section-header.quality {
+            background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+        }
+        
+        /* Report section headers */
+        .section-header.report {
+            background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
         }
         
         .section-content {
@@ -1077,7 +1097,7 @@
                     </div>
                 </div>
 
-                <!-- Photos Section with Expandable Feature -->
+                <!-- Photos Section -->
                 <div class="section">
                     <div class="section-header" onclick="toggleSection('photos')">
                         <span>📸 Photos</span>
@@ -1174,397 +1194,563 @@
             <!-- Safety Tab -->
             <div id="safety-content" class="tab-content">
                 <!-- Section 1: Overall Safety Performance -->
-                <div class="card">
-                    <h3>🛡️ Section 1: Overall Safety Performance</h3>
-                    <div class="form-group">
-                        <label class="form-label">Overall Safety Status</label>
-                        <select id="safety-status" class="form-select">
-                            <option value="">Select Status</option>
-                            <option value="Excellent">🟢 Excellent - No Issues</option>
-                            <option value="Good">🟡 Good - Minor Issues</option>
-                            <option value="Fair">🟠 Fair - Some Concerns</option>
-                            <option value="Poor">🔴 Poor - Major Issues</option>
-                        </select>
+                <div class="section">
+                    <div class="section-header safety" onclick="toggleSection('safety-overall')">
+                        <span>🛡️ Section 1: Overall Safety Performance</span>
+                        <span class="section-toggle rotated" id="safety-overall-toggle">▼</span>
                     </div>
-                    
-                    <div class="form-row">
+                    <div class="section-content active" id="safety-overall-content">
                         <div class="form-group">
-                            <label class="form-label">Safety Officer Present</label>
-                            <select id="safety-officer" class="form-select">
-                                <option value="">Select</option>
-                                <option value="Full Day">Yes - Full Day</option>
-                                <option value="Partial Day">Yes - Partial Day</option>
-                                <option value="Not Present">No - Not Present</option>
+                            <label class="form-label">Overall Safety Status</label>
+                            <select id="safety-status" class="form-select">
+                                <option value="">Select Status</option>
+                                <option value="Excellent">🟢 Excellent - No Issues</option>
+                                <option value="Good">🟡 Good - Minor Issues</option>
+                                <option value="Fair">🟠 Fair - Some Concerns</option>
+                                <option value="Poor">🔴 Poor - Major Issues</option>
                             </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">PPE Compliance</label>
-                            <select id="ppe-compliance" class="form-select">
-                                <option value="">Select Compliance</option>
-                                <option value="100%">100% Compliant</option>
-                                <option value="95%">95% Compliant</option>
-                                <option value="90%">90% Compliant</option>
-                                <option value="Below 90%">Below 90%</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Safety Observations</label>
-                        <textarea id="safety-observations" placeholder="General safety observations, incidents, actions taken..." rows="3" class="form-textarea"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Link to Relevant Activity</label>
-                        <select id="linked-activity" class="form-select">
-                            <option value="">Select Activity</option>
-                        </select>
-                    </div>
-
-                    <!-- Safety Photos Section with Expandable Feature -->
-                    <div class="form-group">
-                        <label class="form-label">Safety Photos</label>
-                        <div id="safety-photos-container">
-                            <!-- Default 2 photo slots -->
-                            <div class="form-row">
-                                <div class="photo-section">
-                                    <label class="form-label">Safety Photo 1</label>
-                                    <div id="safety-photo1-preview" class="hidden">
-                                        <img id="safety-photo1-img" class="photo-preview">
-                                        <div class="photo-name" id="safety-photo1-name"></div>
-                                        <button onclick="removeSafetyPhoto(1)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
-                                    </div>
-                                    <div id="safety-photo1-input">
-                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                                            <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
-                                                📷 Camera
-                                                <input type="file" id="safety-photo1-camera" accept="image/*" capture="environment" style="display: none;">
-                                            </label>
-                                            <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
-                                                📁 Gallery
-                                                <input type="file" id="safety-photo1-gallery" accept="image/*" style="display: none;">
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="photo-section">
-                                    <label class="form-label">Safety Photo 2</label>
-                                    <div id="safety-photo2-preview" class="hidden">
-                                        <img id="safety-photo2-img" class="photo-preview">
-                                        <div class="photo-name" id="safety-photo2-name"></div>
-                                        <button onclick="removeSafetyPhoto(2)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
-                                    </div>
-                                    <div id="safety-photo2-input">
-                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                                            <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
-                                                📷 Camera
-                                                <input type="file" id="safety-photo2-camera" accept="image/*" capture="environment" style="display: none;">
-                                            </label>
-                                            <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
-                                                📁 Gallery
-                                                <input type="file" id="safety-photo2-gallery" accept="image/*" style="display: none;">
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Additional photo slots will be added here -->
                         </div>
                         
-                        <!-- Add More Photos Button -->
-                        <div style="text-align: center; margin-top: 12px;">
-                            <button onclick="addMoreSafetyPhotos()" class="btn" id="add-safety-photos-btn" style="background: #6b7280; color: white; padding: 8px 16px; font-size: 13px;">
-                                ➕ Add More Photos (Max 6)
-                            </button>
-                            <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">
-                                <span id="safety-photo-count">2</span> of 6 photo slots available
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Safety Officer Present</label>
+                                <select id="safety-officer" class="form-select">
+                                    <option value="">Select</option>
+                                    <option value="Full Day">Yes - Full Day</option>
+                                    <option value="Partial Day">Yes - Partial Day</option>
+                                    <option value="Not Present">No - Not Present</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">PPE Compliance</label>
+                                <select id="ppe-compliance" class="form-select">
+                                    <option value="">Select Compliance</option>
+                                    <option value="100%">100% Compliant</option>
+                                    <option value="95%">95% Compliant</option>
+                                    <option value="90%">90% Compliant</option>
+                                    <option value="Below 90%">Below 90%</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Safety Observations</label>
+                            <textarea id="safety-observations" placeholder="General safety observations, incidents, actions taken..." rows="3" class="form-textarea"></textarea>
+                        </div>
+
+                        <!-- Section 1 Photos -->
+                        <div class="form-group">
+                            <label class="form-label">📸 Safety Performance Photos</label>
+                            <div id="safety1-photos-container">
+                                <!-- Default 2 photo slots -->
+                                <div class="form-row">
+                                    <div class="photo-section">
+                                        <label class="form-label">Safety Photo 1</label>
+                                        <div id="safety1-photo1-preview" class="hidden">
+                                            <img id="safety1-photo1-img" class="photo-preview">
+                                            <div class="photo-name" id="safety1-photo1-name"></div>
+                                            <button onclick="removeSafety1Photo(1)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                                        </div>
+                                        <div id="safety1-photo1-input">
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                                                <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                                                    📷 Camera
+                                                    <input type="file" id="safety1-photo1-camera" accept="image/*" capture="environment" style="display: none;">
+                                                </label>
+                                                <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                                                    📁 Gallery
+                                                    <input type="file" id="safety1-photo1-gallery" accept="image/*" style="display: none;">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="photo-section">
+                                        <label class="form-label">Safety Photo 2</label>
+                                        <div id="safety1-photo2-preview" class="hidden">
+                                            <img id="safety1-photo2-img" class="photo-preview">
+                                            <div class="photo-name" id="safety1-photo2-name"></div>
+                                            <button onclick="removeSafety1Photo(2)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                                        </div>
+                                        <div id="safety1-photo2-input">
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                                                <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                                                    📷 Camera
+                                                    <input type="file" id="safety1-photo2-camera" accept="image/*" capture="environment" style="display: none;">
+                                                </label>
+                                                <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                                                    📁 Gallery
+                                                    <input type="file" id="safety1-photo2-gallery" accept="image/*" style="display: none;">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Additional photo slots will be added here -->
+                            </div>
+                            
+                            <!-- Add More Photos Button -->
+                            <div style="text-align: center; margin-top: 12px;">
+                                <button onclick="addMoreSafety1Photos()" class="btn" id="add-safety1-photos-btn" style="background: #6b7280; color: white; padding: 8px 16px; font-size: 13px;">
+                                    ➕ Add More Photos (Max 6)
+                                </button>
+                                <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">
+                                    <span id="safety1-photo-count">2</span> of 6 photo slots available
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Section 2: Near-Miss Issues -->
-                <div class="card">
-                    <h3>⚠️ Section 2: Near-Miss Issues</h3>
-                    <div class="form-group">
-                        <label class="form-label">Near-Miss Issue Record</label>
-                        <textarea id="near-miss-record" placeholder="Describe the near-miss incident in detail: what happened, where, when, who was involved..." rows="4" class="form-textarea"></textarea>
+                <div class="section">
+                    <div class="section-header safety" onclick="toggleSection('safety-nearmiss')">
+                        <span>⚠️ Section 2: Near-Miss Issues</span>
+                        <span class="section-toggle rotated" id="safety-nearmiss-toggle">▼</span>
                     </div>
+                    <div class="section-content active" id="safety-nearmiss-content">
+                        <div class="form-group">
+                            <label class="form-label">Near-Miss Issue Record</label>
+                            <textarea id="near-miss-record" placeholder="Describe the near-miss incident in detail: what happened, where, when, who was involved..." rows="4" class="form-textarea"></textarea>
+                        </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Near-Miss Issue Range (Risk Level)</label>
-                        <select id="near-miss-range" class="form-select">
-                            <option value="">Select Risk Level</option>
-                            <option value="Low Risk">🟢 Low Risk - No injury potential</option>
-                            <option value="Medium Risk">🟡 Medium Risk - Minor injury potential</option>
-                            <option value="High Risk">🟠 High Risk - Serious injury potential</option>
-                            <option value="Critical Risk">🔴 Critical Risk - Fatal injury potential</option>
-                        </select>
+                        <div class="form-group">
+                            <label class="form-label">Near-Miss Issue Range (Risk Level)</label>
+                            <select id="near-miss-range" class="form-select">
+                                <option value="">Select Risk Level</option>
+                                <option value="Low Risk">🟢 Low Risk - No injury potential</option>
+                                <option value="Medium Risk">🟡 Medium Risk - Minor injury potential</option>
+                                <option value="High Risk">🟠 High Risk - Serious injury potential</option>
+                                <option value="Critical Risk">🔴 Critical Risk - Fatal injury potential</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Link to Relevant Activity</label>
+                            <select id="linked-activity" class="form-select">
+                                <option value="">Select Activity</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Corrective Actions Taken</label>
+                            <textarea id="corrective-actions" placeholder="Actions taken to prevent recurrence, responsible person, timeline..." rows="3" class="form-textarea"></textarea>
+                        </div>
+
+                        <!-- Section 2 Photos -->
+                        <div class="form-group">
+                            <label class="form-label">📸 Near-Miss Incident Photos</label>
+                            <div id="safety2-photos-container">
+                                <!-- Default 2 photo slots -->
+                                <div class="form-row">
+                                    <div class="photo-section">
+                                        <label class="form-label">Near-Miss Photo 1</label>
+                                        <div id="safety2-photo1-preview" class="hidden">
+                                            <img id="safety2-photo1-img" class="photo-preview">
+                                            <div class="photo-name" id="safety2-photo1-name"></div>
+                                            <button onclick="removeSafety2Photo(1)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                                        </div>
+                                        <div id="safety2-photo1-input">
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                                                <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                                                    📷 Camera
+                                                    <input type="file" id="safety2-photo1-camera" accept="image/*" capture="environment" style="display: none;">
+                                                </label>
+                                                <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                                                    📁 Gallery
+                                                    <input type="file" id="safety2-photo1-gallery" accept="image/*" style="display: none;">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="photo-section">
+                                        <label class="form-label">Near-Miss Photo 2</label>
+                                        <div id="safety2-photo2-preview" class="hidden">
+                                            <img id="safety2-photo2-img" class="photo-preview">
+                                            <div class="photo-name" id="safety2-photo2-name"></div>
+                                            <button onclick="removeSafety2Photo(2)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                                        </div>
+                                        <div id="safety2-photo2-input">
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                                                <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                                                    📷 Camera
+                                                    <input type="file" id="safety2-photo2-camera" accept="image/*" capture="environment" style="display: none;">
+                                                </label>
+                                                <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                                                    📁 Gallery
+                                                    <input type="file" id="safety2-photo2-gallery" accept="image/*" style="display: none;">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Additional photo slots will be added here -->
+                            </div>
+                            
+                            <!-- Add More Photos Button -->
+                            <div style="text-align: center; margin-top: 12px;">
+                                <button onclick="addMoreSafety2Photos()" class="btn" id="add-safety2-photos-btn" style="background: #6b7280; color: white; padding: 8px 16px; font-size: 13px;">
+                                    ➕ Add More Photos (Max 6)
+                                </button>
+                                <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">
+                                    <span id="safety2-photo-count">2</span> of 6 photo slots available
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Corrective Actions Taken</label>
-                        <textarea id="corrective-actions" placeholder="Actions taken to prevent recurrence, responsible person, timeline..." rows="3" class="form-textarea"></textarea>
-                    </div>
-
-                    <!-- Add Safety Status Button -->
-                    <button onclick="addSafetyStatus()" class="btn btn-success" style="margin-top: 16px; font-size: 16px;">
-                        🛡️ Add Safety Status to Report
-                    </button>
-                    
-                    <div id="safety-message"></div>
                 </div>
+
+                <!-- Add Safety Status Button -->
+                <button onclick="addSafetyStatus()" class="btn btn-success" style="margin-top: 16px; font-size: 16px;">
+                    🛡️ Add Safety Status to Report
+                </button>
+                
+                <div id="safety-message"></div>
             </div>
 
             <!-- Progress + QA/QC Tab -->
             <div id="progress-content" class="tab-content">
-                <div class="card">
-                    <h3>📈 Daily Progress</h3>
-                    <div class="form-group">
-                        <label class="form-label">Progress Rating</label>
-                        <select id="progress-rating" class="form-select">
-                            <option value="">Rate Today's Progress</option>
-                            <option value="Excellent">🟢 Excellent - Ahead of Schedule</option>
-                            <option value="Good">🟡 Good - On Schedule</option>
-                            <option value="Fair">🟠 Fair - Minor Delays</option>
-                            <option value="Poor">🔴 Poor - Behind Schedule</option>
-                        </select>
+                <!-- Daily Progress Section -->
+                <div class="section">
+                    <div class="section-header progress" onclick="toggleSection('daily-progress')">
+                        <span>📈 Daily Progress</span>
+                        <span class="section-toggle rotated" id="daily-progress-toggle">▼</span>
                     </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Key Achievements</label>
-                        <textarea id="key-achievements" placeholder="Major achievements and milestones..." rows="3" class="form-textarea"></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Issues & Challenges</label>
-                        <textarea id="issues-challenges" placeholder="Problems encountered and solutions..." rows="3" class="form-textarea"></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Tomorrow's Plan</label>
-                        <textarea id="tomorrow-plan" placeholder="Planned activities for tomorrow..." rows="2" class="form-textarea"></textarea>
-                    </div>
-
-                    <!-- Add Progress Button -->
-                    <button onclick="addProgress()" class="btn btn-success" style="margin-top: 16px; font-size: 16px;">
-                        📈 Add Progress to Report
-                    </button>
-                    
-                    <div id="progress-message"></div>
-                </div>
-
-                <div class="card">
-                    <h3>🔍 QA/QC</h3>
-                    <div class="form-row">
+                    <div class="section-content active" id="daily-progress-content">
                         <div class="form-group">
-                            <label class="form-label">Overall Quality</label>
-                            <select id="overall-quality" class="form-select">
-                                <option value="">Select Quality</option>
-                                <option value="Excellent">🟢 Excellent</option>
-                                <option value="Good">🟡 Good</option>
-                                <option value="Acceptable">🟠 Acceptable</option>
-                                <option value="Poor">🔴 Poor</option>
+                            <label class="form-label">Progress Rating</label>
+                            <select id="progress-rating" class="form-select">
+                                <option value="">Rate Today's Progress</option>
+                                <option value="Excellent">🟢 Excellent - Ahead of Schedule</option>
+                                <option value="Good">🟡 Good - On Schedule</option>
+                                <option value="Fair">🟠 Fair - Minor Delays</option>
+                                <option value="Poor">🔴 Poor - Behind Schedule</option>
                             </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Rework Required</label>
-                            <select id="rework-required" class="form-select">
-                                <option value="">Select Status</option>
-                                <option value="No Rework">No Rework Required</option>
-                                <option value="Minor Rework">Minor Rework Required</option>
-                                <option value="Major Rework">Major Rework Required</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Quality Issues</label>
-                        <textarea id="quality-issues" placeholder="Quality problems and corrective actions..." rows="2" class="form-textarea"></textarea>
-                    </div>
-
-                    <!-- QA/QC Photos Section with Expandable Feature -->
-                    <div class="form-group">
-                        <label class="form-label">QA/QC Photos</label>
-                        <div id="qaqc-photos-container">
-                            <!-- Default 2 photo slots -->
-                            <div class="form-row">
-                                <div class="photo-section">
-                                    <label class="form-label">QA/QC Photo 1</label>
-                                    <div id="qaqc-photo1-preview" class="hidden">
-                                        <img id="qaqc-photo1-img" class="photo-preview">
-                                        <div class="photo-name" id="qaqc-photo1-name"></div>
-                                        <button onclick="removeQAQCPhoto(1)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
-                                    </div>
-                                    <div id="qaqc-photo1-input">
-                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                                            <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
-                                                📷 Camera
-                                                <input type="file" id="qaqc-photo1-camera" accept="image/*" capture="environment" style="display: none;">
-                                            </label>
-                                            <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
-                                                📁 Gallery
-                                                <input type="file" id="qaqc-photo1-gallery" accept="image/*" style="display: none;">
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="photo-section">
-                                    <label class="form-label">QA/QC Photo 2</label>
-                                    <div id="qaqc-photo2-preview" class="hidden">
-                                        <img id="qaqc-photo2-img" class="photo-preview">
-                                        <div class="photo-name" id="qaqc-photo2-name"></div>
-                                        <button onclick="removeQAQCPhoto(2)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
-                                    </div>
-                                    <div id="qaqc-photo2-input">
-                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                                            <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
-                                                📷 Camera
-                                                <input type="file" id="qaqc-photo2-camera" accept="image/*" capture="environment" style="display: none;">
-                                            </label>
-                                            <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
-                                                📁 Gallery
-                                                <input type="file" id="qaqc-photo2-gallery" accept="image/*" style="display: none;">
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Additional photo slots will be added here -->
                         </div>
                         
-                        <!-- Add More Photos Button -->
-                        <div style="text-align: center; margin-top: 12px;">
-                            <button onclick="addMoreQAQCPhotos()" class="btn" id="add-qaqc-photos-btn" style="background: #6b7280; color: white; padding: 8px 16px; font-size: 13px;">
-                                ➕ Add More Photos (Max 6)
-                            </button>
-                            <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">
-                                <span id="qaqc-photo-count">2</span> of 6 photo slots available
+                        <div class="form-group">
+                            <label class="form-label">Key Achievements</label>
+                            <textarea id="key-achievements" placeholder="Major achievements and milestones..." rows="3" class="form-textarea"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Issues & Challenges</label>
+                            <textarea id="issues-challenges" placeholder="Problems encountered and solutions..." rows="3" class="form-textarea"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Tomorrow's Plan</label>
+                            <textarea id="tomorrow-plan" placeholder="Planned activities for tomorrow..." rows="2" class="form-textarea"></textarea>
+                        </div>
+
+                        <!-- Progress Photos -->
+                        <div class="form-group">
+                            <label class="form-label">📸 Progress Photos</label>
+                            <div id="progress-photos-container">
+                                <!-- Default 2 photo slots -->
+                                <div class="form-row">
+                                    <div class="photo-section">
+                                        <label class="form-label">Progress Photo 1</label>
+                                        <div id="progress-photo1-preview" class="hidden">
+                                            <img id="progress-photo1-img" class="photo-preview">
+                                            <div class="photo-name" id="progress-photo1-name"></div>
+                                            <button onclick="removeProgressPhoto(1)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                                        </div>
+                                        <div id="progress-photo1-input">
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                                                <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                                                    📷 Camera
+                                                    <input type="file" id="progress-photo1-camera" accept="image/*" capture="environment" style="display: none;">
+                                                </label>
+                                                <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                                                    📁 Gallery
+                                                    <input type="file" id="progress-photo1-gallery" accept="image/*" style="display: none;">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="photo-section">
+                                        <label class="form-label">Progress Photo 2</label>
+                                        <div id="progress-photo2-preview" class="hidden">
+                                            <img id="progress-photo2-img" class="photo-preview">
+                                            <div class="photo-name" id="progress-photo2-name"></div>
+                                            <button onclick="removeProgressPhoto(2)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                                        </div>
+                                        <div id="progress-photo2-input">
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                                                <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                                                    📷 Camera
+                                                    <input type="file" id="progress-photo2-camera" accept="image/*" capture="environment" style="display: none;">
+                                                </label>
+                                                <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                                                    📁 Gallery
+                                                    <input type="file" id="progress-photo2-gallery" accept="image/*" style="display: none;">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Additional photo slots will be added here -->
+                            </div>
+                            
+                            <!-- Add More Photos Button -->
+                            <div style="text-align: center; margin-top: 12px;">
+                                <button onclick="addMoreProgressPhotos()" class="btn" id="add-progress-photos-btn" style="background: #6b7280; color: white; padding: 8px 16px; font-size: 13px;">
+                                    ➕ Add More Photos (Max 6)
+                                </button>
+                                <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">
+                                    <span id="progress-photo-count">2</span> of 6 photo slots available
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Add QA/QC Button -->
-                    <button onclick="addQualityControl()" class="btn btn-success" style="margin-top: 16px; font-size: 16px;">
-                        🔍 Add QA/QC to Report
-                    </button>
-                    
-                    <div id="quality-message"></div>
+                        <!-- Add Progress Button -->
+                        <button onclick="addProgress()" class="btn btn-success" style="margin-top: 16px; font-size: 16px;">
+                            📈 Add Progress to Report
+                        </button>
+                        
+                        <div id="progress-message"></div>
+                    </div>
+                </div>
+
+                <!-- QA/QC Section -->
+                <div class="section">
+                    <div class="section-header quality" onclick="toggleSection('qaqc-section')">
+                        <span>🔍 QA/QC</span>
+                        <span class="section-toggle rotated" id="qaqc-section-toggle">▼</span>
+                    </div>
+                    <div class="section-content active" id="qaqc-section-content">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Overall Quality</label>
+                                <select id="overall-quality" class="form-select">
+                                    <option value="">Select Quality</option>
+                                    <option value="Excellent">🟢 Excellent</option>
+                                    <option value="Good">🟡 Good</option>
+                                    <option value="Acceptable">🟠 Acceptable</option>
+                                    <option value="Poor">🔴 Poor</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Rework Required</label>
+                                <select id="rework-required" class="form-select">
+                                    <option value="">Select Status</option>
+                                    <option value="No Rework">No Rework Required</option>
+                                    <option value="Minor Rework">Minor Rework Required</option>
+                                    <option value="Major Rework">Major Rework Required</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Quality Issues</label>
+                            <textarea id="quality-issues" placeholder="Quality problems and corrective actions..." rows="2" class="form-textarea"></textarea>
+                        </div>
+
+                        <!-- QA/QC Photos -->
+                        <div class="form-group">
+                            <label class="form-label">📸 QA/QC Photos</label>
+                            <div id="qaqc-photos-container">
+                                <!-- Default 2 photo slots -->
+                                <div class="form-row">
+                                    <div class="photo-section">
+                                        <label class="form-label">QA/QC Photo 1</label>
+                                        <div id="qaqc-photo1-preview" class="hidden">
+                                            <img id="qaqc-photo1-img" class="photo-preview">
+                                            <div class="photo-name" id="qaqc-photo1-name"></div>
+                                            <button onclick="removeQAQCPhoto(1)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                                        </div>
+                                        <div id="qaqc-photo1-input">
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                                                <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                                                    📷 Camera
+                                                    <input type="file" id="qaqc-photo1-camera" accept="image/*" capture="environment" style="display: none;">
+                                                </label>
+                                                <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                                                    📁 Gallery
+                                                    <input type="file" id="qaqc-photo1-gallery" accept="image/*" style="display: none;">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="photo-section">
+                                        <label class="form-label">QA/QC Photo 2</label>
+                                        <div id="qaqc-photo2-preview" class="hidden">
+                                            <img id="qaqc-photo2-img" class="photo-preview">
+                                            <div class="photo-name" id="qaqc-photo2-name"></div>
+                                            <button onclick="removeQAQCPhoto(2)" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                                        </div>
+                                        <div id="qaqc-photo2-input">
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                                                <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                                                    📷 Camera
+                                                    <input type="file" id="qaqc-photo2-camera" accept="image/*" capture="environment" style="display: none;">
+                                                </label>
+                                                <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                                                    📁 Gallery
+                                                    <input type="file" id="qaqc-photo2-gallery" accept="image/*" style="display: none;">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Additional photo slots will be added here -->
+                            </div>
+                            
+                            <!-- Add More Photos Button -->
+                            <div style="text-align: center; margin-top: 12px;">
+                                <button onclick="addMoreQAQCPhotos()" class="btn" id="add-qaqc-photos-btn" style="background: #6b7280; color: white; padding: 8px 16px; font-size: 13px;">
+                                    ➕ Add More Photos (Max 6)
+                                </button>
+                                <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">
+                                    <span id="qaqc-photo-count">2</span> of 6 photo slots available
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Add QA/QC Button -->
+                        <button onclick="addQualityControl()" class="btn btn-success" style="margin-top: 16px; font-size: 16px;">
+                            🔍 Add QA/QC to Report
+                        </button>
+                        
+                        <div id="quality-message"></div>
+                    </div>
                 </div>
             </div>
 
             <!-- Report Tab -->
             <div id="report-content" class="tab-content">
-                <div class="card">
-                    <h3>📊 Daily Summary</h3>
-                    <div class="summary-grid">
-                        <div class="summary-item">
-                            <div class="summary-number" id="total-activities">0</div>
-                            <div class="summary-label">Activities</div>
-                        </div>
-                        <div class="summary-item">
-                            <div class="summary-number" id="total-workers">0</div>
-                            <div class="summary-label">Workers</div>
-                        </div>
-                        <div class="summary-item">
-                            <div class="summary-number" id="active-contractors">0</div>
-                            <div class="summary-label">Contractors</div>
-                        </div>
-                        <div class="summary-item">
-                            <div class="summary-number" id="work-hours">0</div>
-                            <div class="summary-label">Work Hours</div>
+                <!-- Daily Summary Section -->
+                <div class="section">
+                    <div class="section-header report" onclick="toggleSection('daily-summary')">
+                        <span>📊 Daily Summary</span>
+                        <span class="section-toggle rotated" id="daily-summary-toggle">▼</span>
+                    </div>
+                    <div class="section-content active" id="daily-summary-content">
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <div class="summary-number" id="total-activities">0</div>
+                                <div class="summary-label">Activities</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-number" id="total-workers">0</div>
+                                <div class="summary-label">Workers</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-number" id="active-contractors">0</div>
+                                <div class="summary-label">Contractors</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-number" id="work-hours">0</div>
+                                <div class="summary-label">Work Hours</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Complete Report Display -->
-                <div id="complete-report-display">
-                    <!-- Activities Section -->
-                    <div class="report-section">
-                        <div class="report-section-header">
-                            📝 Activities (<span id="activities-count">0</span>)
-                        </div>
-                        <div class="report-section-content" id="activities-report">
-                            <div style="text-align: center; padding: 20px; color: #6b7280;">
-                                No activities recorded yet
-                            </div>
-                        </div>
+                <div class="section">
+                    <div class="section-header report" onclick="toggleSection('complete-report')">
+                        <span>📋 Complete Report Display</span>
+                        <span class="section-toggle rotated" id="complete-report-toggle">▼</span>
                     </div>
-
-                    <!-- Safety Reports Section -->
-                    <div class="report-section">
-                        <div class="report-section-header">
-                            🛡️ Safety Reports (<span id="safety-count">0</span>)
-                        </div>
-                        <div class="report-section-content" id="safety-reports">
-                            <div style="text-align: center; padding: 20px; color: #6b7280;">
-                                No safety reports added yet
+                    <div class="section-content active" id="complete-report-content">
+                        <!-- Activities Section -->
+                        <div class="report-section">
+                            <div class="report-section-header">
+                                📝 Activities (<span id="activities-count">0</span>)
+                            </div>
+                            <div class="report-section-content" id="activities-report">
+                                <div style="text-align: center; padding: 20px; color: #6b7280;">
+                                    No activities recorded yet
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Progress Reports Section -->
-                    <div class="report-section">
-                        <div class="report-section-header">
-                            📈 Progress Reports (<span id="progress-count">0</span>)
-                        </div>
-                        <div class="report-section-content" id="progress-reports">
-                            <div style="text-align: center; padding: 20px; color: #6b7280;">
-                                No progress reports added yet
+                        <!-- Safety Reports Section -->
+                        <div class="report-section">
+                            <div class="report-section-header">
+                                🛡️ Safety Reports (<span id="safety-count">0</span>)
+                            </div>
+                            <div class="report-section-content" id="safety-reports">
+                                <div style="text-align: center; padding: 20px; color: #6b7280;">
+                                    No safety reports added yet
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- QA/QC Reports Section -->
-                    <div class="report-section">
-                        <div class="report-section-header">
-                            🔍 QA/QC Reports (<span id="quality-count">0</span>)
-                        </div>
-                        <div class="report-section-content" id="quality-reports">
-                            <div style="text-align: center; padding: 20px; color: #6b7280;">
-                                No QA/QC reports added yet
+                        <!-- Progress Reports Section -->
+                        <div class="report-section">
+                            <div class="report-section-header">
+                                📈 Progress Reports (<span id="progress-count">0</span>)
                             </div>
+                            <div class="report-section-content" id="progress-reports">
+                                <div style="text-align: center; padding: 20px; color: #6b7280;">
+                                    No progress reports added yet
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- QA/QC Reports Section -->
+                        <div class="report-section">
+                            <div class="report-section-header">
+                                🔍 QA/QC Reports (<span id="quality-count">0</span>)
+                            </div>
+                            <div class="report-section-content" id="quality-reports">
+                                <div style="text-align: center; padding: 20px; color: #6b7280;">
+                                    No QA/QC reports added yet
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Deliver Report Button (moved here for better UX) -->
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button onclick="deliverReport()" class="btn btn-purple" id="deliver-btn" disabled>
+                                <span class="loading hidden" id="deliver-loading"></span>
+                                <span id="deliver-text">📋 Deliver Report</span>
+                            </button>
+                            <p style="margin-top: 8px; font-size: 13px; color: #6b7280;" id="deliver-status">
+                                Review all sections above, then deliver to finalize report
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                <div class="card">
-                    <h3>📤 Export Report</h3>
-                    
-                    <!-- Deliver Report Button -->
-                    <div class="form-group">
-                        <button onclick="deliverReport()" class="btn btn-purple" id="deliver-btn" disabled>
-                            <span class="loading hidden" id="deliver-loading"></span>
-                            <span id="deliver-text">📋 Deliver Report</span>
-                        </button>
+                <!-- Export Report Section -->
+                <div class="section">
+                    <div class="section-header report" onclick="toggleSection('export-report')">
+                        <span>📤 Export Report</span>
+                        <span class="section-toggle rotated" id="export-report-toggle">▼</span>
                     </div>
-                    
-                    <div class="form-group">
-                        <button onclick="downloadCSV()" class="btn btn-success" id="download-csv-btn" disabled>
-                            <span class="loading hidden" id="csv-loading"></span>
-                            <span id="csv-text">⬇️ Download CSV Report</span>
-                        </button>
-                    </div>
-                    
-                    <div class="form-group">
-                        <button onclick="syncToCloud()" class="btn btn-primary" id="sync-btn" disabled>
-                            <span class="loading hidden" id="sync-loading"></span>
-                            <span id="sync-text">☁️ Sync to Cloud</span>
-                        </button>
-                    </div>
-                    
-                    <p id="export-status" style="text-align: center; color: #6b7280; margin-top: 12px; font-size: 14px;">
-                        Add data to enable export
-                    </p>
-                    
-                    <div class="message info">
-                        <strong>💡 Workflow:</strong><br>
-                        1. Add activities, safety, progress, and QA/QC reports<br>
-                        2. Deliver report to finalize all entries<br>
-                        3. Download CSV or sync to cloud<br>
-                        4. Share via WhatsApp/Email for processing
+                    <div class="section-content active" id="export-report-content">
+                        <div class="form-group">
+                            <button onclick="downloadCSV()" class="btn btn-success" id="download-csv-btn" disabled>
+                                <span class="loading hidden" id="csv-loading"></span>
+                                <span id="csv-text">⬇️ Download CSV Report</span>
+                            </button>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button onclick="syncToCloud()" class="btn btn-primary" id="sync-btn" disabled>
+                                <span class="loading hidden" id="sync-loading"></span>
+                                <span id="sync-text">☁️ Sync to Cloud</span>
+                            </button>
+                        </div>
+                        
+                        <p id="export-status" style="text-align: center; color: #6b7280; margin-top: 12px; font-size: 14px;">
+                            Add data to enable export
+                        </p>
+                        
+                        <div class="message info">
+                            <strong>💡 Workflow:</strong><br>
+                            1. Add activities, safety, progress, and QA/QC reports<br>
+                            2. Review complete report and deliver to finalize<br>
+                            3. Download CSV or sync to cloud<br>
+                            4. Share via WhatsApp/Email for processing
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1696,7 +1882,9 @@
         let dailyProgressReports = [];
         let dailyQualityReports = [];
         let photos = {1: null, 2: null, 3: null, 4: null, 5: null, 6: null};
-        let safetyPhotos = {1: null, 2: null, 3: null, 4: null, 5: null, 6: null};
+        let safety1Photos = {1: null, 2: null, 3: null, 4: null, 5: null, 6: null}; // Section 1 photos
+        let safety2Photos = {1: null, 2: null, 3: null, 4: null, 5: null, 6: null}; // Section 2 photos
+        let progressPhotos = {1: null, 2: null, 3: null, 4: null, 5: null, 6: null}; // Progress photos
         let qaqcPhotos = {1: null, 2: null, 3: null, 4: null, 5: null, 6: null};
         let deferredPrompt;
         let isAppInstalled = false;
@@ -1704,7 +1892,9 @@
 
         // Photo slot tracking
         let activityPhotoSlots = 2;
-        let safetyPhotoSlots = 2;
+        let safety1PhotoSlots = 2; // Section 1 photo slots
+        let safety2PhotoSlots = 2; // Section 2 photo slots
+        let progressPhotoSlots = 2; // Progress photo slots
         let qaqcPhotoSlots = 2;
 
         // Equipment and Materials arrays
@@ -1840,11 +2030,23 @@
             document.getElementById('photo2-camera').addEventListener('change', (e) => handlePhoto(2, e));
             document.getElementById('photo2-gallery').addEventListener('change', (e) => handlePhoto(2, e));
             
-            // Safety photo upload handlers (default 2 slots)
-            document.getElementById('safety-photo1-camera').addEventListener('change', (e) => handleSafetyPhoto(1, e));
-            document.getElementById('safety-photo1-gallery').addEventListener('change', (e) => handleSafetyPhoto(1, e));
-            document.getElementById('safety-photo2-camera').addEventListener('change', (e) => handleSafetyPhoto(2, e));
-            document.getElementById('safety-photo2-gallery').addEventListener('change', (e) => handleSafetyPhoto(2, e));
+            // Safety Section 1 photo upload handlers (default 2 slots)
+            document.getElementById('safety1-photo1-camera').addEventListener('change', (e) => handleSafety1Photo(1, e));
+            document.getElementById('safety1-photo1-gallery').addEventListener('change', (e) => handleSafety1Photo(1, e));
+            document.getElementById('safety1-photo2-camera').addEventListener('change', (e) => handleSafety1Photo(2, e));
+            document.getElementById('safety1-photo2-gallery').addEventListener('change', (e) => handleSafety1Photo(2, e));
+            
+            // Safety Section 2 photo upload handlers (default 2 slots)
+            document.getElementById('safety2-photo1-camera').addEventListener('change', (e) => handleSafety2Photo(1, e));
+            document.getElementById('safety2-photo1-gallery').addEventListener('change', (e) => handleSafety2Photo(1, e));
+            document.getElementById('safety2-photo2-camera').addEventListener('change', (e) => handleSafety2Photo(2, e));
+            document.getElementById('safety2-photo2-gallery').addEventListener('change', (e) => handleSafety2Photo(2, e));
+            
+            // Progress photo upload handlers (default 2 slots)
+            document.getElementById('progress-photo1-camera').addEventListener('change', (e) => handleProgressPhoto(1, e));
+            document.getElementById('progress-photo1-gallery').addEventListener('change', (e) => handleProgressPhoto(1, e));
+            document.getElementById('progress-photo2-camera').addEventListener('change', (e) => handleProgressPhoto(2, e));
+            document.getElementById('progress-photo2-gallery').addEventListener('change', (e) => handleProgressPhoto(2, e));
             
             // QA/QC photo upload handlers (default 2 slots)
             document.getElementById('qaqc-photo1-camera').addEventListener('change', (e) => handleQAQCPhoto(1, e));
@@ -2136,8 +2338,8 @@
             }
         }
 
-        // Safety Photo functions
-        function handleSafetyPhoto(photoNum, event) {
+        // Safety Section 1 Photo functions
+        function handleSafety1Photo(photoNum, event) {
             try {
                 const file = event.target.files[0];
                 if (!file) return;
@@ -2155,46 +2357,170 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     try {
-                        safetyPhotos[photoNum] = {
+                        safety1Photos[photoNum] = {
                             data: e.target.result,
                             name: file.name,
                             size: file.size
                         };
                         
                         // Show preview
-                        document.getElementById(`safety-photo${photoNum}-img`).src = e.target.result;
-                        document.getElementById(`safety-photo${photoNum}-name`).textContent = file.name;
-                        document.getElementById(`safety-photo${photoNum}-preview`).classList.remove('hidden');
-                        document.getElementById(`safety-photo${photoNum}-input`).classList.add('hidden');
+                        document.getElementById(`safety1-photo${photoNum}-img`).src = e.target.result;
+                        document.getElementById(`safety1-photo${photoNum}-name`).textContent = file.name;
+                        document.getElementById(`safety1-photo${photoNum}-preview`).classList.remove('hidden');
+                        document.getElementById(`safety1-photo${photoNum}-input`).classList.add('hidden');
                         
-                        showSafetyMessage(`✅ Safety photo ${photoNum} uploaded!`, 'success');
+                        showSafetyMessage(`✅ Safety performance photo ${photoNum} uploaded!`, 'success');
                     } catch (error) {
-                        console.error('Safety photo preview error:', error);
+                        console.error('Safety1 photo preview error:', error);
                         showSafetyMessage('❌ Safety photo preview failed.', 'error');
                     }
                 };
                 
                 reader.readAsDataURL(file);
             } catch (error) {
-                console.error('Safety photo handling error:', error);
+                console.error('Safety1 photo handling error:', error);
                 showSafetyMessage('❌ Safety photo upload failed.', 'error');
             }
         }
 
-        function removeSafetyPhoto(photoNum) {
+        function removeSafety1Photo(photoNum) {
             try {
-                safetyPhotos[photoNum] = null;
+                safety1Photos[photoNum] = null;
                 
-                document.getElementById(`safety-photo${photoNum}-preview`).classList.add('hidden');
-                document.getElementById(`safety-photo${photoNum}-input`).classList.remove('hidden');
+                document.getElementById(`safety1-photo${photoNum}-preview`).classList.add('hidden');
+                document.getElementById(`safety1-photo${photoNum}-input`).classList.remove('hidden');
                 
                 // Clear file inputs
-                document.getElementById(`safety-photo${photoNum}-camera`).value = '';
-                document.getElementById(`safety-photo${photoNum}-gallery`).value = '';
+                document.getElementById(`safety1-photo${photoNum}-camera`).value = '';
+                document.getElementById(`safety1-photo${photoNum}-gallery`).value = '';
                 
                 showSafetyMessage(`✅ Safety photo ${photoNum} removed.`, 'success');
             } catch (error) {
-                console.error('Safety photo removal error:', error);
+                console.error('Safety1 photo removal error:', error);
+            }
+        }
+
+        // Safety Section 2 Photo functions
+        function handleSafety2Photo(photoNum, event) {
+            try {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                if (file.size > 5 * 1024 * 1024) {
+                    showSafetyMessage('❌ Photo too large. Max 5MB allowed.', 'error');
+                    return;
+                }
+                
+                if (!file.type.startsWith('image/')) {
+                    showSafetyMessage('❌ Please select a valid image file.', 'error');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        safety2Photos[photoNum] = {
+                            data: e.target.result,
+                            name: file.name,
+                            size: file.size
+                        };
+                        
+                        // Show preview
+                        document.getElementById(`safety2-photo${photoNum}-img`).src = e.target.result;
+                        document.getElementById(`safety2-photo${photoNum}-name`).textContent = file.name;
+                        document.getElementById(`safety2-photo${photoNum}-preview`).classList.remove('hidden');
+                        document.getElementById(`safety2-photo${photoNum}-input`).classList.add('hidden');
+                        
+                        showSafetyMessage(`✅ Near-miss photo ${photoNum} uploaded!`, 'success');
+                    } catch (error) {
+                        console.error('Safety2 photo preview error:', error);
+                        showSafetyMessage('❌ Near-miss photo preview failed.', 'error');
+                    }
+                };
+                
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Safety2 photo handling error:', error);
+                showSafetyMessage('❌ Near-miss photo upload failed.', 'error');
+            }
+        }
+
+        function removeSafety2Photo(photoNum) {
+            try {
+                safety2Photos[photoNum] = null;
+                
+                document.getElementById(`safety2-photo${photoNum}-preview`).classList.add('hidden');
+                document.getElementById(`safety2-photo${photoNum}-input`).classList.remove('hidden');
+                
+                // Clear file inputs
+                document.getElementById(`safety2-photo${photoNum}-camera`).value = '';
+                document.getElementById(`safety2-photo${photoNum}-gallery`).value = '';
+                
+                showSafetyMessage(`✅ Near-miss photo ${photoNum} removed.`, 'success');
+            } catch (error) {
+                console.error('Safety2 photo removal error:', error);
+            }
+        }
+
+        // Progress Photo functions
+        function handleProgressPhoto(photoNum, event) {
+            try {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                if (file.size > 5 * 1024 * 1024) {
+                    showProgressMessage('❌ Photo too large. Max 5MB allowed.', 'error');
+                    return;
+                }
+                
+                if (!file.type.startsWith('image/')) {
+                    showProgressMessage('❌ Please select a valid image file.', 'error');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        progressPhotos[photoNum] = {
+                            data: e.target.result,
+                            name: file.name,
+                            size: file.size
+                        };
+                        
+                        // Show preview
+                        document.getElementById(`progress-photo${photoNum}-img`).src = e.target.result;
+                        document.getElementById(`progress-photo${photoNum}-name`).textContent = file.name;
+                        document.getElementById(`progress-photo${photoNum}-preview`).classList.remove('hidden');
+                        document.getElementById(`progress-photo${photoNum}-input`).classList.add('hidden');
+                        
+                        showProgressMessage(`✅ Progress photo ${photoNum} uploaded!`, 'success');
+                    } catch (error) {
+                        console.error('Progress photo preview error:', error);
+                        showProgressMessage('❌ Progress photo preview failed.', 'error');
+                    }
+                };
+                
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Progress photo handling error:', error);
+                showProgressMessage('❌ Progress photo upload failed.', 'error');
+            }
+        }
+
+        function removeProgressPhoto(photoNum) {
+            try {
+                progressPhotos[photoNum] = null;
+                
+                document.getElementById(`progress-photo${photoNum}-preview`).classList.add('hidden');
+                document.getElementById(`progress-photo${photoNum}-input`).classList.remove('hidden');
+                
+                // Clear file inputs
+                document.getElementById(`progress-photo${photoNum}-camera`).value = '';
+                document.getElementById(`progress-photo${photoNum}-gallery`).value = '';
+                
+                showProgressMessage(`✅ Progress photo ${photoNum} removed.`, 'success');
+            } catch (error) {
+                console.error('Progress photo removal error:', error);
             }
         }
 
@@ -2309,14 +2635,14 @@
             showMessage(`✅ Photo slot ${newSlotNum} added!`, 'success');
         }
 
-        function addMoreSafetyPhotos() {
-            if (safetyPhotoSlots >= 6) {
-                showSafetyMessage('❌ Maximum 6 photos allowed per safety report.', 'error');
+        function addMoreSafety1Photos() {
+            if (safety1PhotoSlots >= 6) {
+                showSafetyMessage('❌ Maximum 6 photos allowed per safety section.', 'error');
                 return;
             }
 
-            const container = document.getElementById('safety-photos-container');
-            const newSlotNum = safetyPhotoSlots + 1;
+            const container = document.getElementById('safety1-photos-container');
+            const newSlotNum = safety1PhotoSlots + 1;
             
             // Create new photo slot
             const newPhotoSection = document.createElement('div');
@@ -2326,20 +2652,20 @@
             
             newPhotoSection.innerHTML = `
                 <label class="form-label">Safety Photo ${newSlotNum}</label>
-                <div id="safety-photo${newSlotNum}-preview" class="hidden">
-                    <img id="safety-photo${newSlotNum}-img" class="photo-preview">
-                    <div class="photo-name" id="safety-photo${newSlotNum}-name"></div>
-                    <button onclick="removeSafetyPhoto(${newSlotNum})" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                <div id="safety1-photo${newSlotNum}-preview" class="hidden">
+                    <img id="safety1-photo${newSlotNum}-img" class="photo-preview">
+                    <div class="photo-name" id="safety1-photo${newSlotNum}-name"></div>
+                    <button onclick="removeSafety1Photo(${newSlotNum})" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
                 </div>
-                <div id="safety-photo${newSlotNum}-input">
+                <div id="safety1-photo${newSlotNum}-input">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
                         <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
                             📷 Camera
-                            <input type="file" id="safety-photo${newSlotNum}-camera" accept="image/*" capture="environment" style="display: none;">
+                            <input type="file" id="safety1-photo${newSlotNum}-camera" accept="image/*" capture="environment" style="display: none;">
                         </label>
                         <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
                             📁 Gallery
-                            <input type="file" id="safety-photo${newSlotNum}-gallery" accept="image/*" style="display: none;">
+                            <input type="file" id="safety1-photo${newSlotNum}-gallery" accept="image/*" style="display: none;">
                         </label>
                     </div>
                 </div>
@@ -2348,18 +2674,114 @@
             container.appendChild(newPhotoSection);
             
             // Add event listeners for new photo inputs
-            document.getElementById(`safety-photo${newSlotNum}-camera`).addEventListener('change', (e) => handleSafetyPhoto(newSlotNum, e));
-            document.getElementById(`safety-photo${newSlotNum}-gallery`).addEventListener('change', (e) => handleSafetyPhoto(newSlotNum, e));
+            document.getElementById(`safety1-photo${newSlotNum}-camera`).addEventListener('change', (e) => handleSafety1Photo(newSlotNum, e));
+            document.getElementById(`safety1-photo${newSlotNum}-gallery`).addEventListener('change', (e) => handleSafety1Photo(newSlotNum, e));
             
-            safetyPhotoSlots++;
-            updatePhotoSlotDisplay('safety');
+            safety1PhotoSlots++;
+            updatePhotoSlotDisplay('safety1');
             
             showSafetyMessage(`✅ Photo slot ${newSlotNum} added!`, 'success');
         }
 
+        function addMoreSafety2Photos() {
+            if (safety2PhotoSlots >= 6) {
+                showSafetyMessage('❌ Maximum 6 photos allowed per safety section.', 'error');
+                return;
+            }
+
+            const container = document.getElementById('safety2-photos-container');
+            const newSlotNum = safety2PhotoSlots + 1;
+            
+            // Create new photo slot
+            const newPhotoSection = document.createElement('div');
+            newPhotoSection.className = 'photo-section';
+            newPhotoSection.style.width = '100%';
+            newPhotoSection.style.marginBottom = '12px';
+            
+            newPhotoSection.innerHTML = `
+                <label class="form-label">Near-Miss Photo ${newSlotNum}</label>
+                <div id="safety2-photo${newSlotNum}-preview" class="hidden">
+                    <img id="safety2-photo${newSlotNum}-img" class="photo-preview">
+                    <div class="photo-name" id="safety2-photo${newSlotNum}-name"></div>
+                    <button onclick="removeSafety2Photo(${newSlotNum})" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                </div>
+                <div id="safety2-photo${newSlotNum}-input">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                        <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                            📷 Camera
+                            <input type="file" id="safety2-photo${newSlotNum}-camera" accept="image/*" capture="environment" style="display: none;">
+                        </label>
+                        <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                            📁 Gallery
+                            <input type="file" id="safety2-photo${newSlotNum}-gallery" accept="image/*" style="display: none;">
+                        </label>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(newPhotoSection);
+            
+            // Add event listeners for new photo inputs
+            document.getElementById(`safety2-photo${newSlotNum}-camera`).addEventListener('change', (e) => handleSafety2Photo(newSlotNum, e));
+            document.getElementById(`safety2-photo${newSlotNum}-gallery`).addEventListener('change', (e) => handleSafety2Photo(newSlotNum, e));
+            
+            safety2PhotoSlots++;
+            updatePhotoSlotDisplay('safety2');
+            
+            showSafetyMessage(`✅ Photo slot ${newSlotNum} added!`, 'success');
+        }
+
+        function addMoreProgressPhotos() {
+            if (progressPhotoSlots >= 6) {
+                showProgressMessage('❌ Maximum 6 photos allowed per progress section.', 'error');
+                return;
+            }
+
+            const container = document.getElementById('progress-photos-container');
+            const newSlotNum = progressPhotoSlots + 1;
+            
+            // Create new photo slot
+            const newPhotoSection = document.createElement('div');
+            newPhotoSection.className = 'photo-section';
+            newPhotoSection.style.width = '100%';
+            newPhotoSection.style.marginBottom = '12px';
+            
+            newPhotoSection.innerHTML = `
+                <label class="form-label">Progress Photo ${newSlotNum}</label>
+                <div id="progress-photo${newSlotNum}-preview" class="hidden">
+                    <img id="progress-photo${newSlotNum}-img" class="photo-preview">
+                    <div class="photo-name" id="progress-photo${newSlotNum}-name"></div>
+                    <button onclick="removeProgressPhoto(${newSlotNum})" class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 12px;">Remove</button>
+                </div>
+                <div id="progress-photo${newSlotNum}-input">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                        <label class="btn btn-primary" style="font-size: 12px; padding: 10px;">
+                            📷 Camera
+                            <input type="file" id="progress-photo${newSlotNum}-camera" accept="image/*" capture="environment" style="display: none;">
+                        </label>
+                        <label class="btn" style="background: #6b7280; color: white; font-size: 12px; padding: 10px;">
+                            📁 Gallery
+                            <input type="file" id="progress-photo${newSlotNum}-gallery" accept="image/*" style="display: none;">
+                        </label>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(newPhotoSection);
+            
+            // Add event listeners for new photo inputs
+            document.getElementById(`progress-photo${newSlotNum}-camera`).addEventListener('change', (e) => handleProgressPhoto(newSlotNum, e));
+            document.getElementById(`progress-photo${newSlotNum}-gallery`).addEventListener('change', (e) => handleProgressPhoto(newSlotNum, e));
+            
+            progressPhotoSlots++;
+            updatePhotoSlotDisplay('progress');
+            
+            showProgressMessage(`✅ Photo slot ${newSlotNum} added!`, 'success');
+        }
+
         function addMoreQAQCPhotos() {
             if (qaqcPhotoSlots >= 6) {
-                showQualityMessage('❌ Maximum 6 photos allowed per QA/QC report.', 'error');
+                showQualityMessage('❌ Maximum 6 photos allowed per QA/QC section.', 'error');
                 return;
             }
 
@@ -2407,7 +2829,7 @@
 
         function updatePhotoSlotDisplay(type) {
             try {
-                let currentSlots, maxSlots;
+                let currentSlots;
                 
                 if (type === 'activity') {
                     currentSlots = activityPhotoSlots;
@@ -2415,11 +2837,23 @@
                     if (currentSlots >= 6) {
                         document.getElementById('add-activity-photos-btn').style.display = 'none';
                     }
-                } else if (type === 'safety') {
-                    currentSlots = safetyPhotoSlots;
-                    document.getElementById('safety-photo-count').textContent = currentSlots;
+                } else if (type === 'safety1') {
+                    currentSlots = safety1PhotoSlots;
+                    document.getElementById('safety1-photo-count').textContent = currentSlots;
                     if (currentSlots >= 6) {
-                        document.getElementById('add-safety-photos-btn').style.display = 'none';
+                        document.getElementById('add-safety1-photos-btn').style.display = 'none';
+                    }
+                } else if (type === 'safety2') {
+                    currentSlots = safety2PhotoSlots;
+                    document.getElementById('safety2-photo-count').textContent = currentSlots;
+                    if (currentSlots >= 6) {
+                        document.getElementById('add-safety2-photos-btn').style.display = 'none';
+                    }
+                } else if (type === 'progress') {
+                    currentSlots = progressPhotoSlots;
+                    document.getElementById('progress-photo-count').textContent = currentSlots;
+                    if (currentSlots >= 6) {
+                        document.getElementById('add-progress-photos-btn').style.display = 'none';
                     }
                 } else if (type === 'qaqc') {
                     currentSlots = qaqcPhotoSlots;
@@ -2503,12 +2937,13 @@
                     safetyOfficer: safetyOfficer,
                     ppeCompliance: ppeCompliance,
                     safetyObservations: document.getElementById('safety-observations').value || '',
-                    linkedActivity: document.getElementById('linked-activity').value || '',
                     // Section 2: Near-Miss Issues
                     nearMissRecord: document.getElementById('near-miss-record').value || '',
                     nearMissRange: document.getElementById('near-miss-range').value || '',
+                    linkedActivity: document.getElementById('linked-activity').value || '', // Moved to Section 2
                     correctiveActions: document.getElementById('corrective-actions').value || '',
-                    safetyPhotos: JSON.parse(JSON.stringify(safetyPhotos))
+                    safety1Photos: JSON.parse(JSON.stringify(safety1Photos)), // Section 1 photos
+                    safety2Photos: JSON.parse(JSON.stringify(safety2Photos))  // Section 2 photos
                 };
 
                 dailySafetyReports.push(safetyReport);
@@ -2541,7 +2976,8 @@
                     progressRating: progressRating,
                     keyAchievements: keyAchievements || '',
                     issuesChallenges: document.getElementById('issues-challenges').value || '',
-                    tomorrowPlan: document.getElementById('tomorrow-plan').value || ''
+                    tomorrowPlan: document.getElementById('tomorrow-plan').value || '',
+                    progressPhotos: JSON.parse(JSON.stringify(progressPhotos)) // Progress photos
                 };
 
                 dailyProgressReports.push(progressReport);
@@ -2635,8 +3071,8 @@
             try {
                 const formFields = [
                     'safety-status', 'safety-officer', 'ppe-compliance', 
-                    'safety-observations', 'linked-activity',
-                    'near-miss-record', 'near-miss-range', 'corrective-actions'
+                    'safety-observations', 'near-miss-record', 'near-miss-range', 
+                    'linked-activity', 'corrective-actions'
                 ];
                 
                 formFields.forEach(fieldId => {
@@ -2644,13 +3080,19 @@
                     if (field) field.value = '';
                 });
                 
-                // Clear safety photos
-                for (let i = 1; i <= safetyPhotoSlots; i++) {
-                    removeSafetyPhoto(i);
+                // Clear Safety Section 1 photos
+                for (let i = 1; i <= safety1PhotoSlots; i++) {
+                    removeSafety1Photo(i);
+                }
+                
+                // Clear Safety Section 2 photos
+                for (let i = 1; i <= safety2PhotoSlots; i++) {
+                    removeSafety2Photo(i);
                 }
                 
                 // Reset photo slots to default
-                resetPhotoSlots('safety');
+                resetPhotoSlots('safety1');
+                resetPhotoSlots('safety2');
             } catch (error) {
                 console.error('Safety form clearing error:', error);
             }
@@ -2666,6 +3108,14 @@
                     const field = document.getElementById(fieldId);
                     if (field) field.value = '';
                 });
+                
+                // Clear progress photos
+                for (let i = 1; i <= progressPhotoSlots; i++) {
+                    removeProgressPhoto(i);
+                }
+                
+                // Reset photo slots to default
+                resetPhotoSlots('progress');
             } catch (error) {
                 console.error('Progress form clearing error:', error);
             }
@@ -2706,15 +3156,33 @@
                     activityPhotoSlots = 2;
                     document.getElementById('add-activity-photos-btn').style.display = 'inline-flex';
                     updatePhotoSlotDisplay('activity');
-                } else if (type === 'safety') {
-                    const container = document.getElementById('safety-photos-container');
+                } else if (type === 'safety1') {
+                    const container = document.getElementById('safety1-photos-container');
                     const children = container.children;
                     while (children.length > 1) {
                         container.removeChild(children[children.length - 1]);
                     }
-                    safetyPhotoSlots = 2;
-                    document.getElementById('add-safety-photos-btn').style.display = 'inline-flex';
-                    updatePhotoSlotDisplay('safety');
+                    safety1PhotoSlots = 2;
+                    document.getElementById('add-safety1-photos-btn').style.display = 'inline-flex';
+                    updatePhotoSlotDisplay('safety1');
+                } else if (type === 'safety2') {
+                    const container = document.getElementById('safety2-photos-container');
+                    const children = container.children;
+                    while (children.length > 1) {
+                        container.removeChild(children[children.length - 1]);
+                    }
+                    safety2PhotoSlots = 2;
+                    document.getElementById('add-safety2-photos-btn').style.display = 'inline-flex';
+                    updatePhotoSlotDisplay('safety2');
+                } else if (type === 'progress') {
+                    const container = document.getElementById('progress-photos-container');
+                    const children = container.children;
+                    while (children.length > 1) {
+                        container.removeChild(children[children.length - 1]);
+                    }
+                    progressPhotoSlots = 2;
+                    document.getElementById('add-progress-photos-btn').style.display = 'inline-flex';
+                    updatePhotoSlotDisplay('progress');
                 } else if (type === 'qaqc') {
                     const container = document.getElementById('qaqc-photos-container');
                     const children = container.children;
@@ -2801,21 +3269,22 @@
                                 <div class="report-timestamp">${report.timestamp}</div>
                             </div>
                             <div>
-                                <div style="font-weight: 600; color: #1e40af; margin-bottom: 8px;">Section 1: Overall Safety Performance</div>
+                                <div style="font-weight: 600; color: #dc2626; margin-bottom: 8px;">Section 1: Overall Safety Performance</div>
                                 <div><strong>🛡️ Status:</strong> ${report.safetyStatus}</div>
                                 <div><strong>👮 Officer:</strong> ${report.safetyOfficer}</div>
                                 <div><strong>🦺 PPE:</strong> ${report.ppeCompliance}</div>
                                 ${report.safetyObservations ? `<div><strong>📝 Observations:</strong> ${report.safetyObservations}</div>` : ''}
-                                ${report.linkedActivity ? `<div><strong>🔗 Linked Activity:</strong> ${report.linkedActivity}</div>` : ''}
                                 
-                                ${report.nearMissRecord || report.nearMissRange || report.correctiveActions ? `
+                                ${report.nearMissRecord || report.nearMissRange || report.linkedActivity || report.correctiveActions ? `
                                     <div style="font-weight: 600; color: #dc2626; margin: 12px 0 8px 0;">Section 2: Near-Miss Issues</div>
                                     ${report.nearMissRecord ? `<div><strong>⚠️ Near-Miss Record:</strong> ${report.nearMissRecord}</div>` : ''}
                                     ${report.nearMissRange ? `<div><strong>🎯 Risk Level:</strong> ${report.nearMissRange}</div>` : ''}
+                                    ${report.linkedActivity ? `<div><strong>🔗 Linked Activity:</strong> ${report.linkedActivity}</div>` : ''}
                                     ${report.correctiveActions ? `<div><strong>🔧 Corrective Actions:</strong> ${report.correctiveActions}</div>` : ''}
                                 ` : ''}
                                 
-                                ${getSafetyPhotosHTML(report.safetyPhotos)}
+                                ${getSafety1PhotosHTML(report.safety1Photos)}
+                                ${getSafety2PhotosHTML(report.safety2Photos)}
                                 <button class="delete-btn" onclick="deleteSafetyReport(${index})" style="margin-top: 8px;">🗑️ Delete</button>
                             </div>
                         </div>
@@ -2850,6 +3319,7 @@
                                 ${report.keyAchievements ? `<div><strong>🎯 Achievements:</strong> ${report.keyAchievements}</div>` : ''}
                                 ${report.issuesChallenges ? `<div><strong>⚠️ Issues:</strong> ${report.issuesChallenges}</div>` : ''}
                                 ${report.tomorrowPlan ? `<div><strong>📅 Tomorrow:</strong> ${report.tomorrowPlan}</div>` : ''}
+                                ${getProgressPhotosHTML(report.progressPhotos)}
                                 <button class="delete-btn" onclick="deleteProgressReport(${index})" style="margin-top: 8px;">🗑️ Delete</button>
                             </div>
                         </div>
@@ -2944,6 +3414,63 @@
                 return '';
             } catch (error) {
                 console.error('Safety photos HTML error:', error);
+                return '';
+            }
+        }
+
+        function getSafety1PhotosHTML(safety1Photos) {
+            try {
+                const photoElements = [];
+                for (let i = 1; i <= 6; i++) {
+                    if (safety1Photos && safety1Photos[i] && safety1Photos[i].data) {
+                        photoElements.push(`<img src="${safety1Photos[i].data}" alt="Safety Performance Photo ${i}" class="activity-photo">`);
+                    }
+                }
+                
+                if (photoElements.length > 0) {
+                    return `<div style="margin-top: 8px;"><strong>🛡️ Safety Performance Photos:</strong><div class="activity-photos">${photoElements.join('')}</div></div>`;
+                }
+                return '';
+            } catch (error) {
+                console.error('Safety1 photos HTML error:', error);
+                return '';
+            }
+        }
+
+        function getSafety2PhotosHTML(safety2Photos) {
+            try {
+                const photoElements = [];
+                for (let i = 1; i <= 6; i++) {
+                    if (safety2Photos && safety2Photos[i] && safety2Photos[i].data) {
+                        photoElements.push(`<img src="${safety2Photos[i].data}" alt="Near-Miss Photo ${i}" class="activity-photo">`);
+                    }
+                }
+                
+                if (photoElements.length > 0) {
+                    return `<div style="margin-top: 8px;"><strong>⚠️ Near-Miss Photos:</strong><div class="activity-photos">${photoElements.join('')}</div></div>`;
+                }
+                return '';
+            } catch (error) {
+                console.error('Safety2 photos HTML error:', error);
+                return '';
+            }
+        }
+
+        function getProgressPhotosHTML(progressPhotos) {
+            try {
+                const photoElements = [];
+                for (let i = 1; i <= 6; i++) {
+                    if (progressPhotos && progressPhotos[i] && progressPhotos[i].data) {
+                        photoElements.push(`<img src="${progressPhotos[i].data}" alt="Progress Photo ${i}" class="activity-photo">`);
+                    }
+                }
+                
+                if (photoElements.length > 0) {
+                    return `<div style="margin-top: 8px;"><strong>📈 Progress Photos:</strong><div class="activity-photos">${photoElements.join('')}</div></div>`;
+                }
+                return '';
+            } catch (error) {
+                console.error('Progress photos HTML error:', error);
                 return '';
             }
         }
@@ -3322,8 +3849,8 @@
                 if (dailySafetyReports.length > 0) {
                     csvContent += `SAFETY REPORTS\n`;
                     const safetyHeaders = [
-                        'Safety Status', 'Safety Officer', 'PPE Compliance', 'Safety Observations', 'Linked Activity',
-                        'Near-Miss Record', 'Near-Miss Risk Level', 'Corrective Actions', 'Safety Photos', 'Timestamp'
+                        'Safety Status', 'Safety Officer', 'PPE Compliance', 'Safety Observations',
+                        'Near-Miss Record', 'Near-Miss Risk Level', 'Linked Activity', 'Corrective Actions', 'Safety Photos', 'Timestamp'
                     ];
                     csvContent += safetyHeaders.join(',') + '\n';
                     
@@ -3340,9 +3867,9 @@
                             `"${safety.safetyOfficer || ''}"`,
                             `"${safety.ppeCompliance || ''}"`,
                             `"${(safety.safetyObservations || '').replace(/"/g, '""')}"`,
-                            `"${safety.linkedActivity || ''}"`,
                             `"${(safety.nearMissRecord || '').replace(/"/g, '""')}"`,
                             `"${safety.nearMissRange || ''}"`,
+                            `"${safety.linkedActivity || ''}"`,
                             `"${(safety.correctiveActions || '').replace(/"/g, '""')}"`,
                             `"${safetyPhotosList.join('; ')}"`,
                             `"${safety.timestamp || ''}"`
@@ -3707,3 +4234,4 @@
     </script>
 </body>
 </html>
+            
